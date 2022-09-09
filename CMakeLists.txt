@@ -5,8 +5,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(fogl VERSION 1.0.0 DESCRIPTION "Lightweight C++/OpenGL Game Engine.")
 
-add_library(${CMAKE_PROJECT_NAME} SHARED 
-    src/glad.c
+add_library(${PROJECT_NAME} STATIC 
+    dep/glad/src/glad.c 
+    src/debugostream.cpp
     src/glanimatedobject.cpp
     src/glcamera.cpp
     src/glcubemap.cpp
@@ -26,18 +27,28 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
     src/gltimemeasure.cpp
     src/gltriangle.cpp
     src/stb_image.cpp
+    src/taskscheduler.cpp
 )
 
-set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 
-set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES SOVERSION 1)
+set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
 
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE include)
+target_include_directories(${PROJECT_NAME} PRIVATE include
+    dep/glad/include
+    dep/glm
+    dep/stb
+    dep/json/include 
+)
 
-set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/*.h)
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/*.h)
 
 include(GNUInstallDirs)
 
-install(TARGETS ${CMAKE_PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} glfw opengl32)
+add_subdirectory(dep/glfw-3.3.7)
+add_subdirectory(dep/json)
+
+install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
