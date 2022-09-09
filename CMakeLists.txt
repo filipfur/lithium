@@ -28,6 +28,7 @@ add_library(${PROJECT_NAME} STATIC
     src/gltriangle.cpp
     src/stb_image.cpp
     src/taskscheduler.cpp
+    src/tinyobjloader.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
@@ -38,14 +39,21 @@ target_include_directories(${PROJECT_NAME} PRIVATE include
     dep/glad/include
     dep/glm
     dep/stb
-    dep/json/include 
+    dep/json/include
+    dep/tinyobjloader
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/*.h)
 
 include(GNUInstallDirs)
 
-target_link_libraries(${PROJECT_NAME} glfw opengl32)
+if (WIN32) 
+    target_link_libraries(${PROJECT_NAME} glfw opengl32)
+else ()
+    target_link_libraries(${PROJECT_NAME} glfw
+        "-framework OpenGL")
+endif ()
+
 add_subdirectory(dep/glfw-3.3.7)
 add_subdirectory(dep/json)
 
