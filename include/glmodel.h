@@ -16,6 +16,7 @@
 #include <vector>
 #include "glassimp_glm_helpers.h"
 #include "glanimdata.h"
+#include "glanimator.h"
 #include "glmesh.h"
 #include "iupdateable.h"
 
@@ -24,34 +25,35 @@
 
 namespace lithium
 {
+    class Animation;
 
     class Model : public IUpdateable
     {
     public:
-        // model data 
-        std::vector<lithium::Texture*> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-        std::vector<lithium::Object*> _objects;
-        lithium::ShaderProgram* _shaderProgram;
-        std::string _directory;
-        
-
-        // constructor, expects a filepath to a 3D model.
-        Model(std::string const &path)
-        {
-            loadModel(path);
-        }
-
-        void setShaderProgram(lithium::ShaderProgram* shaderProgram)
+        Model(std::string const &path, lithium::ShaderProgram* shaderProgram) : _shaderProgram{shaderProgram}
         {
             shaderProgram->use();
             shaderProgram->setUniform("u_texture_0", 0);
             shaderProgram->setUniform("u_specular_0", 1);
             shaderProgram->setUniform("u_normal_0", 2);
+            loadModel(path);
+        }
+
+        void loadAnimation(const std::string path)
+        {
+            auto animation = new lithium::Animation(path, m_BoneInfoMap, m_BoneCounter);
+            _animations.push_back(animation);
+            _animator.playAnimation(animation);
+        }
+
+        void setShaderProgram(lithium::ShaderProgram* shaderProgram)
+        {
             _shaderProgram = shaderProgram;
         }
 
         virtual void update(float dt) override
         {
+            _animator.UpdateAnimation(dt);
             for(auto obj : _objects)
             {
                 obj->update(dt);
@@ -61,6 +63,7 @@ namespace lithium
         void render()
         {
             _shaderProgram->use();
+            _animator.animate(_shaderProgram);
             for(auto obj : _objects)
             {
                 obj->shade(_shaderProgram);
@@ -70,6 +73,11 @@ namespace lithium
         
         auto& GetBoneInfoMap() { return m_BoneInfoMap; }
         int& GetBoneCount() { return m_BoneCounter; }
+
+        lithium::Object* object()
+        {
+            return _objects.size() == 0 ? nullptr : _objects.at(0);
+        }
 
         lithium::Object* object(size_t index)
         {
@@ -84,6 +92,12 @@ namespace lithium
 
     private:
 
+        std::vector<lithium::Texture*> textures_loaded;
+        std::vector<lithium::Object*> _objects;
+        lithium::ShaderProgram* _shaderProgram{nullptr};
+        std::string _directory;
+        lithium::Animator _animator;
+        std::vector<lithium::Animation*> _animations;
         std::map<std::string, BoneInfo> m_BoneInfoMap;
         int m_BoneCounter = 0;
 
@@ -263,13 +277,6 @@ namespace lithium
                     normalMaps.push_back(new lithium::Texture(normalName, GL_RGB, GL_RGBA, GL_LINEAR, GL_REPEAT, GL_TEXTURE2));
                 }
             }
-
-            /*std::vector<lithium::Texture*> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "u_specular", GL_RGB, GL_RGBA, GL_LINEAR, GL_REPEAT, GL_TEXTURE1);
-            textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-            std::vector<lithium::Texture*> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "u_normal", GL_RGB, GL_RGBA, GL_LINEAR, GL_REPEAT, GL_TEXTURE2);
-            textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-            std::vector<lithium::Texture*> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "u_height", GL_RGB, GL_RGBA, GL_LINEAR, GL_REPEAT, GL_TEXTURE3);
-            textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());*/
 
             ExtractBoneWeightForVertices(meshVertices, mesh, scene);
 

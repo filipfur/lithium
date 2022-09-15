@@ -7,7 +7,6 @@
 #include "glbone.h"
 #include <functional>
 #include "glanimdata.h"
-#include "glmodel.h"
 
 namespace lithium
 {
@@ -24,7 +23,7 @@ namespace lithium
 	public:
 		Animation() = default;
 
-		Animation(const std::string& animationPath, lithium::Model* model)
+		Animation(const std::string& animationPath, std::map<std::string, BoneInfo>& boneInfoMap, int boneCount)
 		{
 			Assimp::Importer importer;
 			const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
@@ -35,7 +34,7 @@ namespace lithium
 			aiMatrix4x4 globalTransformation = scene->mRootNode->mTransformation;
 			globalTransformation = globalTransformation.Inverse();
 			ReadHeirarchyData(m_RootNode, scene->mRootNode);
-			ReadMissingBones(animation, *model);
+			ReadMissingBones(animation, boneInfoMap, boneCount);
 		}
 
 		~Animation()
@@ -64,12 +63,9 @@ namespace lithium
 		}
 
 	private:
-		void ReadMissingBones(const aiAnimation* animation, lithium::Model& model)
+		void ReadMissingBones(const aiAnimation* animation, std::map<std::string, BoneInfo>& boneInfoMap, int boneCount)
 		{
 			int size = animation->mNumChannels;
-
-			auto& boneInfoMap = model.GetBoneInfoMap();//getting m_BoneInfoMap from Model class
-			int& boneCount = model.GetBoneCount(); //getting the m_BoneCounter from Model class
 
 			//reading channels(bones engaged in an animation and their keyframes)
 			for (int i = 0; i < size; i++)
@@ -79,7 +75,9 @@ namespace lithium
 
 				if (boneInfoMap.find(boneName) == boneInfoMap.end())
 				{
-					boneInfoMap[boneName].id = boneCount;
+					BoneInfo boneInfo{};
+					boneInfo.id = boneCount;
+					boneInfoMap.emplace(boneName, boneInfo);
 					boneCount++;
 				}
 				m_Bones.push_back(Bone(channel->mNodeName.data,

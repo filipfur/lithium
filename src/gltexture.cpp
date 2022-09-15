@@ -9,6 +9,10 @@ lithium::Texture::Texture(const std::string& name, GLenum internalFormat, GLenum
 {
 	stbi_set_flip_vertically_on_load(flip);
 	_bytes = stbi_load(name.c_str(), &_width, &_height, &_colorChannels, 0);
+	if(_colorChannels == 3)
+	{
+		_colorFormat = GL_RGB;
+	}
 	if (_bytes == nullptr)
 	{
 		std::cerr << stbi_failure_reason() << std::endl;
