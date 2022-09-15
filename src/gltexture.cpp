@@ -2,9 +2,9 @@
 
 #include <iostream>
 #include <stb_image.h>
-#include "debugostream.h"
+#include "gldebugostream.h"
 
-mygl::Texture::Texture(const std::string& name, GLenum internalFormat, GLenum colorFormat, GLuint filter, GLuint textureWrap, GLuint textureUnit, GLuint unpackAlignment, bool flip) : _bytes { nullptr }, _name{name},
+lithium::Texture::Texture(const std::string& name, GLenum internalFormat, GLenum colorFormat, GLuint filter, GLuint textureWrap, GLuint textureUnit, GLuint unpackAlignment, bool flip) : _bytes { nullptr }, _name{name},
 	_internalFormat{internalFormat}, _colorFormat{colorFormat}, _filter{filter}, _textureWrap{textureWrap}, _textureUnit{textureUnit}, _unpackAlignment{unpackAlignment}
 {
 	stbi_set_flip_vertically_on_load(flip);
@@ -17,14 +17,14 @@ mygl::Texture::Texture(const std::string& name, GLenum internalFormat, GLenum co
 	stbi_image_free(_bytes);
 }
 
-mygl::Texture::Texture(unsigned char* buffer, int width, int height, GLenum internalFormat,
+lithium::Texture::Texture(unsigned char* buffer, int width, int height, GLenum internalFormat,
 	GLenum colorFormat, GLuint filter, GLuint textureWrap, GLuint textureUnit,  GLuint unpackAlignment) : _bytes{buffer}, _width{width}, _height{height},
 	_internalFormat{internalFormat}, _colorFormat{colorFormat}, _filter{filter}, _textureWrap{textureWrap}, _textureUnit{textureUnit}, _unpackAlignment{unpackAlignment}
 {
 	load();
 }
 
-void mygl::Texture::load()
+void lithium::Texture::load()
 {
 	glGenTextures(1, &_id);
 	//glActiveTexture(slot);
@@ -47,15 +47,15 @@ void mygl::Texture::load()
 	unbind();
 }
 
-mygl::Texture::~Texture() noexcept
+lithium::Texture::~Texture() noexcept
 {
 	glDeleteTextures(1, &_id);
 }
 
-GLuint mygl::Texture::_active{0};
-const mygl::Texture* mygl::Texture::_bound[3] = {nullptr, nullptr, nullptr};
+GLuint lithium::Texture::_active{0};
+const lithium::Texture* lithium::Texture::_bound[3] = {nullptr, nullptr, nullptr};
 
-void mygl::Texture::bind()
+void lithium::Texture::bind()
 {
 	activate();
 	int index = _textureUnit - GL_TEXTURE0;
@@ -68,9 +68,9 @@ void mygl::Texture::bind()
 	}
 }
 
-unsigned int mygl::Texture::_bindCount{0};
+unsigned int lithium::Texture::_bindCount{0};
 
-void mygl::Texture::subdivide(size_t x, size_t y) // not tested
+void lithium::Texture::subdivide(size_t x, size_t y) // not tested
 {
 	_regionSize.x = _width / x;
 	_regionSize.y = _height / y;
@@ -84,7 +84,7 @@ void mygl::Texture::subdivide(size_t x, size_t y) // not tested
 	_atlas = true;
 }
 
-void mygl::Texture::activate()
+void lithium::Texture::activate()
 {
 	if(_active != _textureUnit)
 	{
@@ -93,7 +93,7 @@ void mygl::Texture::activate()
 	}
 }
 
-void mygl::Texture::unbind()
+void lithium::Texture::unbind()
 {
 	_bound[_textureUnit - GL_TEXTURE0] = nullptr;
 	glBindTexture(GL_TEXTURE_2D, 0);

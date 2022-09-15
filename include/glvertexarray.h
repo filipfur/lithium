@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 #include "glbuffer.h"
 
-namespace mygl
+namespace lithium
 {
 	class VertexArray
 	{

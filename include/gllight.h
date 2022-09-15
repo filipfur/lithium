@@ -4,19 +4,19 @@
 
 #include "glshaderprogram.h"
 
-namespace mygl
+namespace lithium
 {
     class Light : public Object
     {
     public:
-        Light(mygl::Mesh* mesh, mygl::ShaderProgram* shaderProgram);
+        Light(lithium::Mesh* mesh);
         Light(const Light& other);
         Light(const Object& other);
         virtual ~Light() noexcept;
 
         
 
-        void attachShader(mygl::ShaderProgram* shaderProgram)
+        void attachShader(lithium::ShaderProgram* shaderProgram)
         {
             _attachedShaders.push_back(shaderProgram);
         }
@@ -24,7 +24,7 @@ namespace mygl
     protected:
         virtual void updateModel() override
         {
-            mygl::Object::updateModel();
+            lithium::Object::updateModel();
             for(auto shader : _attachedShaders)
             {
                 shader->use();
@@ -34,6 +34,6 @@ namespace mygl
         }
 
     private:
-        std::vector<mygl::ShaderProgram*> _attachedShaders;
+        std::vector<lithium::ShaderProgram*> _attachedShaders;
     };
 }

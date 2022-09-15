@@ -4,7 +4,7 @@
 #include <string>
 #include <functional>
 
-namespace mygl
+namespace lithium
 {
     class Menu;
 
@@ -19,7 +19,7 @@ namespace mygl
             return _label;
         }
 
-        virtual bool perform(mygl::Menu* parent)
+        virtual bool perform(lithium::Menu* parent)
         {
             if(_callback)
             {
@@ -34,19 +34,19 @@ namespace mygl
             return _enabled;
         }
 
-        mygl::MenuItem* setEnabled(bool enabled)
+        lithium::MenuItem* setEnabled(bool enabled)
         {
             _enabled = enabled;
             return this;
         }
 
-        mygl::MenuItem* setCallback(std::function<void(mygl::MenuItem*)> callback)
+        lithium::MenuItem* setCallback(std::function<void(lithium::MenuItem*)> callback)
         {
             _callback = callback;
             return this;
         }
 
-        mygl::MenuItem* setId(int id)
+        lithium::MenuItem* setId(int id)
         {
             _id = id;
             return this;
@@ -57,7 +57,7 @@ namespace mygl
     protected:
         std::string _label;
         bool _enabled{true};
-        std::function<void(mygl::MenuItem*)> _callback;
+        std::function<void(lithium::MenuItem*)> _callback;
         int _id{-1};
     };
 }

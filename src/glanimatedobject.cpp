@@ -1,30 +1,30 @@
 #include "glanimatedobject.h"
 
-mygl::AnimatedObject::AnimatedObject(std::shared_ptr<std::vector<mygl::Mesh*>> meshes, mygl::ShaderProgram* shaderProgram, mygl::Texture* texture, mygl::Texture* specular)
-    : mygl::Object{meshes->at(0), shaderProgram, texture, specular}, _meshes{meshes}
+lithium::AnimatedObject::AnimatedObject(std::shared_ptr<std::vector<lithium::Mesh*>> meshes, lithium::Texture* texture, lithium::Texture* specular)
+    : lithium::Object{meshes->at(0), texture, specular}, _meshes{meshes}
 {
     _currentFrame = _meshes->begin();
 }
 
-mygl::AnimatedObject::AnimatedObject(const mygl::AnimatedObject& other) : mygl::Object{other}, _iAnimatedObject{other._iAnimatedObject}, _looping{other._looping}, _playing{other._playing}, _interval{other._interval}, _duration{other._interval}
+lithium::AnimatedObject::AnimatedObject(const lithium::AnimatedObject& other) : lithium::Object{other}, _iAnimatedObject{other._iAnimatedObject}, _looping{other._looping}, _playing{other._playing}, _interval{other._interval}, _duration{other._interval}
 {
     _meshes = other._meshes;
     _currentFrame = _meshes->begin();
 }
 
-mygl::AnimatedObject::AnimatedObject(const mygl::Object& other) : mygl::Object{other}
+lithium::AnimatedObject::AnimatedObject(const lithium::Object& other) : lithium::Object{other}
 {
 
 }
 
-mygl::AnimatedObject::~AnimatedObject() noexcept
+lithium::AnimatedObject::~AnimatedObject() noexcept
 {
 
 }
 
-void mygl::AnimatedObject::update(float dt)
+void lithium::AnimatedObject::update(float dt)
 {
-    mygl::Object::update(dt);
+    lithium::Object::update(dt);
     if(!_playing)
     {
         return;

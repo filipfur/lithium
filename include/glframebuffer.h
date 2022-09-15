@@ -3,7 +3,7 @@
 #include "glelement.h"
 #include "glrenderbuffer.h"
 
-namespace mygl
+namespace lithium
 {
     class FrameBuffer : public Element
     {

@@ -2,13 +2,13 @@
 
 #include "iobject.h"
 
-namespace mygl
+namespace lithium
 {
     class AnimatedObject;
 
     class IAnimatedObject : public IObject
     {
     public:
-        virtual void onAnimationPlayedOnce(mygl::AnimatedObject* animatedObject) = 0;
+        virtual void onAnimationPlayedOnce(lithium::AnimatedObject* animatedObject) = 0;
     };
 }

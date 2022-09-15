@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-namespace mygl
+namespace lithium
 {
     class Element
     {

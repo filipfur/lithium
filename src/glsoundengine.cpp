@@ -1,16 +1,16 @@
 #include "glsoundengine.h"
 
-mygl::SoundEngine::SoundEngine()
+lithium::SoundEngine::SoundEngine()
 {
     
 }
 
-mygl::SoundEngine::~SoundEngine() noexcept
+lithium::SoundEngine::~SoundEngine() noexcept
 {
 }
 
-mygl::SoundEngine& mygl::SoundEngine::getInstance()
+lithium::SoundEngine& lithium::SoundEngine::getInstance()
 {
-    static mygl::SoundEngine instance;
+    static lithium::SoundEngine instance;
     return instance;
 }

@@ -2,7 +2,7 @@
 
 #include "glelement.h"
 
-namespace mygl
+namespace lithium
 {
     class RenderBuffer : public Element
     {

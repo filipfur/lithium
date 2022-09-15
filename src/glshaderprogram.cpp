@@ -1,25 +1,21 @@
 #include "glshaderprogram.h"
 
-mygl::ShaderProgram* mygl::ShaderProgram::_inUse{nullptr};
-unsigned int mygl::ShaderProgram::_bindCount{0};
+lithium::ShaderProgram* lithium::ShaderProgram::_inUse{nullptr};
+unsigned int lithium::ShaderProgram::_bindCount{0};
 
-mygl::ShaderProgram::ShaderProgram(const mygl::ShaderProgram& other) : _vertexShader{other._vertexShader}, _fragmentShader{other._fragmentShader}
+lithium::ShaderProgram::ShaderProgram(const lithium::ShaderProgram& other) : _vertexShader{other._vertexShader}, _fragmentShader{other._fragmentShader}
 {
     _id = glCreateProgram();
-    glAttachShader(_id, _vertexShader.id());
-    glAttachShader(_id, _fragmentShader.id());
-    glLinkProgram(_id);
+    link();
 }
 
-mygl::ShaderProgram::ShaderProgram(std::string &&vertexShaderFile, std::string &&fragmentShaderFile) : _vertexShader{std::move(vertexShaderFile)}, _fragmentShader{std::move(fragmentShaderFile)}
+lithium::ShaderProgram::ShaderProgram(std::string &&vertexShaderFile, std::string &&fragmentShaderFile) : _vertexShader{std::move(vertexShaderFile)}, _fragmentShader{std::move(fragmentShaderFile)}
 {
     _id = glCreateProgram();
-    glAttachShader(_id, _vertexShader.id());
-    glAttachShader(_id, _fragmentShader.id());
-    glLinkProgram(_id);
+    link();
 }
 
-GLuint mygl::ShaderProgram::loadUniform(const std::string &name)
+GLuint lithium::ShaderProgram::loadUniform(const std::string &name)
 {
     use();
     GLuint id = 0;
@@ -27,6 +23,10 @@ GLuint mygl::ShaderProgram::loadUniform(const std::string &name)
     if (it == _uniforms.end())
     {
         id = glGetUniformLocation(_id, name.c_str());
+        if(id == INVALID_LOCATION)
+        {
+            std::cerr << "Failed to load uniform: " << name << std::endl;
+        }
         _uniforms.emplace(name, id);
     }
     else
@@ -36,8 +36,24 @@ GLuint mygl::ShaderProgram::loadUniform(const std::string &name)
     return id;
 }
 
-void mygl::ShaderProgram::use()
+void lithium::ShaderProgram::use()
 {
+    bool compiledShader{false};
+    if(!_fragmentShader.valid())
+    {
+        _fragmentShader.compile();
+        compiledShader = true;
+    }
+    if(!_vertexShader.valid())
+    {
+        _vertexShader.compile();
+        compiledShader = true;
+    }
+    if(compiledShader)
+    {
+        link();
+    }
+
     if(_inUse != this)
     {
         glUseProgram(_id);

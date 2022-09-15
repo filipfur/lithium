@@ -4,7 +4,7 @@
 #include <functional>
 #include "glmenuitem.h"
 
-namespace mygl
+namespace lithium
 {
     template <class T>
     class MenuOption : public MenuItem

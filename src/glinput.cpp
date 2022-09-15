@@ -1,7 +1,7 @@
 #include "glinput.h"
 #include <iostream>
 
-mygl::Input::Input(GLFWwindow* window) : _window{ window }, _controller{}, _up{0.0f, 1.0f, 0.0f}
+lithium::Input::Input(GLFWwindow* window) : _window{ window }, _controller{}, _up{0.0f, 1.0f, 0.0f}
 {
 	glfwSetWindowUserPointer(window, this);
 	glfwSetKeyCallback(window, onKeyStatic);
@@ -12,12 +12,12 @@ mygl::Input::Input(GLFWwindow* window) : _window{ window }, _controller{}, _up{0
 	glfwGetWindowSize(window, &_width, &_height);
 }
 
-mygl::Input::~Input() noexcept
+lithium::Input::~Input() noexcept
 {
 
 }
 
-void mygl::Input::onKey(GLFWwindow *window, int key, int scanCode, int action, int mods)
+void lithium::Input::onKey(GLFWwindow *window, int key, int scanCode, int action, int mods)
 {
 	float speed = 0.0f;
 	glm::vec3 delta = glm::vec3(0.0f);
@@ -96,7 +96,7 @@ void mygl::Input::onKey(GLFWwindow *window, int key, int scanCode, int action, i
 	//_position += speed * orientation;
 }
 
-void mygl::Input::onMouse(GLFWwindow *window, int button, int action, int mods)
+void lithium::Input::onMouse(GLFWwindow *window, int button, int action, int mods)
 {
 	//TODO: DUPLICATED CODE check just above.
 	if(_context != nullptr)
@@ -128,7 +128,7 @@ void mygl::Input::onMouse(GLFWwindow *window, int button, int action, int mods)
 	}
 }
 
-void mygl::Input::onScroll(GLFWwindow *window, double xoffset, double yoffset)
+void lithium::Input::onScroll(GLFWwindow *window, double xoffset, double yoffset)
 {
 	if(_context)
 	{
@@ -140,7 +140,7 @@ void mygl::Input::onScroll(GLFWwindow *window, double xoffset, double yoffset)
 	}
 }
 
-void mygl::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
+void lithium::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
 {
 		/*if (firstClick)
 		{
@@ -172,10 +172,10 @@ void mygl::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
 	//glfwSetCursorPos(window, _width / 2, _height / 2);
 }
 
-void mygl::Input::onText(GLFWwindow *window, unsigned int codepoint)
+void lithium::Input::onText(GLFWwindow *window, unsigned int codepoint)
 {
 	char c = codepoint;
-	//std::cout << "mygl::Input::onText(): " << c << std::endl;
+	//std::cout << "lithium::Input::onText(): " << c << std::endl;
 	if(_typewriteCallbacks[_context])
 	{
 		_typewriteCallbacks[_context](c);

@@ -1,12 +1,12 @@
 #include "glcamera.h"
 
-mygl::Camera::Camera(const glm::mat4& projection, const glm::vec3& position, const glm::vec3& orientation, const glm::vec3& up)
+lithium::Camera::Camera(const glm::mat4& projection, const glm::vec3& position, const glm::vec3& orientation, const glm::vec3& up)
 	: _projection{projection}, _position{ position }, _orientation{orientation}, _up{up}, _offset{0.0f}
 {
 	
 }
 
-bool mygl::Camera::followWaypoints(float dt)
+bool lithium::Camera::followWaypoints(float dt)
 {
 	bool rval = false;
 	if(_currentWaypoint != nullptr)
@@ -44,7 +44,7 @@ bool mygl::Camera::followWaypoints(float dt)
 	return rval;
 }
 
-void mygl::Camera::update(float dt)
+void lithium::Camera::update(float dt)
 {
 	if(!followWaypoints(dt))
 	{
@@ -66,7 +66,7 @@ void mygl::Camera::update(float dt)
 	}
 }
 
-void mygl::Camera::updateShaders()
+void lithium::Camera::updateShaders()
 {
 	for(auto shader : _attachedShaders)
 	{
@@ -76,32 +76,32 @@ void mygl::Camera::updateShaders()
 	}
 }
 
-glm::mat4 mygl::Camera::matrix()
+glm::mat4 lithium::Camera::matrix()
 {
 	return _matrix;
 }
 
-glm::mat4 mygl::Camera::rotationMatrix() const
+glm::mat4 lithium::Camera::rotationMatrix() const
 {
 	return _rotationMatrix;
 }
 
-void mygl::Camera::rotateX(float rotX)
+void lithium::Camera::rotateX(float rotX)
 {
 	_orientation = glm::rotate(_orientation, glm::radians(rotX), glm::normalize(glm::cross(_orientation, _up)));
 }
 
-void mygl::Camera::rotateY(float rotY)
+void lithium::Camera::rotateY(float rotY)
 {
 	_orientation = glm::rotate(_orientation, glm::radians(rotY), _up);
 }
 
-void mygl::Camera::rotateZ(float rotZ)
+void lithium::Camera::rotateZ(float rotZ)
 {
 	_orientation = glm::rotate(_orientation, glm::radians(rotZ), glm::vec3{0.0f, 0.0f, 1.0f}); // ????
 }
 
-void mygl::Camera::lookDown()
+void lithium::Camera::lookDown()
 {
 	rotateX(-90.0f);
 }

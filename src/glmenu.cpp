@@ -1,16 +1,16 @@
 #include "glmenu.h"
 
-mygl::Menu::Menu(const std::string& label, const std::vector<MenuItem*>& menuItems) : MenuItem{label}, _menuItems{menuItems}
+lithium::Menu::Menu(const std::string& label, const std::vector<MenuItem*>& menuItems) : MenuItem{label}, _menuItems{menuItems}
 {
 
 }
 
-mygl::Menu::~Menu() noexcept
+lithium::Menu::~Menu() noexcept
 {
 
 }
 
-mygl::MenuItem* mygl::Menu::next()
+lithium::MenuItem* lithium::Menu::next()
 {
     if(_expanded)
     {
@@ -32,18 +32,18 @@ mygl::MenuItem* mygl::Menu::next()
     return nullptr;
 }
 
-std::vector<mygl::MenuItem*>::iterator mygl::Menu::begin()
+std::vector<lithium::MenuItem*>::iterator lithium::Menu::begin()
 {
     return _menuItems.begin();
 }
 
-mygl::Menu* mygl::Menu::setIterator(std::vector<mygl::MenuItem*>::iterator it)
+lithium::Menu* lithium::Menu::setIterator(std::vector<lithium::MenuItem*>::iterator it)
 {
     _menuIterator = it;
     return this;
 }
 
-mygl::MenuItem* mygl::Menu::current()
+lithium::MenuItem* lithium::Menu::current()
 {
     if(_expanded)
     {
@@ -57,7 +57,7 @@ mygl::MenuItem* mygl::Menu::current()
 }
 
 
-mygl::MenuItem* mygl::Menu::previous()
+lithium::MenuItem* lithium::Menu::previous()
 {
     if(_expanded)
     {
@@ -82,7 +82,7 @@ mygl::MenuItem* mygl::Menu::previous()
     return nullptr;
 }
 
-void mygl::Menu::enter()
+void lithium::Menu::enter()
 {
     if(_expanded)
     {
@@ -100,7 +100,7 @@ void mygl::Menu::enter()
     }
 }
 
-mygl::Menu* mygl::Menu::bottomLevel()
+lithium::Menu* lithium::Menu::bottomLevel()
 {
     if(_expanded)
     {
@@ -109,7 +109,7 @@ mygl::Menu* mygl::Menu::bottomLevel()
     return this;
 }
 
-mygl::Menu* mygl::Menu::topLevel()
+lithium::Menu* lithium::Menu::topLevel()
 {
     if(_parent)
     {
@@ -118,9 +118,9 @@ mygl::Menu* mygl::Menu::topLevel()
     return this;
 }
 
-bool mygl::Menu::back()
+bool lithium::Menu::back()
 {
-    mygl::Menu* menu = bottomLevel();
+    lithium::Menu* menu = bottomLevel();
     menu = menu->parent();
     if(menu)
     {
@@ -130,7 +130,7 @@ bool mygl::Menu::back()
     return false;
 }
 
-mygl::MenuItem* mygl::Menu::itemAt(size_t index)
+lithium::MenuItem* lithium::Menu::itemAt(size_t index)
 {
     if(_expanded)
     {
@@ -143,16 +143,16 @@ mygl::MenuItem* mygl::Menu::itemAt(size_t index)
     return _menuItems.at(index);
 }
 
-std::string mygl::Menu::label() const
+std::string lithium::Menu::label() const
 {
     if(_expanded)
     {
         return _expanded->label();
     }
-    return mygl::MenuItem::label();
+    return lithium::MenuItem::label();
 }
 
-bool mygl::Menu::perform(mygl::Menu* parent)
+bool lithium::Menu::perform(lithium::Menu* parent)
 {
     setParent(parent);
     parent->setExpanded(this);

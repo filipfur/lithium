@@ -13,7 +13,7 @@
 #include <sstream>
 #include <cassert>
 
-namespace mygl
+namespace lithium
 {
 	class Input
 	{

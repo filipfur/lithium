@@ -1,20 +1,20 @@
 #include "gltimemeasure.h"
 
-mygl::TimeMeasure::TimeMeasure()
+lithium::TimeMeasure::TimeMeasure()
 {
 
 }
 
-mygl::TimeMeasure::~TimeMeasure() noexcept
+lithium::TimeMeasure::~TimeMeasure() noexcept
 {
 
 }
 
 std::map<std::string, std::chrono::time_point<std::chrono::steady_clock>> _timePoints;
 
-mygl::TimeMeasure& mygl::TimeMeasure::getInstance()
+lithium::TimeMeasure& lithium::TimeMeasure::getInstance()
 {
-    static mygl::TimeMeasure instance;
+    static lithium::TimeMeasure instance;
     return instance;
 }
 

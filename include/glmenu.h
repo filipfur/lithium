@@ -5,7 +5,7 @@
 #include <memory>
 #include "glmenuitem.h"
 
-namespace mygl
+namespace lithium
 {
     class Menu : public MenuItem
     {
@@ -13,38 +13,38 @@ namespace mygl
         Menu(const std::string& label, const std::vector<MenuItem*>& menuItems);
         virtual ~Menu() noexcept;
 
-        mygl::MenuItem* next();
+        lithium::MenuItem* next();
 
-        mygl::MenuItem* current();
+        lithium::MenuItem* current();
 
-        mygl::MenuItem* previous();
+        lithium::MenuItem* previous();
 
         void enter();
 
         bool back();
 
-        mygl::Menu* topLevel();
+        lithium::Menu* topLevel();
         
-        mygl::Menu* bottomLevel();
+        lithium::Menu* bottomLevel();
 
-        std::vector<mygl::MenuItem*>::iterator begin();
+        std::vector<lithium::MenuItem*>::iterator begin();
 
-        mygl::Menu* setIterator(std::vector<mygl::MenuItem*>::iterator it);
+        lithium::Menu* setIterator(std::vector<lithium::MenuItem*>::iterator it);
 
-        mygl::MenuItem* itemAt(size_t index);
+        lithium::MenuItem* itemAt(size_t index);
 
-        virtual bool perform(mygl::Menu* menu) override;
+        virtual bool perform(lithium::Menu* menu) override;
 
         virtual std::string label() const override;
 
-        void setExpanded(mygl::Menu* expanded) { _expanded = expanded; }
-        mygl::Menu* expanded() const { return _expanded; }
-        void setParent(mygl::Menu* parent) { _parent = parent; }
-        mygl::Menu* parent() const { return _parent; }
+        void setExpanded(lithium::Menu* expanded) { _expanded = expanded; }
+        lithium::Menu* expanded() const { return _expanded; }
+        void setParent(lithium::Menu* parent) { _parent = parent; }
+        lithium::Menu* parent() const { return _parent; }
 
     protected:
-        mygl::Menu* _expanded{nullptr};
-        mygl::Menu* _parent{nullptr};
+        lithium::Menu* _expanded{nullptr};
+        lithium::Menu* _parent{nullptr};
         std::vector<MenuItem*> _menuItems;
         std::vector<MenuItem*>::iterator _menuIterator{_menuItems.begin()};
     };

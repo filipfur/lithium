@@ -3,7 +3,7 @@
 #include "stb_image.h"
 #include <sstream>
 
-mygl::Cubemap::Cubemap(mygl::ShaderProgram* shaderProgram, mygl::Mesh* mesh, const std::string& fileName, const std::string& fileExt) : _shaderProgram{shaderProgram}, _mesh{mesh}
+lithium::Cubemap::Cubemap(lithium::ShaderProgram* shaderProgram, lithium::Mesh* mesh, const std::string& fileName, const std::string& fileExt) : _shaderProgram{shaderProgram}, _mesh{mesh}
 {
     glGenTextures(1, &_id);
     bind();
@@ -37,12 +37,12 @@ mygl::Cubemap::Cubemap(mygl::ShaderProgram* shaderProgram, mygl::Mesh* mesh, con
     unbind();
 }
 
-mygl::Cubemap::~Cubemap()
+lithium::Cubemap::~Cubemap()
 {
 
 }
 
-void mygl::Cubemap::draw(Camera* camera)
+void lithium::Cubemap::draw(Camera* camera)
 {
     glDepthFunc(GL_LEQUAL);
     _shaderProgram->use();
@@ -59,12 +59,12 @@ void mygl::Cubemap::draw(Camera* camera)
     unbind();
 }
 
-void mygl::Cubemap::bind()
+void lithium::Cubemap::bind()
 {
     glBindTexture(GL_TEXTURE_CUBE_MAP, _id);
 }
 
-void mygl::Cubemap::unbind()
+void lithium::Cubemap::unbind()
 {
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }

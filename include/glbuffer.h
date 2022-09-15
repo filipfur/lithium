@@ -4,7 +4,7 @@
 #include <vector>
 #include "glelement.h"
 
-namespace mygl
+namespace lithium
 {
 	template <typename T, GLuint S>
 	class Buffer : public Element

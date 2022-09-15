@@ -1,12 +1,12 @@
 #pragma once
 
-namespace mygl
+namespace lithium
 {
     class Object;
 
     class IObject
     {
     public:
-        virtual void onDoneFlickering(mygl::Object* animatedObject) = 0;
+        virtual void onDoneFlickering(lithium::Object* animatedObject) = 0;
     };
 }

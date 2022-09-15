@@ -1,31 +1,45 @@
 #include "gltext.h"
 
-mygl::Text::Text(mygl::Fownt* font, const std::string& text, float textScale) : mygl::Object{nullptr, font->shaderProgram(), font->texture()}, _font{font}, _textScale{textScale}
+lithium::Text::Text(lithium::Fownt* font, const std::string& text, float textScale) : lithium::Object{nullptr, font->texture()}, _font{font}, _textScale{textScale}
 {
     setText(text);
 }
 
-mygl::Text::Text(const mygl::Text& other) : mygl::Object{other}, _font{other._font}, _alignment{other._alignment}, _textScale{other._textScale}
+lithium::Text::Text(const lithium::Text& other) : lithium::Object{other}, _font{other._font}, _alignment{other._alignment}, _textScale{other._textScale}
 {
     setText(other._text);
 }
 
-mygl::Text::Text(const mygl::Object& other) : mygl::Object{other}
+lithium::Text::Text(const lithium::Object& other) : lithium::Object{other}
 {
 
 }
 
-mygl::Text::~Text() noexcept
+lithium::Text::~Text() noexcept
 {
 
 }
 
-void mygl::Text::update(float dt)
+void lithium::Text::update(float dt)
 {
     
 }
 
-void mygl::Text::draw()
+void lithium::Text::shade(lithium::ShaderProgram* shaderProgram) const
+{
+    if(!visible())
+    {
+        return;
+    }
+    shaderProgram->use();
+    //TODO: Optimize, remove all shader dynamic shader and fix everything in initBuffer thread (vertex attributes).
+    shaderProgram->setUniform("u_texture", 0);
+    shaderProgram->setUniform("u_color", fadedColor());
+    shaderProgram->setUniform("u_model", _model);
+
+}
+
+void lithium::Text::draw()
 {
     if(modelInvalidated())
     {
@@ -36,8 +50,6 @@ void mygl::Text::draw()
         return;
     }
 
-    auto sp = shaderProgram();
-    sp->use();
     if(!_initialised)
     {
         _initialised = true;
@@ -49,19 +61,12 @@ void mygl::Text::draw()
         }
         else
         {
-            _mesh = new mygl::Mesh(_vertices, _indices, mygl::Mesh::State::XYZW);
+            _mesh = new lithium::Mesh(_vertices, _indices, lithium::Mesh::State::XYZW);
             setMesh(_mesh);
         }
     }
     _mesh->bindVertexArray();
     _font->texture()->bind();
-    sp->setUniform("u_texture", 0);
-    sp->setUniform("u_color", fadedColor());
-
-    //TODO: Optimize, remove all shader dynamic shader and fix everything in initBuffer thread (vertex attributes).
-
-
-    sp->setUniform("u_model", _model);
 
     glDisable(GL_DEPTH_TEST); // TODO: This is a hack due to letter quads overlapping.
     _mesh->drawElements();
@@ -69,7 +74,7 @@ void mygl::Text::draw()
     _mesh->vertexArray()->unbind();
 }
 
-void mygl::Text::initBuffers()
+void lithium::Text::initBuffers()
 {
     float x = 0.0f;
     float y = 0.0f;//fontsize / 2.0f;

@@ -1,21 +1,21 @@
 #include "gllight.h"
 
-mygl::Light::Light(mygl::Mesh* mesh, mygl::ShaderProgram* shaderProgram)
-    : mygl::Object{mesh, shaderProgram, nullptr, nullptr}
+lithium::Light::Light(lithium::Mesh* mesh)
+    : lithium::Object{mesh, nullptr, nullptr}
 {
 }
 
-mygl::Light::Light(const mygl::Light& other) : mygl::Object{other}
-{
-
-}
-
-mygl::Light::Light(const mygl::Object& other) : mygl::Object{other}
+lithium::Light::Light(const lithium::Light& other) : lithium::Object{other}
 {
 
 }
 
-mygl::Light::~Light() noexcept
+lithium::Light::Light(const lithium::Object& other) : lithium::Object{other}
+{
+
+}
+
+lithium::Light::~Light() noexcept
 {
 
 }

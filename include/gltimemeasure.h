@@ -7,7 +7,7 @@
 #include <iostream>
 #include <iomanip>
 
-namespace mygl
+namespace lithium
 {
     class TimeMeasure
     {

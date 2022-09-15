@@ -5,12 +5,12 @@
 #include "glcamera.h"
 #include "glshaderprogram.h"
 
-namespace mygl
+namespace lithium
 {
     class Cubemap : public Element
     {
         public:
-            Cubemap(mygl::ShaderProgram* shaderProgram, mygl::Mesh* mesh, const std::string& fileName, const std::string& fileExt="png");
+            Cubemap(lithium::ShaderProgram* shaderProgram, lithium::Mesh* mesh, const std::string& fileName, const std::string& fileExt="png");
             virtual ~Cubemap() noexcept;
 
             virtual void bind() override;
@@ -20,7 +20,7 @@ namespace mygl
             void draw(Camera* camera);
 
         private:
-            mygl::Mesh* _mesh;
-            mygl::ShaderProgram* _shaderProgram;
+            lithium::Mesh* _mesh;
+            lithium::ShaderProgram* _shaderProgram;
     };
 }

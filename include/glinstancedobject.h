@@ -3,25 +3,25 @@
 #include "globject.h"
 #include "glattributepointer.h"
 
-namespace mygl
+namespace lithium
 {
     template <class T>
     class InstancedObject : public Object
     {
     public:
-        InstancedObject(mygl::Mesh* mesh, mygl::ShaderProgram* shaderProgram, mygl::Texture* diffuse, mygl::Texture* normal)
-            : mygl::Object{mesh, shaderProgram, diffuse, normal}, _instancedArray{}
+        InstancedObject(lithium::Mesh* mesh, lithium::ShaderProgram* shaderProgram, lithium::Texture* diffuse, lithium::Texture* normal)
+            : lithium::Object{mesh, shaderProgram, diffuse, normal}, _instancedArray{}
         {
             
         }
 
         InstancedObject(const InstancedObject& other)
-            : mygl::Object{other}, _instancedArray{}
+            : lithium::Object{other}, _instancedArray{}
         {
             setMesh(new Mesh(*other._mesh));    
         }
 
-        InstancedObject(const Object& other) : mygl::Object{other}, _instancedArray{}
+        InstancedObject(const Object& other) : lithium::Object{other}, _instancedArray{}
         {
 
         }
@@ -44,7 +44,7 @@ namespace mygl
         }
 
         template <GLenum U=GL_FLOAT>
-        void linkBuffer(std::vector<mygl::AttributePointer<U>> attribPtrs)
+        void linkBuffer(std::vector<lithium::AttributePointer<U>> attribPtrs)
         {
             auto vao = _mesh->vertexArray();
             vao->bind();
@@ -83,6 +83,6 @@ namespace mygl
     private:
         int _drawMax{INT_MAX};
         std::vector<T> _instances;
-        mygl::Buffer<T, GL_ARRAY_BUFFER> _instancedArray;
+        lithium::Buffer<T, GL_ARRAY_BUFFER> _instancedArray;
     };
 }

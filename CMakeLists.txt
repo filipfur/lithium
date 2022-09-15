@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.9)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(fogl VERSION 1.0.0 DESCRIPTION "Lightweight C++/OpenGL Game Engine.")
+project(lithium VERSION 1.0.0 DESCRIPTION "Lightweight C++/OpenGL game engine.")
 
 add_library(${PROJECT_NAME} STATIC 
     dep/glad/src/glad.c 
-    src/debugostream.cpp
+    src/gldebugostream.cpp
     src/glanimatedobject.cpp
     src/glcamera.cpp
     src/glcubemap.cpp
@@ -27,20 +27,22 @@ add_library(${PROJECT_NAME} STATIC
     src/gltimemeasure.cpp
     src/gltriangle.cpp
     src/stb_image.cpp
-    src/taskscheduler.cpp
-    src/tinyobjloader.cpp
+    src/gltaskscheduler.cpp
+    src/gltinyobjloader.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
 
-target_include_directories(${PROJECT_NAME} PRIVATE include
+target_include_directories(${PROJECT_NAME} PUBLIC include
     dep/glad/include
     dep/glm
     dep/stb
     dep/json/include
     dep/tinyobjloader
+    dep/filewatch
+    dep/assimp/include
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/*.h)
@@ -48,14 +50,15 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/*.h)
 include(GNUInstallDirs)
 
 if (WIN32) 
-    target_link_libraries(${PROJECT_NAME} glfw opengl32)
+    target_link_libraries(${PROJECT_NAME} glfw assimp opengl32)
 else ()
-    target_link_libraries(${PROJECT_NAME} glfw
+    target_link_libraries(${PROJECT_NAME} glfw assimp
         "-framework OpenGL")
 endif ()
 
 add_subdirectory(dep/glfw-3.3.7)
 add_subdirectory(dep/json)
+add_subdirectory(dep/assimp)
 
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

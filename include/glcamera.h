@@ -11,7 +11,7 @@
 
 #include "glshaderprogram.h"
 
-namespace mygl
+namespace lithium
 {
 	class Camera
 	{
@@ -121,7 +121,7 @@ namespace mygl
 			_position = _position + delta;
 		}
 
-		void setOnSequenceFinished(const std::function<void(mygl::Camera*)>& onSequenceFinished)
+		void setOnSequenceFinished(const std::function<void(lithium::Camera*)>& onSequenceFinished)
 		{
 			_onSequenceFinished = onSequenceFinished;
 		}
@@ -139,7 +139,7 @@ namespace mygl
 
 		glm::mat4 rotationMatrix() const;
 
-		void attachShader(mygl::ShaderProgram* shaderProgram)
+		void attachShader(lithium::ShaderProgram* shaderProgram)
 		{
 			_attachedShaders.push_back(shaderProgram);
 		}
@@ -217,11 +217,11 @@ namespace mygl
         bool _lockedIn{false};
 		float _speed{3.0f};
 		glm::vec3 _offset;
-		std::vector<mygl::ShaderProgram*> _attachedShaders;
+		std::vector<lithium::ShaderProgram*> _attachedShaders;
 		Waypoint* _currentWaypoint{nullptr};
 		std::vector<Waypoint*> _waypoints;
 		const glm::vec3* _lookingAt{nullptr};
 		const glm::vec3* _following{nullptr};
-		std::function<void(mygl::Camera*)> _onSequenceFinished;
+		std::function<void(lithium::Camera*)> _onSequenceFinished;
 	};
 }

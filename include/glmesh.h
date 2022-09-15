@@ -6,21 +6,21 @@
 #include "glbuffer.h"
 #include <glm/gtc/type_ptr.hpp>
 
-namespace mygl
+namespace lithium
 {
 	class Mesh
 	{
 	public:
 		enum class State{
-			POS_NORMAL_UV, POS_NORMAL_UV_TANGENTS, XYZW
+			POS_NORMAL_UV, POS_NORMAL_UV_TANGENTS, POS_NORMAL_UV_TANGENTS_BONE_WEIGHT, XYZW
 		};
 
 		Mesh(const Mesh& other)
 		{
 			_vertexArray = new VertexArray();
 			_vertexArray->bind();
-			_vertexArrayBuffer = new mygl::Buffer<GLfloat, GL_ARRAY_BUFFER>(*other._vertexArrayBuffer);
-			_elementArrayBuffer = new mygl::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(*other._elementArrayBuffer);
+			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>(*other._vertexArrayBuffer);
+			_elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(*other._elementArrayBuffer);
 			_vertexArrayBuffer->bind();
 			_elementArrayBuffer->bind();
 			_state = other._state;
@@ -36,8 +36,8 @@ namespace mygl
 		{
 			_vertexArray->bind();
 
-			_vertexArrayBuffer = new mygl::Buffer<GLfloat, GL_ARRAY_BUFFER>(vertices);
-			_elementArrayBuffer = new mygl::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(indices);
+			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>(vertices);
+			_elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(indices);
 
 			setAttribPointer(state);
 
@@ -50,7 +50,7 @@ namespace mygl
 		{
 			switch(state)
 			{
-				case mygl::Mesh::State::POS_NORMAL_UV_TANGENTS:
+				case lithium::Mesh::State::POS_NORMAL_UV_TANGENTS:
 					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 14 * sizeof(float), (void*)0);
 					_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 14 * sizeof(float), (void*)(3 * sizeof(float)));
 					_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 14 * sizeof(float), (void*)(6 * sizeof(float)));
@@ -58,13 +58,23 @@ namespace mygl
 					_vertexArray->linkAttribPointer(4, 3, GL_FLOAT, 14 * sizeof(float), (void*)(11 * sizeof(float)));
 					_numLayouts = 5;
 					break;
-				case mygl::Mesh::State::POS_NORMAL_UV:
+				case lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT:
+					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 22 * sizeof(float), (void*)0);
+					_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 22 * sizeof(float), (void*)(3 * sizeof(float)));
+					_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 22 * sizeof(float), (void*)(6 * sizeof(float)));
+					_vertexArray->linkAttribPointer(3, 3, GL_FLOAT, 22 * sizeof(float), (void*)(8 * sizeof(float)));
+					_vertexArray->linkAttribPointer(4, 3, GL_FLOAT, 22 * sizeof(float), (void*)(11 * sizeof(float)));
+					_vertexArray->linkAttribPointer(5, 4, GL_FLOAT, 22 * sizeof(float), (void*)(14 * sizeof(float)));
+					_vertexArray->linkAttribPointer(6, 4, GL_FLOAT, 22 * sizeof(float), (void*)(18 * sizeof(float)));
+					_numLayouts = 7;
+					break;
+				case lithium::Mesh::State::POS_NORMAL_UV:
 					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
 					_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 					_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 					_numLayouts = 3;
 					break;
-				case mygl::Mesh::State::XYZW:
+				case lithium::Mesh::State::XYZW:
 					_vertexArray->linkAttribPointer(0, 4, GL_FLOAT, 4 * sizeof(float), (void*)0);
 					_numLayouts = 1;
 					break;
@@ -93,17 +103,17 @@ namespace mygl
 			glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLuint>(_elementArrayBuffer->size()), GL_UNSIGNED_INT, 0, n);
 		}
 
-		mygl::VertexArray* vertexArray() const
+		lithium::VertexArray* vertexArray() const
 		{
 			return _vertexArray;
 		}
 
-		mygl::Buffer<GLfloat, GL_ARRAY_BUFFER>* vertexArrayBuffer() const
+		lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>* vertexArrayBuffer() const
 		{
 			return _vertexArrayBuffer;
 		}
 
-		mygl::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>* elementArrayBuffer() const
+		lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>* elementArrayBuffer() const
 		{
 			return _elementArrayBuffer;
 		}
@@ -117,8 +127,8 @@ namespace mygl
 		State _state;
 		//std::vector<GLfloat> _vertices;
 		GLuint _numLayouts{0};
-		mygl::VertexArray* _vertexArray;
-		mygl::Buffer<GLfloat, GL_ARRAY_BUFFER>* _vertexArrayBuffer;
-		mygl::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>* _elementArrayBuffer;
+		lithium::VertexArray* _vertexArray;
+		lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>* _vertexArrayBuffer;
+		lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>* _elementArrayBuffer;
 	};
 }

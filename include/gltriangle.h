@@ -4,14 +4,14 @@
 #include "gltexture.h"
 #include "glcamera.h"
 
-namespace mygl
+namespace lithium
 {
     class Triangle
     {
     public:
-        Triangle(mygl::ShaderProgram* shaderProgram);
+        Triangle(lithium::ShaderProgram* shaderProgram);
 
-        void setTexture(mygl::Texture* texture)
+        void setTexture(lithium::Texture* texture)
         {
             _texture = texture;
         }
@@ -23,8 +23,8 @@ namespace mygl
 
         GLuint _VAO;
         GLuint _VBO;
-        mygl::ShaderProgram* _shaderProgram;
-        mygl::Texture* _texture;
+        lithium::ShaderProgram* _shaderProgram;
+        lithium::Texture* _texture;
 
     };
 }

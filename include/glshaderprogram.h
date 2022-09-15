@@ -5,9 +5,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "glelement.h"
 
-namespace mygl
+namespace lithium
 {
-	class ShaderProgram : public mygl::Element
+	class ShaderProgram : public lithium::Element
 	{
 	public:
 		ShaderProgram(const ShaderProgram& other);
@@ -15,6 +15,13 @@ namespace mygl
 		ShaderProgram(std::string&& vertexShaderFile, std::string&& fragmentShaderFile);
 
 		void use();
+
+		void link()
+		{
+			glAttachShader(_id, _vertexShader.id());
+			glAttachShader(_id, _fragmentShader.id());
+			glLinkProgram(_id);
+		}
 
 		virtual void bind() override
 		{
@@ -91,11 +98,13 @@ namespace mygl
 			glDeleteProgram(_id);
 		}
 
+		static const GLuint INVALID_LOCATION{0xffffffff};
+
 	private:
 		Shader<GL_VERTEX_SHADER> _vertexShader;
 		Shader<GL_FRAGMENT_SHADER> _fragmentShader;
 		std::map<std::string, GLuint> _uniforms;
 		static unsigned int _bindCount;
-		static mygl::ShaderProgram* _inUse;
+		static lithium::ShaderProgram* _inUse;
 	};
 }

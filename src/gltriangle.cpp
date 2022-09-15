@@ -1,7 +1,7 @@
 #include "gltriangle.h"
 #include <glm/gtc/type_ptr.hpp>
 
-mygl::Triangle::Triangle(mygl::ShaderProgram* shaderProgram) : _shaderProgram{shaderProgram}
+lithium::Triangle::Triangle(lithium::ShaderProgram* shaderProgram) : _shaderProgram{shaderProgram}
 {
 	glGenVertexArrays(1, &_VAO);
 	glBindVertexArray(_VAO);
@@ -23,12 +23,12 @@ mygl::Triangle::Triangle(mygl::ShaderProgram* shaderProgram) : _shaderProgram{sh
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 }
 
-mygl::Triangle::~Triangle() noexcept
+lithium::Triangle::~Triangle() noexcept
 {
 
 }
 
-void mygl::Triangle::draw(mygl::Camera* camera)
+void lithium::Triangle::draw(lithium::Camera* camera)
 {
 	_shaderProgram->use();
     glUniformMatrix4fv(glGetUniformLocation(_shaderProgram->id(), "u_camera"), 1, GL_FALSE, glm::value_ptr(camera->matrix()));

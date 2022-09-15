@@ -1,6 +1,6 @@
 #include "glrenderbuffer.h"
 
-mygl::RenderBuffer::RenderBuffer(int width, int height, bool multisampling) : _multisampling{multisampling}
+lithium::RenderBuffer::RenderBuffer(int width, int height, bool multisampling) : _multisampling{multisampling}
 {
     glGenRenderbuffers(1, &_id);
     bind();
@@ -15,17 +15,17 @@ mygl::RenderBuffer::RenderBuffer(int width, int height, bool multisampling) : _m
     unbind();
 }
 
-mygl::RenderBuffer::~RenderBuffer() noexcept
+lithium::RenderBuffer::~RenderBuffer() noexcept
 {
     glDeleteRenderbuffers(1, &_id);
 }
 
-void mygl::RenderBuffer::bind()
+void lithium::RenderBuffer::bind()
 {
     glBindRenderbuffer(GL_RENDERBUFFER, _id);
 }
 
-void mygl::RenderBuffer::unbind()
+void lithium::RenderBuffer::unbind()
 {
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }

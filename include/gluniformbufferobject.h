@@ -3,7 +3,7 @@
 #include "glbuffer.h"
 #include "glshaderprogram.h"
 
-namespace mygl
+namespace lithium
 {
     class UniformBufferObject : public Buffer<GLfloat, GL_UNIFORM_BUFFER>
     {
@@ -13,7 +13,7 @@ namespace mygl
 
         }
 
-        void bindBufferBase(const std::vector<mygl::ShaderProgram*>& shaders) const
+        void bindBufferBase(const std::vector<lithium::ShaderProgram*>& shaders) const
         {
             for(auto && sp : shaders)
             {

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace mygl
+namespace lithium
 {
     class SoundEngine
     {

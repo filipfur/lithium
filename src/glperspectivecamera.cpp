@@ -1,15 +1,15 @@
 #include "glperspectivecamera.h"
 
 
-mygl::PerspectiveCamera::~PerspectiveCamera() noexcept
+lithium::PerspectiveCamera::~PerspectiveCamera() noexcept
 {
 
 }
 
 
-/*void mygl::PerspectiveCamera::update(float dt)
+/*void lithium::PerspectiveCamera::update(float dt)
 {
-	mygl::Camera::update(dt);
+	lithium::Camera::update(dt);
 	glm::mat4 view;
 
 	if(_currentWaypoint != nullptr)
@@ -38,15 +38,14 @@ mygl::PerspectiveCamera::~PerspectiveCamera() noexcept
 }*/
 
 
-void mygl::PerspectiveCamera::update(float dt)
+void lithium::PerspectiveCamera::update(float dt)
 {
-	mygl::Camera::update(dt);
-	glm::mat4 view;
+	lithium::Camera::update(dt);
 	bool looking = false;
 
 	if(_lockedIn)
 	{
-		view = glm::lookAt(_position, _position + _orientation, _up);
+		_view = glm::lookAt(_position, _position + _orientation, _up);
 	}
 	else
 	{
@@ -93,9 +92,9 @@ void mygl::PerspectiveCamera::update(float dt)
 			delta = glm::normalize(delta) * len * dt * 2.0f;
 			_eyePoint += delta;
 		}
-		view = glm::lookAt(_position, _eyePoint, _up);
+		_view = glm::lookAt(_position, _eyePoint, _up);
 	}
-	_matrix = _projection * view;
-	_rotationMatrix = _projection * glm::mat4(glm::mat3(view));
+	_matrix = _projection * _view;
+	_rotationMatrix = _projection * glm::mat4(glm::mat3(_view));
 	updateShaders();
 }

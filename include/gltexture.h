@@ -3,7 +3,7 @@
 #include "glelement.h"
 #include <glm/glm.hpp>
 
-namespace mygl
+namespace lithium
 {
 	class Texture : public Element
 	{
@@ -26,6 +26,11 @@ namespace mygl
 			unsigned int binds = _bindCount;
 			_bindCount = 0;
 			return binds;
+		}
+
+		std::string name() const
+		{
+			return _name;
 		}
 
 	private:

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "taskscheduler.h"
+#include "gltaskscheduler.h"
 #include <functional>
 
-namespace mygl
+namespace lithium
 {
     class Fader
     {

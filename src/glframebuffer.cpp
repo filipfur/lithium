@@ -1,7 +1,7 @@
 #include "glframebuffer.h"
 #include <iostream>
 
-mygl::FrameBuffer::FrameBuffer(int width, int height, bool multisampling, GLuint colorMode) : _multisampling{multisampling}
+lithium::FrameBuffer::FrameBuffer(int width, int height, bool multisampling, GLuint colorMode) : _multisampling{multisampling}
 {
     glGenFramebuffers(1, &_id);
     bind();
@@ -24,22 +24,22 @@ mygl::FrameBuffer::FrameBuffer(int width, int height, bool multisampling, GLuint
     unbind();
 }
 
-mygl::FrameBuffer::~FrameBuffer() noexcept
+lithium::FrameBuffer::~FrameBuffer() noexcept
 {
     glDeleteFramebuffers(1, &_id);
 }
 
-void mygl::FrameBuffer::bind()
+void lithium::FrameBuffer::bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, _id);
 }
 
-void mygl::FrameBuffer::unbind()
+void lithium::FrameBuffer::unbind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void mygl::FrameBuffer::attach(RenderBuffer* renderBuffer)
+void lithium::FrameBuffer::attach(RenderBuffer* renderBuffer)
 {
     bind();
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBuffer->id());

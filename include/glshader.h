@@ -6,7 +6,10 @@
 #include <glad/glad.h>
 #include <vector>
 
-namespace mygl
+#include <filesystem>
+#include "FileWatch.hpp"
+
+namespace lithium
 {
 	template <GLuint T>
 	class Shader
@@ -20,9 +23,23 @@ namespace mygl
 
 		Shader(std::string&& fileName) : _id{}, _fileName { std::move(fileName) }
 		{
+			_id = glCreateShader(T);
+			compile();
+			std::cout << "Watching file >>> " << _fileName << std::endl;
+
+			_watch = new filewatch::FileWatch<std::string>(
+				"./" + _fileName, 
+				[this](const std::string& path, const filewatch::Event change_type) {
+					std::cout << "Shader updated: " << _fileName << std::endl;
+					_valid = false;		
+				}
+			);
+		}
+
+		void compile()
+		{
 			std::string source = readFile(_fileName);
 			const char* src = source.c_str();
-			_id = glCreateShader(T);
 			glShaderSource(_id, 1, &src, nullptr);
 			glCompileShader(_id);
 			GLint status = 0;
@@ -41,6 +58,7 @@ namespace mygl
 			{
 				std::cout << "'" << _fileName << "' compiled sucessfully." << std::endl;
 			}
+			_valid = true;
 		}
 
 		GLuint id() const
@@ -51,6 +69,12 @@ namespace mygl
 		~Shader() noexcept
 		{
 			glDeleteShader(_id);
+			delete _watch;
+		}
+
+		bool valid() const
+		{
+			return _valid;
 		}
 
 	private:
@@ -68,6 +92,8 @@ namespace mygl
 		}
 
 		GLuint _id;
+		bool _valid{true};
 		std::string _fileName;
+		filewatch::FileWatch<std::string>* _watch{nullptr};
 	};
 }

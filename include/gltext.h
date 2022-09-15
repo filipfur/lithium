@@ -8,7 +8,7 @@
 
 #include <map>
 
-namespace mygl
+namespace lithium
 {
     class Fownt
     {
@@ -24,7 +24,7 @@ namespace mygl
             float advance;
         };
 
-        Fownt(mygl::ShaderProgram* shaderProgram, mygl::Texture* texture, const std::string& jsonFile) : _shaderProgram{shaderProgram}, _texture{texture}
+        Fownt(lithium::ShaderProgram* shaderProgram, lithium::Texture* texture, const std::string& jsonFile) : _shaderProgram{shaderProgram}, _texture{texture}
         {
             std::ifstream ifs{jsonFile};
             ifs >> _fontMetrics;
@@ -60,22 +60,22 @@ namespace mygl
             return it->second;
         }
 
-        mygl::ShaderProgram* shaderProgram() const { return _shaderProgram; }
-        mygl::Texture* texture() const { return _texture; }
+        lithium::ShaderProgram* shaderProgram() const { return _shaderProgram; }
+        lithium::Texture* texture() const { return _texture; }
         float width() const { return _width; }
         float height() const { return _height; }
         float size() const { return _size; }
 
     private:
-        mygl::ShaderProgram* _shaderProgram{nullptr};
-        mygl::Texture* _texture{nullptr};
+        lithium::ShaderProgram* _shaderProgram{nullptr};
+        lithium::Texture* _texture{nullptr};
         nlohmann::json _fontMetrics;
         
         float _width{0.0f};
         float _height{0.0f};
         float _size{0.0f};
 
-        std::map<char, mygl::Fownt::Character> _characters;
+        std::map<char, lithium::Fownt::Character> _characters;
     };
 
     class Text : public Object
@@ -92,6 +92,8 @@ namespace mygl
         virtual ~Text() noexcept;
 
         virtual void update(float dt) override;
+
+        virtual void shade(lithium::ShaderProgram* shaderProgram) const override;
 
         virtual void draw() override;
 
@@ -153,7 +155,7 @@ namespace mygl
 
     private:
         void initBuffers();
-        mygl::Fownt* _font{nullptr};
+        lithium::Fownt* _font{nullptr};
         std::string _text{""};
         float _width{0.0f};
         float _height{0.0f};

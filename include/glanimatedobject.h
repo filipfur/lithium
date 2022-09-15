@@ -3,12 +3,12 @@
 #include "globject.h"
 #include "ianimatedobject.h"
 
-namespace mygl
+namespace lithium
 {
-    class AnimatedObject : public mygl::Object
+    class AnimatedObject : public lithium::Object
     {
     public:
-        AnimatedObject(std::shared_ptr<std::vector<mygl::Mesh*>> meshes, mygl::ShaderProgram* shaderProgram, mygl::Texture* texture, mygl::Texture* specular=nullptr);
+        AnimatedObject(std::shared_ptr<std::vector<lithium::Mesh*>> meshes, lithium::Texture* texture, lithium::Texture* specular=nullptr);
         AnimatedObject(const AnimatedObject& other);
         AnimatedObject(const Object& other);
         virtual ~AnimatedObject() noexcept;
@@ -23,9 +23,9 @@ namespace mygl
             setMesh(_meshes->at(0));
         }
 
-        void setIAnimatedObject(mygl::IAnimatedObject* iAnimatedObject)
+        void setIAnimatedObject(lithium::IAnimatedObject* iAnimatedObject)
         {
-            mygl::Object::setIObject(iAnimatedObject);
+            lithium::Object::setIObject(iAnimatedObject);
             _iAnimatedObject = iAnimatedObject;
         }
 
@@ -40,11 +40,11 @@ namespace mygl
         }
 
     private:
-        std::shared_ptr<std::vector<mygl::Mesh*>> _meshes;
-        std::vector<mygl::Mesh*>::iterator _currentFrame;
+        std::shared_ptr<std::vector<lithium::Mesh*>> _meshes;
+        std::vector<lithium::Mesh*>::iterator _currentFrame;
         float _interval{1.0f / 24.0f};
         float _duration{_interval};
-        mygl::IAnimatedObject* _iAnimatedObject{nullptr};
+        lithium::IAnimatedObject* _iAnimatedObject{nullptr};
         bool _looping{false};
         bool _playing{false};
     };

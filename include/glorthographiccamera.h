@@ -2,13 +2,13 @@
 
 #include "glcamera.h"
 
-namespace mygl
+namespace lithium
 {
-    class OrthographicCamera : public mygl::Camera
+    class OrthographicCamera : public lithium::Camera
     {
     public:
         OrthographicCamera(float left, float right, float bottom, float top, float nearPlane, float farPlane)
-        : mygl::Camera{glm::ortho(left, right, bottom, top, nearPlane, farPlane), glm::vec3{0.0f}, glm::vec3{0.0f}, glm::vec3{0.0, 0.0, 1.0}}
+        : lithium::Camera{glm::ortho(left, right, bottom, top, nearPlane, farPlane), glm::vec3{0.0f}, glm::vec3{0.0f}, glm::vec3{0.0, 0.0, 1.0}}
         {
             
         }

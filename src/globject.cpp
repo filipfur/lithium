@@ -1,17 +1,14 @@
 #include "globject.h"
+#include <glm/gtx/quaternion.hpp>
 
-mygl::Object::Object(mygl::Mesh* mesh, mygl::ShaderProgram* shaderProgram, mygl::Texture* diffuse, mygl::Texture* normal): 
-        _mesh{mesh}, _shaderProgram{shaderProgram}, _texture{diffuse}, _normalMap{normal},
-        _position{ 0.0f }, _rotation{0.0f, 0.0f, 0.0f, 0.0f}, _scale{1.0f}
+lithium::Object::Object(lithium::Mesh* mesh, lithium::Texture* diffuse, lithium::Texture* normal): 
+        _mesh{mesh}, _texture{diffuse}, _normalMap{normal},
+        _position{ 0.0f }, _rotation{0.0f, 0.0f, 0.0f}, _scale{1.0f}
 {
     updateModel();
-    if(shaderProgram == nullptr)
-    {
-        _visible = false;
-    }
 }
 
-mygl::Object::Object(const mygl::Object& other) : Object{other._mesh, other._shaderProgram, other._texture, other._specular}
+lithium::Object::Object(const lithium::Object& other) : Object{other._mesh, other._texture, other._specular}
 {
     _objectName = other._objectName;
     _iObject = other._iObject;
@@ -27,10 +24,9 @@ mygl::Object::Object(const mygl::Object& other) : Object{other._mesh, other._sha
     updateModel();
 }
 
-mygl::Object::~Object() noexcept
+lithium::Object::~Object() noexcept
 {
     _mesh = nullptr;
-    _shaderProgram = nullptr;
     _texture = nullptr;
     _specular = nullptr;
     _objectName = nullptr;
@@ -42,7 +38,7 @@ mygl::Object::~Object() noexcept
     }
 }
 
-void mygl::Object::update(float dt)
+void lithium::Object::update(float dt)
 {
     if(_flicker > 0)
     {
@@ -59,7 +55,24 @@ void mygl::Object::update(float dt)
     _time += dt;
 }
 
-void mygl::Object::draw()
+void lithium::Object::shade(lithium::ShaderProgram* shaderProgram) const
+{
+    if(!_visible)
+    {
+        return;
+    }
+    shaderProgram->use();
+    shaderProgram->setUniform("u_color", fadedColor());
+    shaderProgram->setUniform("u_shininess", _shininess);
+    shaderProgram->setUniform("u_regions", _textureRegions);
+    shaderProgram->setUniform("u_current_region", _currentTextureRegion);
+    shaderProgram->setUniform("u_model", _model);
+    shaderProgram->setUniform("u_texture_0", 0);
+    shaderProgram->setUniform("u_specular_0", 1);
+    shaderProgram->setUniform("u_normal_0", 2);
+}
+
+void lithium::Object::draw()
 {
     if(_modelInvalidated)
     {
@@ -71,33 +84,23 @@ void mygl::Object::draw()
         return;
     }
 
-    _shaderProgram->use();
-
     if (_texture)
     {
-        //_shaderProgram->setUniform("u_texture_0", 0);
         _texture->bind();
     }
 
     if (_specular)
     {
-        //_shaderProgram->setUniform("u_specular_0", 1);
         _specular->bind();
     }
 
     if(_normalMap)
     {
-        _shaderProgram->setUniform("u_normal_0", 2);
         _normalMap->bind();
-    }
-    _mesh->bindVertexArray();
 
-    //_shaderProgram->setUniform("u_time", _time);
-    _shaderProgram->setUniform("u_color", fadedColor());
-    _shaderProgram->setUniform("u_shininess", _shininess);
-    _shaderProgram->setUniform("u_regions", _textureRegions);
-    _shaderProgram->setUniform("u_current_region", _currentTextureRegion);
-    _shaderProgram->setUniform("u_model", _model);
+    }
+
+    _mesh->bindVertexArray();
 
     //glDepthMask(false);
     this->onDraw();
@@ -106,7 +109,7 @@ void mygl::Object::draw()
     glActiveTexture(GL_TEXTURE0);
 }
 
-void mygl::Object::updateModel()
+void lithium::Object::updateModel()
 {
     _model = glm::translate(glm::mat4(1.0f), _position);
     _model = glm::rotate(_model, glm::radians(_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -115,7 +118,7 @@ void mygl::Object::updateModel()
     _model = glm::scale(_model, _scale);
 }
 
-void mygl::Object::onDraw()
+void lithium::Object::onDraw()
 {
     _mesh->drawElements();
 }

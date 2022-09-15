@@ -2,14 +2,14 @@
 
 #include "glcamera.h"
 
-namespace mygl
+namespace lithium
 {
-    class PerspectiveCamera : public mygl::Camera
+    class PerspectiveCamera : public lithium::Camera
     {
     public:
         PerspectiveCamera(float width, float height, const glm::vec3& position, float fovDegrees, float nearPlane, float farPlane)
-            : mygl::Camera{glm::perspective(glm::radians(fovDegrees), width / height, nearPlane, farPlane),
-            glm::vec3{0.0f}, glm::vec3{0.0f, 0.0f, -1.0f}, glm::vec3{0.0f, 1.0f, 0.0f}}
+            : lithium::Camera{glm::perspective(glm::radians(fovDegrees), width / height, nearPlane, farPlane),
+            glm::vec3{0.0f}, glm::vec3{0.0f, 1.0f, 0.0f}, glm::vec3{0.0f, 0.0f, 1.0f}}
         {
             
         }
