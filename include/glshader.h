@@ -6,8 +6,10 @@
 #include <glad/glad.h>
 #include <vector>
 
+#ifdef _WIN32
 #include <filesystem>
 #include "FileWatch.hpp"
+#endif
 
 namespace lithium
 {
@@ -25,8 +27,8 @@ namespace lithium
 		{
 			_id = glCreateShader(T);
 			compile();
+			#ifdef _WIN32
 			std::cout << "Watching file >>> " << _fileName << std::endl;
-
 			_watch = new filewatch::FileWatch<std::string>(
 				"./" + _fileName, 
 				[this](const std::string& path, const filewatch::Event change_type) {
@@ -34,6 +36,7 @@ namespace lithium
 					_valid = false;		
 				}
 			);
+			#endif
 		}
 
 		void compile()
@@ -69,7 +72,9 @@ namespace lithium
 		~Shader() noexcept
 		{
 			glDeleteShader(_id);
+			#ifdef _WIN32
 			delete _watch;
+			#endif
 		}
 
 		bool valid() const
@@ -94,6 +99,8 @@ namespace lithium
 		GLuint _id;
 		bool _valid{true};
 		std::string _fileName;
+		#ifdef _WIN32
 		filewatch::FileWatch<std::string>* _watch{nullptr};
+		#endif
 	};
 }

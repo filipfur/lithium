@@ -1,26 +1,30 @@
 #include "glframebuffer.h"
 #include <iostream>
 
-lithium::FrameBuffer::FrameBuffer(int width, int height, bool multisampling, GLuint colorMode) : _multisampling{multisampling}
+lithium::FrameBuffer::FrameBuffer(glm::ivec2 resolution, lithium::FrameBuffer::Mode mode, GLuint colorMode, GLuint colorAttachment) 
+    : _resolution{resolution}, _mode{mode}, _colorAttachment{colorAttachment}
 {
     glGenFramebuffers(1, &_id);
     bind();
-    GLuint mod = multisampling ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
     glGenTextures(1, &_textureColorBuffer);
-    glBindTexture(mod, _textureColorBuffer);
-    if(multisampling)
+    switch(mode)
     {
-        glTexImage2DMultisample(mod, 4, colorMode, width, height, GL_TRUE);
-    }
-    else
-    {
-        glTexImage2D(mod, 0, colorMode, width, height, 0, colorMode, GL_UNSIGNED_BYTE, NULL);
+    case lithium::FrameBuffer::Mode::DEFAULT:
+        _glTextureMode = GL_TEXTURE_2D;
+        glBindTexture(_glTextureMode, _textureColorBuffer);
+        glTexImage2D(_glTextureMode, 0, colorMode, resolution.x, resolution.y, 0, colorMode, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        break;
+    case lithium::FrameBuffer::Mode::MULTISAMPLED:
+        _glTextureMode = GL_TEXTURE_2D_MULTISAMPLE;
+        glBindTexture(_glTextureMode, _textureColorBuffer);
+        glTexImage2DMultisample(_glTextureMode, 4, colorMode, resolution.x, resolution.y, GL_TRUE);
+        break;
     }
 
-    glBindTexture(mod, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mod, _textureColorBuffer, 0);
+    glBindTexture(_glTextureMode, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, colorAttachment, _glTextureMode, _textureColorBuffer, 0);
     unbind();
 }
 
@@ -48,4 +52,12 @@ void lithium::FrameBuffer::attach(RenderBuffer* renderBuffer)
         std::cerr << "Failed to bind framebuffer!" << std::endl;
     }
     unbind();
+}
+
+void lithium::FrameBuffer::createRenderBuffer()
+{
+    attach(new lithium::RenderBuffer(_resolution,
+        _mode == lithium::FrameBuffer::Mode::DEFAULT 
+            ? lithium::RenderBuffer::Mode::DEFAULT 
+            : lithium::RenderBuffer::Mode::MULTISAMPLED));
 }
