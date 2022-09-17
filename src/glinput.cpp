@@ -29,25 +29,25 @@ void lithium::Input::onKey(GLFWwindow *window, int key, int scanCode, int action
 		}
 	}
 
-	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
 		delta.z = -1.0f;
 		//orientation = _orientation;
 		//speed = _speed;
 	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
 		delta.x = -1.0f;
 		//orientation = -glm::normalize(glm::cross(_orientation, _up));
 		//speed = _speed;
 	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		delta.z = 1.0f;
 		//orientation = -_orientation;
 		//speed = _speed;
 	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		delta.x = 1.0f;
 		//orientation = glm::normalize(glm::cross(_orientation, _up));

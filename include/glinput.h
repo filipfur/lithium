@@ -131,6 +131,21 @@ namespace lithium
 				return _delta;
 			}
 
+			float dx() const
+			{
+				return _delta.x;
+			}
+
+			float dy() const
+			{
+				return _delta.y;
+			}
+
+			float dz() const
+			{
+				return _delta.z;
+			}
+
 			void setDelta(const glm::vec3& delta)
 			{
 				_delta = delta;

@@ -49,6 +49,21 @@ namespace lithium
 			return setPosition(glm::vec3{x, y, z});
 		}
 
+		void move(const glm::vec3& d)
+		{
+			_position.x += d.x;
+			_position.y += d.y;
+			_position.z += d.z;
+			_modelInvalidated = true;
+		}
+
+		void move(const glm::vec2& d)
+		{
+			_position.x += d.x;
+			_position.y += d.y;
+			_modelInvalidated = true;
+		}
+
 		const glm::vec3& position() const
 		{
 			return _position;

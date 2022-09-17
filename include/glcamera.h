@@ -203,11 +203,22 @@ namespace lithium
 			_eyePoint = eyePoint;
 		}
 
+		void rotateAroundViewpoint(float degrees)
+        {
+            auto target = *_lookingAt;
+            auto dv =  _position - target;
+            float length = glm::length(dv);
+            float angle = glm::atan(dv.y, dv.x);
+            angle += glm::radians(degrees);
+            _position.x = target.x + glm::cos(angle) * length;
+			_position.y = target.y + glm::sin(angle) * length;
+        }
+
 	protected:
-		glm::vec3 _position;
+		glm::vec3 _position{0.0f};
 		glm::vec3 _orientation;
 		glm::vec3 _up;
-		glm::vec3 _eyePoint{0.0, 0.0, 0.0};
+		glm::vec3 _eyePoint{0.0f};
 		glm::vec3 _targetEyePoint;
 		glm::mat4 _view;
 		glm::mat4 _projection;
