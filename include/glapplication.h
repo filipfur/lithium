@@ -25,6 +25,8 @@ namespace lithium
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             switch(mode)
             {
+                case Mode::DEFAULT:
+                    break;
                 case Mode::MULTISAMPLED_4X:
                     glfwWindowHint(GLFW_SAMPLES, 4);
                     break;
@@ -35,7 +37,10 @@ namespace lithium
                 monitor = glfwGetPrimaryMonitor();
             }
 
+#ifdef __APPLE__
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
             _window = glfwCreateWindow(windowResolution.x, windowResolution.y, title.c_str(), monitor, nullptr);
             if (_window == nullptr)
             {

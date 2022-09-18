@@ -52,7 +52,6 @@ void lithium::Camera::update(float dt)
 		{
 			glm::vec3 target = (*_following + _offset);
 			glm::vec3 delta = (target - _position) * dt * _speed;
-			
 
 			if(glm::distance2(target, _position) <= 0.0001)
 			{

@@ -198,11 +198,6 @@ namespace lithium
 			_speed = speed;
 		}
 
-		void setEyePoint(const glm::vec3& eyePoint)
-		{
-			_eyePoint = eyePoint;
-		}
-
 		void rotateAroundViewpoint(float degrees)
         {
             auto target = *_lookingAt;
@@ -218,8 +213,8 @@ namespace lithium
 		glm::vec3 _position{0.0f};
 		glm::vec3 _orientation;
 		glm::vec3 _up;
-		glm::vec3 _eyePoint{0.0f};
-		glm::vec3 _targetEyePoint;
+		glm::vec3 _viewPoint{0.0f};
+		glm::vec3 _targetViewPoint;
 		glm::mat4 _view;
 		glm::mat4 _projection;
 		glm::mat4 _matrix;
