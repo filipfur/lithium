@@ -2,7 +2,7 @@
 
 #include "glmesh.h"
 #include "glcamera.h"
-#include "gltexture.h"
+#include "glimagetexture.h"
 #include "iobject.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "gltaskscheduler.h"
@@ -19,7 +19,7 @@ namespace lithium
 		};
 
     public:
-        Object(lithium::Mesh* mesh, lithium::Texture* texture, lithium::Texture* normal=nullptr);
+        Object(lithium::Mesh* mesh, lithium::ImageTexture* texture, lithium::ImageTexture* normal=nullptr);
         Object(const Object& other);
         virtual ~Object() noexcept;
 
@@ -27,12 +27,12 @@ namespace lithium
 
 		virtual void shade(lithium::ShaderProgram* shaderProgram) const;
 
-        void setTexture(lithium::Texture* texture)
+        void setTexture(lithium::ImageTexture* texture)
 		{
 			_texture = texture;
 		}
 		
-		void setSpecular(lithium::Texture* specular)
+		void setSpecular(lithium::ImageTexture* specular)
 		{
 			_specular = specular;
 		}
@@ -164,7 +164,7 @@ namespace lithium
 			});
 		}
 
-		void setNormalMap(lithium::Texture* normalMap)
+		void setNormalMap(lithium::ImageTexture* normalMap)
 		{
 			_normalMap = normalMap;
 		}
@@ -207,7 +207,7 @@ namespace lithium
 			_currentTextureRegion.y = currentTextureRegionY;
 		}
 
-		lithium::Texture* texture() const
+		lithium::ImageTexture* texture() const
 		{
 			return _texture;
 		}
@@ -287,9 +287,9 @@ namespace lithium
 		bool _visible{true};
 		float _time{0.0f};
 		glm::vec4 _color{1.0f};
-        lithium::Texture* _texture{nullptr};
-        lithium::Texture* _specular{nullptr};
-		lithium::Texture* _normalMap{nullptr};
+        lithium::ImageTexture* _texture{nullptr};
+        lithium::ImageTexture* _specular{nullptr};
+		lithium::ImageTexture* _normalMap{nullptr};
 		
 	private:
 		std::shared_ptr<std::string> _objectName;

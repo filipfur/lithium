@@ -15,7 +15,7 @@ namespace lithium
             MULTISAMPLED
         };
 
-        RenderBuffer(glm::ivec2 resolution, Mode mode=Mode::DEFAULT);
+        RenderBuffer(glm::ivec2 resolution, Mode mode=Mode::DEFAULT, GLenum internalFormat=GL_DEPTH24_STENCIL8);
         virtual ~RenderBuffer() noexcept;
 
         virtual void bind() override;

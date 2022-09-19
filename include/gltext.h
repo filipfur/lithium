@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gltexture.h"
+#include "glimagetexture.h"
 #include "iupdateable.h"
 #include "globject.h"
 #include "glshaderprogram.h"
@@ -24,7 +24,7 @@ namespace lithium
             float advance;
         };
 
-        Fownt(lithium::ShaderProgram* shaderProgram, lithium::Texture* texture, const std::string& jsonFile) : _shaderProgram{shaderProgram}, _texture{texture}
+        Fownt(lithium::ShaderProgram* shaderProgram, lithium::ImageTexture* texture, const std::string& jsonFile) : _shaderProgram{shaderProgram}, _texture{texture}
         {
             std::ifstream ifs{jsonFile};
             ifs >> _fontMetrics;
@@ -61,14 +61,14 @@ namespace lithium
         }
 
         lithium::ShaderProgram* shaderProgram() const { return _shaderProgram; }
-        lithium::Texture* texture() const { return _texture; }
+        lithium::ImageTexture* texture() const { return _texture; }
         float width() const { return _width; }
         float height() const { return _height; }
         float size() const { return _size; }
 
     private:
         lithium::ShaderProgram* _shaderProgram{nullptr};
-        lithium::Texture* _texture{nullptr};
+        lithium::ImageTexture* _texture{nullptr};
         nlohmann::json _fontMetrics;
         
         float _width{0.0f};

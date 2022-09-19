@@ -1,7 +1,7 @@
 #pragma once
 
 #include "glshaderprogram.h"
-#include "gltexture.h"
+#include "glimagetexture.h"
 #include "glcamera.h"
 
 namespace lithium
@@ -11,7 +11,7 @@ namespace lithium
     public:
         Triangle(lithium::ShaderProgram* shaderProgram);
 
-        void setTexture(lithium::Texture* texture)
+        void setTexture(lithium::ImageTexture* texture)
         {
             _texture = texture;
         }
@@ -24,7 +24,7 @@ namespace lithium
         GLuint _VAO;
         GLuint _VBO;
         lithium::ShaderProgram* _shaderProgram;
-        lithium::Texture* _texture;
+        lithium::ImageTexture* _texture;
 
     };
 }

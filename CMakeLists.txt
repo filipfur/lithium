@@ -23,7 +23,6 @@ add_library(${PROJECT_NAME} STATIC
     src/glshaderprogram.cpp
     src/glsoundengine.cpp
     src/gltext.cpp
-    src/gltexture.cpp
     src/gltimemeasure.cpp
     src/gltriangle.cpp
     src/stb_image.cpp

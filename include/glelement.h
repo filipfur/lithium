@@ -2,6 +2,19 @@
 
 #include <glad/glad.h>
 
+#define LITHIUM_GLELEMENT_DEF(classRef, bindFunc, bindType) classRef* classRef::_bound{nullptr}; \
+void classRef::bind() { \
+    if(_bound != this) \
+    { \
+        bindFunc(bindType, _id); \
+        _bound = this; \
+    } \
+} \
+void classRef::unbind() { \
+    _bound = nullptr; \
+    bindFunc(bindType, 0); \
+} \
+
 namespace lithium
 {
     class Element

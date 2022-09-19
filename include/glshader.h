@@ -28,7 +28,6 @@ namespace lithium
 			_id = glCreateShader(T);
 			compile();
 			#ifdef _WIN32
-			std::cout << "Watching file >>> " << _fileName << std::endl;
 			_watch = new filewatch::FileWatch<std::string>(
 				"./" + _fileName, 
 				[this](const std::string& path, const filewatch::Event change_type) {

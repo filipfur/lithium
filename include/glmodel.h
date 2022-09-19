@@ -92,7 +92,7 @@ namespace lithium
 
     private:
 
-        std::vector<lithium::Texture*> textures_loaded;
+        std::vector<lithium::ImageTexture*> textures_loaded;
         std::vector<lithium::Object*> _objects;
         lithium::ShaderProgram* _shaderProgram{nullptr};
         std::string _directory;
@@ -231,7 +231,7 @@ namespace lithium
         {
             //vector<Vertex> vertices;
             std::vector<unsigned int> indices;
-            std::vector<lithium::Texture*> textures;
+            std::vector<lithium::ImageTexture*> textures;
 
             std::vector<MeshVertex> meshVertices;
 
@@ -260,21 +260,20 @@ namespace lithium
             }
             aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-            std::vector<lithium::Texture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "u_texture", GL_SRGB, GL_RGBA);
+            std::vector<lithium::ImageTexture*> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "u_texture", GL_SRGB, GL_RGBA);
             textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
-            std::vector<lithium::Texture*> normalMaps;
+            std::vector<lithium::ImageTexture*> normalMaps;
             for(auto texture : textures)
             {
-                auto texName = texture->name();
+                auto texName = texture->path();
                 auto normalName = texName.substr(0, texName.find_last_of("."))
                     + "-nmap"
                     + texName.substr(texName.find_last_of("."), std::string::npos);
-                std::cout << "d " << normalName << std::endl;
                 std::ifstream f{normalName};
                 if(f.good())
                 {
-                    normalMaps.push_back(new lithium::Texture(normalName, GL_RGB, GL_RGBA, GL_LINEAR, GL_REPEAT, GL_TEXTURE2));
+                    normalMaps.push_back(lithium::ImageTexture::load(normalName, GL_RGB, GL_RGBA, GL_LINEAR, GL_REPEAT, GL_TEXTURE2));
                 }
             }
 
@@ -283,7 +282,6 @@ namespace lithium
             compute_tangents_lengyel(&meshVertices[0], meshVertices.size(), &indices[0], indices.size());
 
             std::vector<GLfloat> vertices;
-            std::cout << "sizeof(MeshVertex): " << sizeof(MeshVertex) << std::endl;
             vertices.reserve(meshVertices.size() * sizeof(MeshVertex));
             for(MeshVertex meshVertex : meshVertices)
             {
@@ -357,9 +355,9 @@ namespace lithium
 
         // checks all material textures of a given type and loads the textures if they're not loaded yet.
         // the required info is returned as a Texture struct.
-        std::vector<lithium::Texture*> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint filter=GL_LINEAR, GLuint textureWrap=GL_CLAMP_TO_EDGE, GLuint textureUnit=GL_TEXTURE0)
+        std::vector<lithium::ImageTexture*> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint filter=GL_LINEAR, GLuint textureWrap=GL_CLAMP_TO_EDGE, GLuint textureUnit=GL_TEXTURE0)
         {
-            std::vector<lithium::Texture*> textures;
+            std::vector<lithium::ImageTexture*> textures;
             for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
             {
                 aiString str;
@@ -368,7 +366,7 @@ namespace lithium
                 bool skip = false;
                 for(unsigned int j = 0; j < textures_loaded.size(); j++)
                 {
-                    if(std::strcmp(textures_loaded[j]->name().data(), str.C_Str()) == 0)
+                    if(std::strcmp(textures_loaded[j]->path().data(), str.C_Str()) == 0)
                     {
                         textures.push_back(textures_loaded[j]);
                         skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
@@ -378,8 +376,7 @@ namespace lithium
                 if(!skip)
                 {   // if texture hasn't been loaded already, load it
                     auto path = _directory + "/" + std::string(str.C_Str());
-                    std::cout << path << std::endl;
-                    lithium::Texture* texture = new lithium::Texture(path, internalFormat, colorFormat, filter, textureWrap, textureUnit);
+                    lithium::ImageTexture* texture = lithium::ImageTexture::load(path, internalFormat, colorFormat, filter, textureWrap, textureUnit);
                     textures.push_back(texture);
                     textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
                 }

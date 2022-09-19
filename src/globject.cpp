@@ -1,7 +1,7 @@
 #include "globject.h"
 #include <glm/gtx/quaternion.hpp>
 
-lithium::Object::Object(lithium::Mesh* mesh, lithium::Texture* diffuse, lithium::Texture* normal): 
+lithium::Object::Object(lithium::Mesh* mesh, lithium::ImageTexture* diffuse, lithium::ImageTexture* normal): 
         _mesh{mesh}, _texture{diffuse}, _normalMap{normal},
         _position{ 0.0f }, _rotation{0.0f, 0.0f, 0.0f}, _scale{1.0f}
 {

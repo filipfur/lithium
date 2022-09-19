@@ -1,7 +1,6 @@
 #include "glframebuffer.h"
 #include <iostream>
-
-lithium::FrameBuffer* lithium::FrameBuffer::_bound{nullptr};
+#include <vector>
 
 lithium::FrameBuffer::FrameBuffer(glm::ivec2 resolution, lithium::FrameBuffer::Mode mode) 
     : _resolution{resolution}, _mode{mode}
@@ -14,38 +13,20 @@ lithium::FrameBuffer::~FrameBuffer() noexcept
     glDeleteFramebuffers(1, &_id);
 }
 
-void lithium::FrameBuffer::bind()
-{
-    if(_bound != this)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, _id);
-        _bound = this;
-    }
-}
+LITHIUM_GLELEMENT_DEF(lithium::FrameBuffer, glBindFramebuffer, GL_FRAMEBUFFER)
 
-void lithium::FrameBuffer::unbind()
+void lithium::FrameBuffer::attach(RenderBuffer* renderBuffer, GLenum attachment)
 {
-    _bound = nullptr;
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void lithium::FrameBuffer::attach(RenderBuffer* renderBuffer)
-{
-    bind();
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderBuffer->id());
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderBuffer->id());
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         std::cerr << "Failed to bind framebuffer!" << std::endl;
     }
-    unbind();
 }
 
-void lithium::FrameBuffer::createRenderBuffer()
+void lithium::FrameBuffer::createRenderBuffer(lithium::RenderBuffer::Mode mode, GLenum internalFormat, GLenum attachment)
 {
-    attach(new lithium::RenderBuffer(_resolution,
-        _mode == lithium::FrameBuffer::Mode::DEFAULT 
-            ? lithium::RenderBuffer::Mode::DEFAULT 
-            : lithium::RenderBuffer::Mode::MULTISAMPLED));
+    attach(new lithium::RenderBuffer(_resolution, mode, internalFormat), attachment);
 }
 
 void lithium::FrameBuffer::bindTexture(GLuint colorAttachment)
@@ -61,9 +42,8 @@ void lithium::FrameBuffer::bindTexture(GLuint colorAttachment)
     }
 }
 
-void lithium::FrameBuffer::createTexture(GLuint colorAttachment, GLuint colorMode)
+void lithium::FrameBuffer::createTexture(GLuint colorAttachment, GLuint internalFormat, GLuint format, GLuint type, GLuint filter, GLuint wrap)
 {
-    bind();
     GLuint texId;
     glGenTextures(1, &texId);
     switch(_mode)
@@ -71,18 +51,31 @@ void lithium::FrameBuffer::createTexture(GLuint colorAttachment, GLuint colorMod
     case lithium::FrameBuffer::Mode::DEFAULT:
         _glTextureMode = GL_TEXTURE_2D;
         glBindTexture(_glTextureMode, texId);
-        glTexImage2D(_glTextureMode, 0, colorMode, _resolution.x, _resolution.y, 0, colorMode, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+        glTexImage2D(_glTextureMode, 0, internalFormat, _resolution.x, _resolution.y, 0, format, type, NULL);
         break;
     case lithium::FrameBuffer::Mode::MULTISAMPLED:
         _glTextureMode = GL_TEXTURE_2D_MULTISAMPLE;
         glBindTexture(_glTextureMode, texId);
-        glTexImage2DMultisample(_glTextureMode, 4, colorMode, _resolution.x, _resolution.y, GL_TRUE);
+        glTexImage2DMultisample(_glTextureMode, 4, internalFormat, _resolution.x, _resolution.y, GL_TRUE);
         break;
     }
+    glTexParameteri(_glTextureMode, GL_TEXTURE_MIN_FILTER, filter);
+    glTexParameteri(_glTextureMode, GL_TEXTURE_MAG_FILTER, filter);
+    glTexParameteri(_glTextureMode, GL_TEXTURE_WRAP_S, wrap);
+    glTexParameteri(_glTextureMode, GL_TEXTURE_WRAP_T, wrap);
+
     glBindTexture(_glTextureMode, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, colorAttachment, _glTextureMode, texId, 0);
-    unbind();
     _textureIds[colorAttachment] = texId;
+}
+
+void lithium::FrameBuffer::declareBuffers()
+{
+    std::vector<GLuint> attachments;
+    attachments.reserve(_textureIds.size());
+    for(auto it=_textureIds.begin(); it != _textureIds.end(); ++it)
+    {
+        attachments.push_back(it->first);
+    }
+    glDrawBuffers(attachments.size(), attachments.data());
 }
