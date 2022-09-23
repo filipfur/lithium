@@ -73,12 +73,13 @@ namespace lithium
         void run()
         {
             _lastTime = glfwGetTime();
+            _startTime = _lastTime;
             while (!glfwWindowShouldClose(_window))
             {
                 // Simple timer
                 double crntTime = glfwGetTime();
+                _time = crntTime - _startTime;
                 double dt = crntTime - _lastTime;
-                _time += dt;
                 if (dt > 1.0)
                 {
                     std::cerr << "Too long since last tick. Discarding time." << std::endl;
@@ -133,6 +134,7 @@ namespace lithium
         GLFWwindow* _window{nullptr};
         float _time{0};
         double _lastTime{0};
+        double _startTime{0};
         bool _fullscreen{false};
         glm::ivec2 _defaultFrameBufferResolution;
     };

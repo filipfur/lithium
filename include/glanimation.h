@@ -23,18 +23,49 @@ namespace lithium
 	public:
 		Animation() = default;
 
-		Animation(const std::string& animationPath, std::map<std::string, BoneInfo>& boneInfoMap, int boneCount)
+		Animation(const std::string& animationPath, std::map<std::string, BoneInfo>& boneInfoMap, size_t index)
 		{
 			Assimp::Importer importer;
-			const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
+			const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
 			assert(scene && scene->mRootNode);
-			auto animation = scene->mAnimations[0];
+			auto animation = scene->mAnimations[index];
+			std::cout << animationPath << std::endl;
+			for(int i = 0; i < scene->mNumAnimations; ++i)
+			{
+				std::cout << scene->mAnimations[i]->mName.C_Str() << " | ";
+			}
+			std::cout << std::endl;
+			std::cout << animation->mName.C_Str() << " " << animation->mDuration << " " << animation->mTicksPerSecond << " "
+				<< scene->mRootNode->mTransformation.a1 << "," << scene->mRootNode->mTransformation.a2 << ","
+				<< scene->mRootNode->mTransformation.a3 << "," << scene->mRootNode->mTransformation.a4 << std::endl
+				<< scene->mRootNode->mTransformation.b1 << "," << scene->mRootNode->mTransformation.b2 << ","
+				<< scene->mRootNode->mTransformation.b3 << "," << scene->mRootNode->mTransformation.b4 << std::endl
+				<< scene->mRootNode->mTransformation.c1 << "," << scene->mRootNode->mTransformation.c2 << ","
+				<< scene->mRootNode->mTransformation.c3 << "," << scene->mRootNode->mTransformation.c4 << std::endl
+				<< scene->mRootNode->mTransformation.d1 << "," << scene->mRootNode->mTransformation.d2 << ","
+				<< scene->mRootNode->mTransformation.d3 << "," << scene->mRootNode->mTransformation.d4 << std::endl;
 			m_Duration = animation->mDuration;
 			m_TicksPerSecond = animation->mTicksPerSecond;
 			aiMatrix4x4 globalTransformation = scene->mRootNode->mTransformation;
+			/*globalTransformation.a1 = 1;
+			globalTransformation.a2 = 0;
+			globalTransformation.a3 = 0;
+			globalTransformation.a4 = 0;
+			globalTransformation.b1 = 0;
+			globalTransformation.b2 = 0;
+			globalTransformation.b3 = 1;
+			globalTransformation.b4 = 0;
+			globalTransformation.c1 = 0;
+			globalTransformation.c2 = -1;
+			globalTransformation.c3 = 0;
+			globalTransformation.c4 = 0;
+			globalTransformation.d1 = 0;
+			globalTransformation.d2 = 0;
+			globalTransformation.d3 = 0;
+			globalTransformation.d4 = 1;*/
 			globalTransformation = globalTransformation.Inverse();
 			ReadHeirarchyData(m_RootNode, scene->mRootNode);
-			ReadMissingBones(animation, boneInfoMap, boneCount);
+			ReadMissingBones(animation, boneInfoMap);
 		}
 
 		~Animation()
@@ -63,7 +94,7 @@ namespace lithium
 		}
 
 	private:
-		void ReadMissingBones(const aiAnimation* animation, std::map<std::string, BoneInfo>& boneInfoMap, int boneCount)
+		void ReadMissingBones(const aiAnimation* animation, std::map<std::string, BoneInfo>& boneInfoMap)
 		{
 			int size = animation->mNumChannels;
 
@@ -76,9 +107,9 @@ namespace lithium
 				if (boneInfoMap.find(boneName) == boneInfoMap.end())
 				{
 					BoneInfo boneInfo{};
-					boneInfo.id = boneCount;
+					boneInfo.id = boneInfoMap.size();
 					boneInfoMap.emplace(boneName, boneInfo);
-					boneCount++;
+					std::cout << "adding bone: " << boneInfo.id << std::endl;
 				}
 				m_Bones.push_back(Bone(channel->mNodeName.data,
 					boneInfoMap[channel->mNodeName.data].id, channel));

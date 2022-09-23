@@ -15,9 +15,13 @@ namespace lithium
                 stbi_set_flip_vertically_on_load(flip);
                 int width, height, colorChannels;
                 unsigned char* bytes = stbi_load(path.c_str(), &width, &height, &colorChannels, 0);
-                if(colorChannels == 3)
+                if(colorChannels == 3 && colorFormat == GL_RGBA)
                 {
                     colorFormat = GL_RGB;
+                }
+                else if(colorChannels == 4 && colorFormat == GL_RGB)
+                {
+                    colorFormat = GL_RGBA;
                 }
                 if (bytes == nullptr)
                 {

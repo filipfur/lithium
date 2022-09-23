@@ -21,6 +21,10 @@ namespace lithium
 			glAttachShader(_id, _vertexShader.id());
 			glAttachShader(_id, _fragmentShader.id());
 			glLinkProgram(_id);
+			for(auto&& pair : _cache)
+			{
+				setUniform(pair.first, pair.second);
+			}
 		}
 
 		virtual void bind() override
@@ -43,6 +47,7 @@ namespace lithium
 		void setUniform(const std::string& name, int i)
 		{
 			glUniform1i(loadUniform(name), i);
+			_cache.emplace(name, i);
 		}
 
 		void setUniform(const std::string& name, const glm::vec3& vector)
@@ -101,6 +106,7 @@ namespace lithium
 		static const GLuint INVALID_LOCATION{0xffffffff};
 
 	private:
+		std::map<std::string,int> _cache;
 		Shader<GL_VERTEX_SHADER> _vertexShader;
 		Shader<GL_FRAGMENT_SHADER> _fragmentShader;
 		std::map<std::string, GLuint> _uniforms;

@@ -10,6 +10,7 @@
 
 #include <string>
 #include <fstream>
+#include <iomanip>
 #include <sstream>
 #include <iostream>
 #include <map>
@@ -30,7 +31,7 @@ namespace lithium
     class Model : public IUpdateable
     {
     public:
-        Model(std::string const &path, lithium::ShaderProgram* shaderProgram) : _shaderProgram{shaderProgram}
+        Model(std::string const &path, lithium::ShaderProgram* shaderProgram) : _shaderProgram{shaderProgram}, _vertexLog{dirname(path) + "/vertexlog.txt"}
         {
             shaderProgram->use();
             shaderProgram->setUniform("u_texture_0", 0);
@@ -39,9 +40,9 @@ namespace lithium
             loadModel(path);
         }
 
-        void loadAnimation(const std::string path)
+        void loadAnimation(const std::string path, size_t index)
         {
-            auto animation = new lithium::Animation(path, m_BoneInfoMap, m_BoneCounter);
+            auto animation = new lithium::Animation(path, m_BoneInfoMap, index);
             _animations.push_back(animation);
             _animator.playAnimation(animation);
         }
@@ -70,6 +71,17 @@ namespace lithium
                 obj->draw();
             }
         }
+
+        void forEachObject(const std::function<bool(lithium::Object*)> & callback)
+        {
+            for(auto obj : _objects)
+            {
+                if(!callback(obj))
+                {
+                    break;
+                }
+            }
+        }
         
         auto& GetBoneInfoMap() { return m_BoneInfoMap; }
         int& GetBoneCount() { return m_BoneCounter; }
@@ -92,21 +104,12 @@ namespace lithium
 
     private:
 
-        std::vector<lithium::ImageTexture*> textures_loaded;
-        std::vector<lithium::Object*> _objects;
-        lithium::ShaderProgram* _shaderProgram{nullptr};
-        std::string _directory;
-        lithium::Animator _animator;
-        std::vector<lithium::Animation*> _animations;
-        std::map<std::string, BoneInfo> m_BoneInfoMap;
-        int m_BoneCounter = 0;
-
         // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
         void loadModel(std::string const &path)
         {
             // read file via ASSIMP
             Assimp::Importer importer;
-            const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+            const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate); //| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
             // check for errors
             if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
             {
@@ -283,8 +286,15 @@ namespace lithium
 
             std::vector<GLfloat> vertices;
             vertices.reserve(meshVertices.size() * sizeof(MeshVertex));
+            _vertexLog << std::fixed << std::setprecision(2);
             for(MeshVertex meshVertex : meshVertices)
             {
+                _vertexLog << meshVertex.pos.x << " " << meshVertex.pos.y << " " << meshVertex.pos.z << " " << meshVertex.normal.x << " " << meshVertex.normal.y << " " << meshVertex.normal.z << " " <<
+                    meshVertex.tex.x << " " << meshVertex.tex.y << " " << meshVertex.tangent.x << " " << meshVertex.tangent.y << " " << meshVertex.tangent.z << " " <<
+                    meshVertex.bitangent.x << " " << meshVertex.bitangent.y << " " << meshVertex.bitangent.z << " " <<
+                    meshVertex.boneIds[0] << " " << meshVertex.boneIds[1] << " " << meshVertex.boneIds[2] << " " << meshVertex.boneIds[3] << " " <<
+                    meshVertex.boneWeights[0] << " " << meshVertex.boneWeights[1] << " " << meshVertex.boneWeights[2] << " " << meshVertex.boneWeights[3] << std::endl;
+
                 vertices.insert(vertices.end(), {meshVertex.pos.x, meshVertex.pos.y, meshVertex.pos.z, meshVertex.normal.x, meshVertex.normal.y, meshVertex.normal.z,
                     meshVertex.tex.x, meshVertex.tex.y, meshVertex.tangent.x, meshVertex.tangent.y, meshVertex.tangent.z,
                     meshVertex.bitangent.x, meshVertex.bitangent.y, meshVertex.bitangent.z,
@@ -296,6 +306,9 @@ namespace lithium
                     }
             }
 
+            _vertexLog.flush();
+            _vertexLog.close();
+
             auto lithiummesh = new lithium::Mesh(vertices, indices, lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT);
 
             auto object = new lithium::Object(lithiummesh, diffuseMaps.size() > 0 ? diffuseMaps[0] : nullptr, normalMaps.size() > 0 ? normalMaps[0] : nullptr);
@@ -303,41 +316,24 @@ namespace lithium
             return object;
         }
 
-        void SetVertexBoneData(MeshVertex& vertex, int boneID, float weight)
-        {
-            for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
-            {
-                if (vertex.boneIds[i] < 0)
-                {
-                    vertex.boneWeights[i] = weight;
-                    vertex.boneIds[i] = boneID;
-                    break;
-                }
-            }
-        }
-
-
         void ExtractBoneWeightForVertices(std::vector<MeshVertex>& vertices, aiMesh* mesh, const aiScene* scene)
         {
-            auto& boneInfoMap = m_BoneInfoMap;
-            int& boneCount = m_BoneCounter;
 
             for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
             {
                 int boneID = -1;
                 std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
-                if (boneInfoMap.find(boneName) == boneInfoMap.end())
+                if (m_BoneInfoMap.find(boneName) == m_BoneInfoMap.end())
                 {
                     BoneInfo newBoneInfo;
-                    newBoneInfo.id = boneCount;
+                    newBoneInfo.id = m_BoneInfoMap.size();
                     newBoneInfo.offset = AssimpGLMHelpers::ConvertMatrixToGLMFormat(mesh->mBones[boneIndex]->mOffsetMatrix);
-                    boneInfoMap[boneName] = newBoneInfo;
-                    boneID = boneCount;
-                    boneCount++;
+                    m_BoneInfoMap[boneName] = newBoneInfo;
+                    boneID = m_BoneInfoMap[boneName].id;
                 }
                 else
                 {
-                    boneID = boneInfoMap[boneName].id;
+                    boneID = m_BoneInfoMap[boneName].id;
                 }
                 assert(boneID != -1);
                 auto weights = mesh->mBones[boneIndex]->mWeights;
@@ -348,7 +344,15 @@ namespace lithium
                     int vertexId = weights[weightIndex].mVertexId;
                     float weight = weights[weightIndex].mWeight;
                     assert(vertexId <= vertices.size());
-                    SetVertexBoneData(vertices[vertexId], boneID, weight);
+                    for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
+                    {
+                        if (vertices[vertexId].boneIds[i] < 0)
+                        {
+                            vertices[vertexId].boneWeights[i] = weight;
+                            vertices[vertexId].boneIds[i] = boneID;
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -383,6 +387,15 @@ namespace lithium
             }
             return textures;
         }
-    };
 
+        std::vector<lithium::ImageTexture*> textures_loaded;
+        std::vector<lithium::Object*> _objects;
+        lithium::ShaderProgram* _shaderProgram{nullptr};
+        std::string _directory;
+        lithium::Animator _animator;
+        std::vector<lithium::Animation*> _animations;
+        std::map<std::string, BoneInfo> m_BoneInfoMap;
+        int m_BoneCounter{0};
+        std::ofstream _vertexLog;
+    };
 }
