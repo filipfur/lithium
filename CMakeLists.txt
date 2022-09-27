@@ -26,6 +26,7 @@ add_library(${PROJECT_NAME} STATIC
     src/gltimemeasure.cpp
     src/gltriangle.cpp
     src/stb_image.cpp
+    src/glperiodictask.cpp
     src/gltaskscheduler.cpp
     src/gltinyobjloader.cpp
 )
@@ -42,6 +43,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC include
     dep/tinyobjloader
     dep/filewatch
     dep/assimp/include
+    dep/miniaudio
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/*.h)

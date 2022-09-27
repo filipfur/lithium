@@ -6,9 +6,12 @@
 #include "iupdateable.h"
 #include "glinput.h"
 
+#define MINIAUDIO_IMPLEMENTATION
+#include "miniaudio.h"
+
 namespace lithium
 {
-    class Application : public IUpdateable
+    class Application : public IUpdateable, Input::Context
     {
     public:
         enum class Mode
@@ -31,6 +34,13 @@ namespace lithium
                     glfwWindowHint(GLFW_SAMPLES, 4);
                     break;
             }
+
+            ma_result result = ma_engine_init(NULL, &_engine);
+            if (result != MA_SUCCESS) {
+                printf("Failed to initialize audio engine.");
+                exit(-1);
+            }
+
             GLFWmonitor *monitor = nullptr;
             if(_fullscreen)
             {
@@ -62,12 +72,23 @@ namespace lithium
             _input = new lithium::Input(_window);
             _defaultFrameBufferResolution.x = fbWidth;
             _defaultFrameBufferResolution.y = fbHeight;
+            input()->setContext(this);
         }
 
         virtual ~Application()
         {
             glfwDestroyWindow(_window);
             glfwTerminate();
+            ma_engine_uninit(&_engine);	
+        }
+
+        void playAudio(const std::string& path)
+        {
+            if(_audioEnabled)
+            {
+                ma_engine_set_volume(&_engine, 0.1f);
+                ma_engine_play_sound(&_engine, path.c_str(), NULL);
+            }
         }
 
         void run()
@@ -80,6 +101,7 @@ namespace lithium
                 double crntTime = glfwGetTime();
                 _time = crntTime - _startTime;
                 double dt = crntTime - _lastTime;
+                // dt *= 0.1; SLOMO
                 if (dt > 1.0)
                 {
                     std::cerr << "Too long since last tick. Discarding time." << std::endl;
@@ -137,5 +159,7 @@ namespace lithium
         double _startTime{0};
         bool _fullscreen{false};
         glm::ivec2 _defaultFrameBufferResolution;
+        ma_engine _engine;
+        bool _audioEnabled{true};
     };
 }

@@ -176,6 +176,11 @@ namespace lithium
 			_context = context;
 		}
 
+		glm::vec2 mousePosition() const
+		{
+			return _mousePos;
+		}
+
 	private:
 		GLFWwindow* _window;
 		Controller _controller;
@@ -183,6 +188,8 @@ namespace lithium
 		int _width;
 		int _height;
 		Context* _context{nullptr};
+		glm::vec2 _clickedPos;
+		glm::vec2 _mousePos;
 		std::map<Context*,std::map<int, std::function<bool(int, int)>>> _pressedCallbacks;
 		std::map<Context*,std::map<int, std::function<bool(int, int)>>> _releasedCallbacks;
 		std::map<Context*, std::function<bool(float, float)>> _scrollCallbacks;

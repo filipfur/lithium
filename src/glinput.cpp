@@ -112,6 +112,7 @@ void lithium::Input::onMouse(GLFWwindow *window, int button, int action, int mod
 					itPress->second(button, mods);
 				}
 			}
+			_clickedPos = _mousePos;
 		}
 		else if(action == GLFW_RELEASE)
 		{
@@ -124,6 +125,7 @@ void lithium::Input::onMouse(GLFWwindow *window, int button, int action, int mod
 					itRelease->second(button, mods);
 				}
 			}
+			std::cout << "Dragged from: " << _clickedPos.x << "," << _clickedPos.y << " to " << _mousePos.x << "," << _mousePos.y << " (" << glm::distance(_clickedPos, _mousePos) << ")" << std::endl;
 		}
 	}
 }
@@ -148,6 +150,8 @@ void lithium::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
 			firstClick = false;
 		}*/
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	_mousePos.x = mouseX;
+	_mousePos.y = mouseY;
 	float rotX = 100.0f * (float)(mouseY - (_height / 2)) / _height;
 	float rotY = 100.0f * (float)(mouseX - (_width / 2)) / _width;
 	glm::vec3 newOrienation = glm::rotate(_controller.orientation(), glm::radians(-rotX),

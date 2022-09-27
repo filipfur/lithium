@@ -272,6 +272,11 @@ namespace lithium
 			return new lithium::Object(*this);
 		}
 
+		void setUpdateCallback(const std::function<bool(Object*,float)>& updateCallback)
+		{
+			_updateCallback = updateCallback;
+		}
+
 	protected:
 		virtual void onDraw();
         lithium::Mesh* _mesh;
@@ -290,6 +295,7 @@ namespace lithium
         lithium::ImageTexture* _texture{nullptr};
         lithium::ImageTexture* _specular{nullptr};
 		lithium::ImageTexture* _normalMap{nullptr};
+		std::function<bool(Object*,float)> _updateCallback;
 		
 	private:
 		std::shared_ptr<std::string> _objectName;

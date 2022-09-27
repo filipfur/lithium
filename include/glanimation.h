@@ -26,7 +26,7 @@ namespace lithium
 		Animation(const std::string& animationPath, std::map<std::string, BoneInfo>& boneInfoMap, size_t index)
 		{
 			Assimp::Importer importer;
-			const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
+			const aiScene* scene = importer.ReadFile(animationPath, 0);//aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
 			assert(scene && scene->mRootNode);
 			auto animation = scene->mAnimations[index];
 			std::cout << animationPath << std::endl;
@@ -88,10 +88,6 @@ namespace lithium
 		inline float GetTicksPerSecond() { return m_TicksPerSecond; }
 		inline float GetDuration() { return m_Duration;}
 		inline const AssimpNodeData& GetRootNode() { return m_RootNode; }
-		inline const std::map<std::string,BoneInfo>& GetBoneIDMap() 
-		{ 
-			return m_BoneInfoMap;
-		}
 
 	private:
 		void ReadMissingBones(const aiAnimation* animation, std::map<std::string, BoneInfo>& boneInfoMap)
@@ -114,8 +110,6 @@ namespace lithium
 				m_Bones.push_back(Bone(channel->mNodeName.data,
 					boneInfoMap[channel->mNodeName.data].id, channel));
 			}
-
-			m_BoneInfoMap = boneInfoMap;
 		}
 
 		void ReadHeirarchyData(AssimpNodeData& dest, const aiNode* src)
@@ -135,8 +129,7 @@ namespace lithium
 		}
 		float m_Duration;
 		int m_TicksPerSecond;
-		std::vector<Bone> m_Bones;
+		std::vector<Bone> m_Bones;  // ?????
 		AssimpNodeData m_RootNode;
-		std::map<std::string, BoneInfo> m_BoneInfoMap;
 	};
 }

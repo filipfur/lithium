@@ -21,13 +21,13 @@ namespace lithium
 				m_FinalBoneMatrices.push_back(glm::mat4(1.0f));			
 		}
 
-		void UpdateAnimation(float dt)
+		void UpdateAnimation(float dt, const std::map<std::string, BoneInfo>& boneInfoMap)
 		{
 			if (m_CurrentAnimation)
 			{
 				m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * dt;
 				m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
-				CalculateBoneTransform(&m_CurrentAnimation->GetRootNode(), glm::mat4(1.0f));
+				CalculateBoneTransform(&m_CurrentAnimation->GetRootNode(), glm::mat4(1.0f), boneInfoMap);
 			}
 		}
 
@@ -46,7 +46,7 @@ namespace lithium
 			}
 		}
 
-		void CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform)
+		void CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform, const std::map<std::string, BoneInfo>& boneInfoMap)
 		{
 			std::string nodeName = node->name;
 			glm::mat4 nodeTransform = node->transformation;
@@ -61,16 +61,18 @@ namespace lithium
 
 			glm::mat4 globalTransformation = parentTransform * nodeTransform;
 
-			auto boneInfoMap = m_CurrentAnimation->GetBoneIDMap();
-			if (boneInfoMap.find(nodeName) != boneInfoMap.end())
+			auto it = boneInfoMap.find(nodeName);
+			if (it != boneInfoMap.end())
 			{
-				int index = boneInfoMap[nodeName].id;
-				glm::mat4 offset = boneInfoMap[nodeName].offset;
+				int index = it->second.id;
+				glm::mat4 offset = it->second.offset;
 				m_FinalBoneMatrices[index] = globalTransformation * offset;
 			}
 
 			for (int i = 0; i < node->childrenCount; i++)
-				CalculateBoneTransform(&node->children[i], globalTransformation);
+			{
+				CalculateBoneTransform(&node->children[i], globalTransformation, boneInfoMap);
+			}
 		}
 
 		std::vector<glm::mat4> GetFinalBoneMatrices()

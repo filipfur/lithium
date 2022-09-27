@@ -40,6 +40,13 @@ lithium::Object::~Object() noexcept
 
 void lithium::Object::update(float dt)
 {
+    if(_updateCallback)
+    {
+        if(!_updateCallback(this, dt))
+        {
+            _updateCallback = [](lithium::Object*, float){ return true; };
+        }
+    }
     if(_flicker > 0)
     {
         _flicker -= dt;
@@ -63,13 +70,13 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram) const
     }
     shaderProgram->use();
     shaderProgram->setUniform("u_color", fadedColor());
-    shaderProgram->setUniform("u_shininess", _shininess);
-    shaderProgram->setUniform("u_regions", _textureRegions);
-    shaderProgram->setUniform("u_current_region", _currentTextureRegion);
+    //shaderProgram->setUniform("u_shininess", _shininess);
+    //shaderProgram->setUniform("u_regions", _textureRegions);
+    //shaderProgram->setUniform("u_current_region", _currentTextureRegion);
     shaderProgram->setUniform("u_model", _model);
-    shaderProgram->setUniform("u_texture_0", 0);
-    shaderProgram->setUniform("u_specular_0", 1);
-    shaderProgram->setUniform("u_normal_0", 2);
+    //shaderProgram->setUniform("u_texture_0", 0);
+    //shaderProgram->setUniform("u_specular_0", 1);
+    //shaderProgram->setUniform("u_normal_0", 2);
 }
 
 void lithium::Object::draw()

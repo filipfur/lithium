@@ -92,6 +92,7 @@ namespace lithium
 					return index;
 			}
 			assert(0);
+			return 0;
 		}
 
 		int GetRotationIndex(float animationTime)
@@ -102,6 +103,7 @@ namespace lithium
 					return index;
 			}
 			assert(0);
+			return 0;
 		}
 
 		int GetScaleIndex(float animationTime)
@@ -112,6 +114,7 @@ namespace lithium
 					return index;
 			}
 			assert(0);
+			return 0;
 		}
 
 
