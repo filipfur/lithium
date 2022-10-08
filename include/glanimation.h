@@ -44,53 +44,46 @@ namespace lithium
 				<< scene->mRootNode->mTransformation.c3 << "," << scene->mRootNode->mTransformation.c4 << std::endl
 				<< scene->mRootNode->mTransformation.d1 << "," << scene->mRootNode->mTransformation.d2 << ","
 				<< scene->mRootNode->mTransformation.d3 << "," << scene->mRootNode->mTransformation.d4 << std::endl;
-			m_Duration = animation->mDuration;
-			m_TicksPerSecond = animation->mTicksPerSecond;
+			_duration = animation->mDuration;
+			_ticksPerSecond = animation->mTicksPerSecond;
 			aiMatrix4x4 globalTransformation = scene->mRootNode->mTransformation;
-			/*globalTransformation.a1 = 1;
-			globalTransformation.a2 = 0;
-			globalTransformation.a3 = 0;
-			globalTransformation.a4 = 0;
-			globalTransformation.b1 = 0;
-			globalTransformation.b2 = 0;
-			globalTransformation.b3 = 1;
-			globalTransformation.b4 = 0;
-			globalTransformation.c1 = 0;
-			globalTransformation.c2 = -1;
-			globalTransformation.c3 = 0;
-			globalTransformation.c4 = 0;
-			globalTransformation.d1 = 0;
-			globalTransformation.d2 = 0;
-			globalTransformation.d3 = 0;
-			globalTransformation.d4 = 1;*/
 			globalTransformation = globalTransformation.Inverse();
-			ReadHeirarchyData(m_RootNode, scene->mRootNode);
-			ReadMissingBones(animation, boneInfoMap);
+			readHeirachyData(_rootNode, scene->mRootNode);
+			readMissingBones(animation, boneInfoMap);
 		}
 
 		~Animation()
 		{
 		}
 
-		Bone* FindBone(const std::string& name)
+		Bone* findBone(const std::string& name)
 		{
-			auto iter = std::find_if(m_Bones.begin(), m_Bones.end(),
-				[&](const Bone& Bone)
+			auto iter = std::find_if(_bones.begin(), _bones.end(),
+				[&](const Bone& bone)
 				{
-					return Bone.GetBoneName() == name;
+					return bone.name() == name;
 				}
 			);
-			if (iter == m_Bones.end()) return nullptr;
+			if (iter == _bones.end()) return nullptr;
 			else return &(*iter);
 		}
 
+		void setLooped(bool looped)
+		{
+			_looped = looped;
+		}
+
+		bool looped() const
+		{
+			return _looped;
+		}
 		
-		inline float GetTicksPerSecond() { return m_TicksPerSecond; }
-		inline float GetDuration() { return m_Duration;}
-		inline const AssimpNodeData& GetRootNode() { return m_RootNode; }
+		inline float ticksPerSecond() { return _ticksPerSecond; }
+		inline float duration() { return _duration;}
+		inline const AssimpNodeData& rootNode() { return _rootNode; }
 
 	private:
-		void ReadMissingBones(const aiAnimation* animation, std::map<std::string, BoneInfo>& boneInfoMap)
+		void readMissingBones(const aiAnimation* animation, std::map<std::string, BoneInfo>& boneInfoMap)
 		{
 			int size = animation->mNumChannels;
 
@@ -107,12 +100,12 @@ namespace lithium
 					boneInfoMap.emplace(boneName, boneInfo);
 					std::cout << "adding bone: " << boneInfo.id << std::endl;
 				}
-				m_Bones.push_back(Bone(channel->mNodeName.data,
+				_bones.push_back(Bone(channel->mNodeName.data,
 					boneInfoMap[channel->mNodeName.data].id, channel));
 			}
 		}
 
-		void ReadHeirarchyData(AssimpNodeData& dest, const aiNode* src)
+		void readHeirachyData(AssimpNodeData& dest, const aiNode* src)
 		{
 			assert(src);
 
@@ -123,13 +116,14 @@ namespace lithium
 			for (int i = 0; i < src->mNumChildren; i++)
 			{
 				AssimpNodeData newData;
-				ReadHeirarchyData(newData, src->mChildren[i]);
+				readHeirachyData(newData, src->mChildren[i]);
 				dest.children.push_back(newData);
 			}
 		}
-		float m_Duration;
-		int m_TicksPerSecond;
-		std::vector<Bone> m_Bones;  // ?????
-		AssimpNodeData m_RootNode;
+		float _duration;
+		int _ticksPerSecond;
+		bool _looped{true};
+		std::vector<Bone> _bones;  // ?????
+		AssimpNodeData _rootNode;
 	};
 }

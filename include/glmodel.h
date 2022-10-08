@@ -56,6 +56,17 @@ namespace lithium
             }
         }
 
+        Animation* animation(const std::string& key)
+        {
+            Animation* anim{nullptr};
+            auto it = _animations.find(key);
+            if(it != _animations.end())
+            {
+                anim = it->second;
+            }
+            return anim;
+        }
+
         void playAnimation(const std::string animationName)
         {
             auto it = _animations.find(animationName);
@@ -78,7 +89,7 @@ namespace lithium
 
         virtual void update(float dt) override
         {
-            _animator.UpdateAnimation(dt, m_BoneInfoMap);
+            _animator.updateAnimation(dt, m_BoneInfoMap);
             if(_updateCallback)
             {
                 _updateCallback(this, dt);

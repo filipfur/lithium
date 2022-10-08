@@ -15,48 +15,55 @@ namespace lithium
 	public:
 		Animator()
 		{
-			m_FinalBoneMatrices.reserve(100);
+			_finalBoneMatrix.reserve(100);
 
 			for (int i = 0; i < 100; i++)
-				m_FinalBoneMatrices.push_back(glm::mat4(1.0f));			
+				_finalBoneMatrix.push_back(glm::mat4(1.0f));			
 		}
 
-		void UpdateAnimation(float dt, const std::map<std::string, BoneInfo>& boneInfoMap)
+		void updateAnimation(float dt, const std::map<std::string, BoneInfo>& boneInfoMap)
 		{
-			if (m_CurrentAnimation)
+			if (_animation)
 			{
-				m_CurrentTime += m_CurrentAnimation->GetTicksPerSecond() * dt;
-				m_CurrentTime = fmod(m_CurrentTime, m_CurrentAnimation->GetDuration());
-				CalculateBoneTransform(&m_CurrentAnimation->GetRootNode(), glm::mat4(1.0f), boneInfoMap);
+				if(!_animation->looped() && _timeMs >= _animation->duration() - 66.66f) // TODO: Hack. Pls fix.
+				{
+					return;
+				}
+				_timeMs += _animation->ticksPerSecond() * dt;
+				if(_timeMs > _animation->duration())
+				{
+					_timeMs = fmod(_timeMs, _animation->duration());
+				}
+				calculateBoneTransform(&_animation->rootNode(), glm::mat4(1.0f), boneInfoMap);
 			}
 		}
 
 		void playAnimation(Animation* pAnimation)
 		{
-			m_CurrentAnimation = pAnimation;
-			m_CurrentTime = 0.0f;
+			_animation = pAnimation;
+			_timeMs = 0.0f;
 		}
 
 		void animate(lithium::ShaderProgram* shaderProgram)
 		{
-			auto transforms = GetFinalBoneMatrices();
+			auto transforms = finalBoneMatrix();
 			for (int i = 0; i < transforms.size(); ++i)
 			{
 				shaderProgram->setUniform("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
 			}
 		}
 
-		void CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform, const std::map<std::string, BoneInfo>& boneInfoMap)
+		void calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform, const std::map<std::string, BoneInfo>& boneInfoMap)
 		{
 			std::string nodeName = node->name;
 			glm::mat4 nodeTransform = node->transformation;
 
-			Bone* Bone = m_CurrentAnimation->FindBone(nodeName);
+			Bone* bone = _animation->findBone(nodeName);
 
-			if (Bone)
+			if (bone)
 			{
-				Bone->Update(m_CurrentTime);
-				nodeTransform = Bone->GetLocalTransform();
+				bone->update(_timeMs);
+				nodeTransform = bone->localTransform();
 			}
 
 			glm::mat4 globalTransformation = parentTransform * nodeTransform;
@@ -66,23 +73,23 @@ namespace lithium
 			{
 				int index = it->second.id;
 				glm::mat4 offset = it->second.offset;
-				m_FinalBoneMatrices[index] = globalTransformation * offset;
+				_finalBoneMatrix[index] = globalTransformation * offset;
 			}
 
 			for (int i = 0; i < node->childrenCount; i++)
 			{
-				CalculateBoneTransform(&node->children[i], globalTransformation, boneInfoMap);
+				calculateBoneTransform(&node->children[i], globalTransformation, boneInfoMap);
 			}
 		}
 
-		std::vector<glm::mat4> GetFinalBoneMatrices()
+		std::vector<glm::mat4> finalBoneMatrix()
 		{
-			return m_FinalBoneMatrices;
+			return _finalBoneMatrix;
 		}
 
 	private:
-		std::vector<glm::mat4> m_FinalBoneMatrices;
-		Animation* m_CurrentAnimation{nullptr};
-		float m_CurrentTime{0.0};
+		std::vector<glm::mat4> _finalBoneMatrix;
+		Animation* _animation{nullptr};
+		float _timeMs{0.0};
 	};
 }
