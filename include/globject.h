@@ -277,6 +277,11 @@ namespace lithium
 			_updateCallback = updateCallback;
 		}
 
+		glm::mat4 model() const
+		{
+			return _model;
+		}
+
 	protected:
 		virtual void onDraw();
         lithium::Mesh* _mesh;

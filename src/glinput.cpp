@@ -125,7 +125,7 @@ void lithium::Input::onMouse(GLFWwindow *window, int button, int action, int mod
 					itRelease->second(button, mods);
 				}
 			}
-			std::cout << "Dragged from: " << _clickedPos.x << "," << _clickedPos.y << " to " << _mousePos.x << "," << _mousePos.y << " (" << glm::distance(_clickedPos, _mousePos) << ")" << std::endl;
+			//std::cout << "Dragged from: " << _clickedPos.x << "," << _clickedPos.y << " to " << _mousePos.x << "," << _mousePos.y << " (" << glm::distance(_clickedPos, _mousePos) << ")" << std::endl;
 		}
 	}
 }

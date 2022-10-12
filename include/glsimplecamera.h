@@ -45,6 +45,11 @@ namespace lithium
             return _position;
         }
 
+        glm::vec3 target() const
+        {
+            return _target;
+        }
+
         glm::mat4 projection() const
         {
             return _projection;
