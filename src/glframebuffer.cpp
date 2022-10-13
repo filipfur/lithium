@@ -18,10 +18,14 @@ LITHIUM_GLELEMENT_DEF(lithium::FrameBuffer, glBindFramebuffer, GL_FRAMEBUFFER)
 void lithium::FrameBuffer::attach(RenderBuffer* renderBuffer, GLenum attachment)
 {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderBuffer->id());
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if(fboStatus != GL_FRAMEBUFFER_COMPLETE)
     {
         std::cerr << "Failed to bind framebuffer!" << std::endl;
+        if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+            std::cout << "Framebuffer not complete: " << fboStatus << std::endl;
     }
+    
 }
 
 void lithium::FrameBuffer::createRenderBuffer(lithium::RenderBuffer::Mode mode, GLenum internalFormat, GLenum attachment)

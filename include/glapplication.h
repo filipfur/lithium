@@ -138,6 +138,11 @@ namespace lithium
             return _windowResolution.y;
         }
 
+        glm::ivec2 windowResolution() const
+        {
+            return _windowResolution;
+        }
+
         //virtual void update(float dt) = 0;
 
         void moveWindow(int x, int y)
