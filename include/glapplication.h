@@ -150,6 +150,11 @@ namespace lithium
             glfwSetWindowPos(_window, x, y);
         }
 
+        void setAudioEnabled(bool audioEnabled)
+        {
+            _audioEnabled = audioEnabled;
+        }
+
         lithium::Input* input() const
         {
             return _input;
