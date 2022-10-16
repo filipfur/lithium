@@ -23,6 +23,11 @@ namespace lithium
             setMesh(_meshes->at(0));
         }
 
+        void stop()
+        {
+            _playing = false;
+        }
+
         void setIAnimatedObject(lithium::IAnimatedObject* iAnimatedObject)
         {
             lithium::Object::setIObject(iAnimatedObject);
@@ -37,6 +42,16 @@ namespace lithium
         void setInterval(float interval)
         {
             _interval = interval;
+        }
+
+        virtual lithium::AnimatedObject* clone() const
+		{
+			return new lithium::AnimatedObject(*this);
+		}
+
+        bool playing() const
+        {
+            return _playing;
         }
 
     private:
