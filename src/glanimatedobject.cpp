@@ -32,21 +32,47 @@ void lithium::AnimatedObject::update(float dt)
     _duration -= dt;
     if(_duration <= 0)
     {
-        ++_currentFrame;
-        if(_currentFrame == _meshes->end())
+        if(_reverse)
         {
-            if(_looping)
+            if(_currentFrame == _meshes->begin())
             {
-                _currentFrame = _meshes->begin();
+                if(_looping)
+                {
+                    _currentFrame = _meshes->end() - 1;
+                }
+                else
+                {
+                    _playing = false;
+                    if(_iAnimatedObject)
+                    {
+                        _iAnimatedObject->onAnimationPlayedOnce(this);
+                    }
+                    return;
+                }
             }
             else
             {
-                _playing = false;
-                if(_iAnimatedObject)
+                --_currentFrame;
+            }
+        }
+        else
+        {
+            ++_currentFrame;
+            if(_currentFrame == _meshes->end())
+            {
+                if(_looping)
                 {
-                    _iAnimatedObject->onAnimationPlayedOnce(this);
+                    _currentFrame = _meshes->begin();
                 }
-                return;
+                else
+                {
+                    _playing = false;
+                    if(_iAnimatedObject)
+                    {
+                        _iAnimatedObject->onAnimationPlayedOnce(this);
+                    }
+                    return;
+                }
             }
         }
         setMesh(*_currentFrame);

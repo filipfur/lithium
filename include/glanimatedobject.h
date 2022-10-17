@@ -23,6 +23,11 @@ namespace lithium
             setMesh(_meshes->at(0));
         }
 
+        void setReverse(bool reverse)
+        {
+            _reverse = reverse;
+        }
+
         void stop()
         {
             _playing = false;
@@ -44,7 +49,7 @@ namespace lithium
             _interval = interval;
         }
 
-        virtual lithium::AnimatedObject* clone() const
+        virtual lithium::AnimatedObject* clone() const override
 		{
 			return new lithium::AnimatedObject(*this);
 		}
@@ -57,10 +62,11 @@ namespace lithium
     private:
         std::shared_ptr<std::vector<lithium::Mesh*>> _meshes;
         std::vector<lithium::Mesh*>::iterator _currentFrame;
-        float _interval{1.0f / 24.0f};
+        float _interval{1.0f / 30.0f};
         float _duration{_interval};
         lithium::IAnimatedObject* _iAnimatedObject{nullptr};
         bool _looping{false};
         bool _playing{false};
+        bool _reverse{false};
     };
 }
