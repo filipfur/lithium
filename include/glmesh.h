@@ -12,7 +12,7 @@ namespace lithium
 	{
 	public:
 		enum class State{
-			POS_UV, POS_NORMAL_UV, POS_NORMAL_UV_TANGENTS, POS_NORMAL_UV_TANGENTS_BONE_WEIGHT, XYZW
+			POS, POS_UV, POS_NORMAL_UV, POS_NORMAL_UV_TANGENTS, POS_NORMAL_UV_TANGENTS_BONE_WEIGHT, XYZW
 		};
 
 		Mesh(const Mesh& other)
@@ -20,15 +20,27 @@ namespace lithium
 			_vertexArray = new VertexArray();
 			_vertexArray->bind();
 			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>(*other._vertexArrayBuffer);
-			_elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(*other._elementArrayBuffer);
+			
+			if(_elementArrayBuffer) _elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(*other._elementArrayBuffer);
 			_vertexArrayBuffer->bind();
-			_elementArrayBuffer->bind();
+			if(_elementArrayBuffer) _elementArrayBuffer->bind();
 			_state = other._state;
 			setAttribPointer(_state);
 
 			_vertexArray->unbind();
 			_vertexArrayBuffer->unbind();
-			_elementArrayBuffer->unbind();
+			if(_elementArrayBuffer) _elementArrayBuffer->unbind();
+		}
+
+		Mesh(const std::vector<GLfloat>& vertices, GLuint rowSize, State state=State::POS_NORMAL_UV) : _vertexArray{ new VertexArray() }
+		{
+			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>();
+			_vertexArray->bind();
+			_vertexArrayBuffer->allocate(vertices, rowSize);
+			setAttribPointer(state);
+			glEnableVertexAttribArray(0);
+			//_vertexArray->unbind();
+			_vertexArrayBuffer->unbind();
 		}
 
 		Mesh(const std::vector<GLfloat>& vertices, const std::vector<GLuint>& indices, State state=State::POS_NORMAL_UV)
@@ -36,8 +48,8 @@ namespace lithium
 		{
 			_vertexArray->bind();
 
-			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>(vertices);
-			_elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(indices);
+			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>(vertices, 0);
+			_elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(indices, 0);
 
 			setAttribPointer(state);
 
@@ -50,6 +62,10 @@ namespace lithium
 		{
 			switch(state)
 			{
+				case lithium::Mesh::State::POS:
+					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+					_numLayouts = 1;
+					break;
 				case lithium::Mesh::State::POS_UV:
 					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 5 * sizeof(float), (void*)0);
 					_vertexArray->linkAttribPointer(1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -103,6 +119,11 @@ namespace lithium
 			glDrawElements(GL_TRIANGLES, static_cast<GLuint>(_elementArrayBuffer->size()), GL_UNSIGNED_INT, 0);
 		}
 
+		void drawArrays()
+		{
+			glDrawArrays(GL_POINTS, 0, _vertexArrayBuffer->size() / _vertexArrayBuffer->rowSize());
+		}
+
 		void drawElementsInstanced(int n)
 		{
 			glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLuint>(_elementArrayBuffer->size()), GL_UNSIGNED_INT, 0, n);
@@ -133,7 +154,7 @@ namespace lithium
 		//std::vector<GLfloat> _vertices;
 		GLuint _numLayouts{0};
 		lithium::VertexArray* _vertexArray;
-		lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>* _vertexArrayBuffer;
-		lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>* _elementArrayBuffer;
+		lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>* _vertexArrayBuffer{nullptr};
+		lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>* _elementArrayBuffer{nullptr};
 	};
 }

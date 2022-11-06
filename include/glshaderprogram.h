@@ -14,19 +14,12 @@ namespace lithium
 
 		ShaderProgram(std::string&& vertexShaderFile, std::string&& fragmentShaderFile);
 
+		ShaderProgram(std::string&& vertexShaderFile, std::string&& fragmentShaderFile, std::string&& geometryShaderFile);
+
 		void use();
 
-		void link()
-		{
-			glAttachShader(_id, _vertexShader.id());
-			glAttachShader(_id, _fragmentShader.id());
-			glLinkProgram(_id);
-			for(auto&& pair : _cache)
-			{
-				setUniform(pair.first, pair.second);
-			}
-		}
-
+		void link();
+		
 		virtual void bind() override
 		{
 			use();
@@ -107,8 +100,9 @@ namespace lithium
 
 	private:
 		std::map<std::string,int> _cache;
-		Shader<GL_VERTEX_SHADER> _vertexShader;
-		Shader<GL_FRAGMENT_SHADER> _fragmentShader;
+		Shader<GL_VERTEX_SHADER>* _vertexShader{nullptr};
+		Shader<GL_FRAGMENT_SHADER>* _fragmentShader{nullptr};
+		Shader<GL_GEOMETRY_SHADER>* _geometryShader{nullptr};
 		std::map<std::string, GLuint> _uniforms;
 		static unsigned int _bindCount;
 		static lithium::ShaderProgram* _inUse;

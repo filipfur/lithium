@@ -272,7 +272,7 @@ namespace lithium
 			return new lithium::Object(*this);
 		}
 
-		void setUpdateCallback(const std::function<bool(Object*,float)>& updateCallback)
+		void setUpdateCallback(const std::function<bool(Object*,float,float)>& updateCallback)
 		{
 			_updateCallback = updateCallback;
 		}
@@ -300,7 +300,7 @@ namespace lithium
         lithium::ImageTexture* _texture{nullptr};
         lithium::ImageTexture* _specular{nullptr};
 		lithium::ImageTexture* _normalMap{nullptr};
-		std::function<bool(Object*,float)> _updateCallback;
+		std::function<bool(Object*,float,float)> _updateCallback;
 		
 	private:
 		std::shared_ptr<std::string> _objectName;

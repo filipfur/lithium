@@ -16,7 +16,7 @@
 #include "glassimp_glm_helpers.h"
 #include "glanimdata.h"
 #include "glanimator.h"
-#include "glmesh.h"
+#include "globject.h"
 #include "iupdateable.h"
 
 namespace lithium
@@ -108,7 +108,17 @@ namespace lithium
             {
                 obj->shade(shaderProgram);
                 obj->draw();
-                break;
+                //break;
+            }
+        }
+
+        void syncWithFirst()
+        {
+            for(int i{1}; i < _objects.size(); ++i)
+            {
+                _objects[i]->setPosition(_objects[0]->position());
+                _objects[i]->setRotation(_objects[0]->rotation());
+                _objects[i]->setScale(_objects[0]->scale());
             }
         }
 

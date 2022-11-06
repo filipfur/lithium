@@ -1,7 +1,6 @@
 #pragma once
 
 #include "globject.h"
-
 #include "glshaderprogram.h"
 
 namespace lithium

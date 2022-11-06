@@ -42,9 +42,9 @@ void lithium::Object::update(float dt)
 {
     if(_updateCallback)
     {
-        if(!_updateCallback(this, dt))
+        if(!_updateCallback(this, _time, dt))
         {
-            _updateCallback = [](lithium::Object*, float){ return true; };
+            _updateCallback = [](lithium::Object*, float, float){ return true; };
         }
     }
     if(_flicker > 0)

@@ -16,7 +16,7 @@ namespace lithium
 			glGenBuffers(1, &_id);
 		}
 
-		Buffer(size_t size, GLenum usage=GL_STATIC_DRAW) : Buffer{}
+		Buffer(GLuint size, GLenum usage=GL_STATIC_DRAW) : Buffer{}
 		{
 			_size = size / sizeof(T);
 			bind();
@@ -33,9 +33,9 @@ namespace lithium
 			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, _size);
 		}
 
-		Buffer(const std::vector<T>& data, GLenum usage=GL_STATIC_DRAW) : Buffer{}
+		Buffer(const std::vector<T>& data, GLuint rowSize, GLenum usage=GL_STATIC_DRAW) : Buffer{}
 		{
-			allocate(data, usage);
+			allocate(data, rowSize, usage);
 		}
 
 		~Buffer() noexcept
@@ -43,9 +43,10 @@ namespace lithium
 			glDeleteBuffers(1, &_id);
 		}
 
-		void allocate(const std::vector<T>& data, GLenum usage=GL_STATIC_DRAW)
+		void allocate(const std::vector<T>& data, GLuint rowSize, GLenum usage=GL_STATIC_DRAW)
 		{
 			_size = data.size();
+			_rowSize = rowSize;
 			bind();
 			glBufferData(S, _size * sizeof(T), data.data(), usage);
 		}
@@ -60,12 +61,18 @@ namespace lithium
 			glBindBuffer(S, 0);
 		}
 
-		size_t size()
+		GLuint rowSize()
+		{
+			return _rowSize;
+		}
+
+		GLuint size()
 		{
 			return _size;
 		}
 
 	private:
-		size_t _size{0};
+		GLuint _size{0};
+		GLuint _rowSize{0};
 	};
 }
