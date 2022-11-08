@@ -8,7 +8,7 @@ namespace lithium
     class UniformBufferObject : public Buffer<GLfloat, GL_UNIFORM_BUFFER>
     {
     public:
-        UniformBufferObject(size_t size, const std::string& label, GLuint layout) : Buffer{size}, _label{label}, _layout{layout}
+        UniformBufferObject(GLuint size, const std::string& label, GLuint layout) : Buffer{size}, _label{label}, _layout{layout}
         {
 
         }

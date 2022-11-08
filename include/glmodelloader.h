@@ -13,6 +13,8 @@
 #define __filename(path) path.substr(path.find_last_of('/') + 1, std::string::npos)
 #define __noextension(path) path.substr(0, path.find_first_of('.'))
 
+//#define MODELLOADER_VERTEX_LOG
+
 namespace lithium
 {
     class ModelLoader
@@ -23,12 +25,14 @@ namespace lithium
 
         }
 
-        lithium::Model* load(const std::string& name, std::string const &path)
+        lithium::Model* load(const std::string& name, std::string const &path, lithium::Mesh::State state=lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT)
         {
+#ifdef MODELLOADER_VERTEX_LOG
             _vertexLog.open(__dirname(path) + "/vertexlog.txt");
+#endif
             lithium::Model* model = new lithium::Model();
             const std::string animDir = __dirname(path) + "/animations";
-            loadModel(model, path);
+            loadModel(model, path, state);
             //loadAnimation(path, 0);
             if(std::filesystem::exists(animDir))
             {
@@ -75,7 +79,7 @@ namespace lithium
 
     private:
         // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-        void loadModel(lithium::Model* model, std::string const &path)
+        void loadModel(lithium::Model* model, std::string const &path, lithium::Mesh::State state)
         {
             // read file via ASSIMP
             Assimp::Importer importer;
@@ -90,7 +94,7 @@ namespace lithium
             _directory = __dirname(path);
 
             // process ASSIMP's root node recursively
-            processNode(model, scene->mRootNode, scene);
+            processNode(model, scene->mRootNode, scene, state);
         }
 
         void loadAnimation(lithium::Model* model, const std::string path, size_t index)
@@ -101,7 +105,7 @@ namespace lithium
         }
 
         // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-        void processNode(lithium::Model* model, aiNode *node, const aiScene *scene)
+        void processNode(lithium::Model* model, aiNode *node, const aiScene *scene, lithium::Mesh::State state)
         {
             // process each mesh located at the current node
             for(unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -115,13 +119,13 @@ namespace lithium
                 }
                 else
                 {
-                    model->_objects.push_back(processMesh(model, mesh, scene));
+                    model->_objects.push_back(processMesh(model, mesh, scene, state));
                 }
             }
             // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
             for(unsigned int i = 0; i < node->mNumChildren; i++)
             {
-                processNode(model, node->mChildren[i], scene);
+                processNode(model, node->mChildren[i], scene, state);
             }
 
         }
@@ -214,11 +218,13 @@ namespace lithium
             delete[] buffer;
         }
 
-        lithium::Object* processMesh(lithium::Model* model, aiMesh* mesh, const aiScene* scene)
+        lithium::Object* processMesh(lithium::Model* model, aiMesh* mesh, const aiScene* scene, lithium::Mesh::State state)
         {
             //vector<Vertex> vertices;
             std::vector<unsigned int> indices;
             std::vector<lithium::ImageTexture*> textures;
+
+            bool computeTangents = (state == lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT);
 
             std::vector<MeshVertex> meshVertices;
 
@@ -234,8 +240,9 @@ namespace lithium
                     t.y = mesh->mTextureCoords[0][i].y;
                 }
                 else
+                {
                     t = glm::vec2(0.0f, 0.0f);
-
+                }
                 meshVertices.push_back(MeshVertex{p, n, t, glm::vec3{0.0f}, glm::vec3{0.0f}, {-1.0f, -1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}});
             }
             for (unsigned int i = 0; i < mesh->mNumFaces; i++)
@@ -265,34 +272,55 @@ namespace lithium
 
             ExtractBoneWeightForVertices(model, meshVertices, mesh, scene);
 
-            compute_tangents_lengyel(&meshVertices[0], meshVertices.size(), &indices[0], indices.size());
+            if(computeTangents)
+            {
+                compute_tangents_lengyel(&meshVertices[0], meshVertices.size(), &indices[0], indices.size());
+            }
 
             std::vector<GLfloat> vertices;
-            vertices.reserve(meshVertices.size() * sizeof(MeshVertex));
+            if(computeTangents)
+            {
+                vertices.reserve(meshVertices.size() * sizeof(MeshVertex));
+            }
+            else
+            {
+                vertices.reserve(meshVertices.size() * 16 * sizeof(float));
+            }
+#ifdef MODELLOADER_VERTEX_LOG
             _vertexLog << std::fixed << std::setprecision(2);
+#endif
             for(MeshVertex meshVertex : meshVertices)
             {
+#ifdef MODELLOADER_VERTEX_LOG
                 _vertexLog << meshVertex.pos.x << " " << meshVertex.pos.y << " " << meshVertex.pos.z << " " << meshVertex.normal.x << " " << meshVertex.normal.y << " " << meshVertex.normal.z << " " <<
                     meshVertex.tex.x << " " << meshVertex.tex.y << " " << meshVertex.tangent.x << " " << meshVertex.tangent.y << " " << meshVertex.tangent.z << " " <<
                     meshVertex.bitangent.x << " " << meshVertex.bitangent.y << " " << meshVertex.bitangent.z << " " <<
                     meshVertex.boneIds[0] << " " << meshVertex.boneIds[1] << " " << meshVertex.boneIds[2] << " " << meshVertex.boneIds[3] << " " <<
                     meshVertex.boneWeights[0] << " " << meshVertex.boneWeights[1] << " " << meshVertex.boneWeights[2] << " " << meshVertex.boneWeights[3] << std::endl;
-
-                vertices.insert(vertices.end(), {meshVertex.pos.x, meshVertex.pos.y, meshVertex.pos.z, meshVertex.normal.x, meshVertex.normal.y, meshVertex.normal.z,
-                    meshVertex.tex.x, meshVertex.tex.y, meshVertex.tangent.x, meshVertex.tangent.y, meshVertex.tangent.z,
-                    meshVertex.bitangent.x, meshVertex.bitangent.y, meshVertex.bitangent.z,
-                    meshVertex.boneIds[0], meshVertex.boneIds[1], meshVertex.boneIds[2], meshVertex.boneIds[3],
-                    meshVertex.boneWeights[0], meshVertex.boneWeights[1], meshVertex.boneWeights[2], meshVertex.boneWeights[3]});
-                    if(false)
-                    {
-                        std::cout << meshVertex.normal.x << " " << meshVertex.normal.y << " " << meshVertex.normal.z << std::endl;
-                    }
+#endif
+                if(computeTangents)
+                {
+                    vertices.insert(vertices.end(), {meshVertex.pos.x, meshVertex.pos.y, meshVertex.pos.z, meshVertex.normal.x, meshVertex.normal.y, meshVertex.normal.z,
+                        meshVertex.tex.x, meshVertex.tex.y, meshVertex.tangent.x, meshVertex.tangent.y, meshVertex.tangent.z,
+                        meshVertex.bitangent.x, meshVertex.bitangent.y, meshVertex.bitangent.z,
+                        meshVertex.boneIds[0], meshVertex.boneIds[1], meshVertex.boneIds[2], meshVertex.boneIds[3],
+                        meshVertex.boneWeights[0], meshVertex.boneWeights[1], meshVertex.boneWeights[2], meshVertex.boneWeights[3]});
+                }
+                else
+                {
+                    vertices.insert(vertices.end(), {meshVertex.pos.x, meshVertex.pos.y, meshVertex.pos.z, meshVertex.normal.x, meshVertex.normal.y, meshVertex.normal.z,
+                        meshVertex.tex.x, meshVertex.tex.y,
+                        meshVertex.boneIds[0], meshVertex.boneIds[1], meshVertex.boneIds[2], meshVertex.boneIds[3],
+                        meshVertex.boneWeights[0], meshVertex.boneWeights[1], meshVertex.boneWeights[2], meshVertex.boneWeights[3]});
+                }
             }
 
+#ifdef MODELLOADER_VERTEX_LOG
             _vertexLog.flush();
             _vertexLog.close();
+#endif
 
-            auto lithiummesh = new lithium::Mesh(vertices, indices, lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT);
+            auto lithiummesh = new lithium::Mesh(vertices, indices, state);
 
             auto object = new lithium::Object(lithiummesh, diffuseMaps.size() > 0 ? diffuseMaps[0] : nullptr, normalMaps.size() > 0 ? normalMaps[0] : nullptr);
 
@@ -359,6 +387,8 @@ namespace lithium
 
         std::map<std::string, lithium::Model*> _models;
         std::string _directory;
+#ifdef MODELLOADER_VERTEX_LOG
         std::ofstream _vertexLog;
+#endif
     };
 }

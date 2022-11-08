@@ -85,7 +85,7 @@ void lithium::compute_tangents_lengyel(lithium::MeshVertex* pVertices, GLuint kV
     delete[] buffer;
 }
 
-lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, glm::vec2 uvScale, bool print)
+lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, lithium::Mesh::State state, glm::vec2 uvScale)
 {
     //std::string inputfile = "cornell_box.obj";
     tinyobj::ObjReaderConfig reader_config;
@@ -111,8 +111,12 @@ lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, glm::vec2 uvSc
 
     std::vector<MeshVertex> meshVertices;
     std::vector<GLuint> indices;
+    std::vector<GLfloat> vertices;
 
-    bool first = true;
+    bool computeTangents{state == lithium::Mesh::State::POS_NORMAL_UV_TANGENTS};
+    bool first{true};
+
+    //if(!computeTangents) vertices.reserve(shape.mesh.indices.size() * 8 * sizeof(float));
 
     for(const auto& shape : shapes)
     {
@@ -140,28 +144,31 @@ lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, glm::vec2 uvSc
                 ty = attrib.texcoords[2 * size_t(idx.texcoord_index) + 1] * uvScale.y;
             }
 
-            //vertices.insert(vertices.end(), {vx, vy, vz, nx, ny, nz, tx, ty});
-            meshVertices.push_back(MeshVertex{glm::vec3{vx, vy, vz}, glm::vec3{nx, ny, nz}, glm::vec2{tx, ty}, glm::vec3{0.0f}, glm::vec3{0.0f}});
+            if(computeTangents)
+            {
+                meshVertices.push_back(MeshVertex{glm::vec3{vx, vy, vz}, glm::vec3{nx, ny, nz}, glm::vec2{tx, ty}, glm::vec3{0.0f}, glm::vec3{0.0f}});
+            }
+            else
+            {
+                vertices.insert(vertices.end(), {vx, vy, vz, nx, ny, nz, tx, ty});
+            }
             
             indices.push_back(indices.size());
         }
     }
 
-    lithium::compute_tangents_lengyel(&meshVertices[0], meshVertices.size(), &indices[0], indices.size());
-
-    std::vector<GLfloat> vertices;
-    vertices.reserve(meshVertices.size() * sizeof(MeshVertex));
-    for(MeshVertex meshVertex : meshVertices)
+    if(computeTangents)
     {
-        vertices.insert(vertices.end(), {meshVertex.pos.x, meshVertex.pos.y, meshVertex.pos.z, meshVertex.normal.x, meshVertex.normal.y, meshVertex.normal.z,
-            meshVertex.tex.x, meshVertex.tex.y, meshVertex.tangent.x, meshVertex.tangent.y, meshVertex.tangent.z,
-            meshVertex.bitangent.x, meshVertex.bitangent.y, meshVertex.bitangent.z});
-            if(print)
-            {
-                std::cout << meshVertex.normal.x << " " << meshVertex.normal.y << " " << meshVertex.normal.z << std::endl;
-            }
+        lithium::compute_tangents_lengyel(&meshVertices[0], meshVertices.size(), &indices[0], indices.size());
+        vertices.reserve(meshVertices.size() * sizeof(MeshVertex));
+        for(MeshVertex meshVertex : meshVertices)
+        {
+            vertices.insert(vertices.end(), {meshVertex.pos.x, meshVertex.pos.y, meshVertex.pos.z, meshVertex.normal.x, meshVertex.normal.y, meshVertex.normal.z,
+                meshVertex.tex.x, meshVertex.tex.y, meshVertex.tangent.x, meshVertex.tangent.y, meshVertex.tangent.z,
+                meshVertex.bitangent.x, meshVertex.bitangent.y, meshVertex.bitangent.z});
+        }
     }
 
-    lithium::Mesh* mesh = new lithium::Mesh(vertices, indices, lithium::Mesh::State::POS_NORMAL_UV_TANGENTS);
+    lithium::Mesh* mesh = new lithium::Mesh(vertices, indices, state);
     return mesh;
 }

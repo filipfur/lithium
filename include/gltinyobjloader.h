@@ -14,5 +14,7 @@ namespace lithium
     };
 
     void compute_tangents_lengyel(MeshVertex* pVertices, GLuint kVertices, const GLuint* pIndices, GLuint kIndices);
-    lithium::Mesh* tinyobjloader_load(const char * inputfile, glm::vec2 uvScale=glm::vec2{1.0f, 1.0f}, bool print=false);
+    lithium::Mesh* tinyobjloader_load(const char * inputfile,
+        lithium::Mesh::State state=lithium::Mesh::State::POS_NORMAL_UV_TANGENTS,
+        glm::vec2 uvScale=glm::vec2{1.0f, 1.0f});
 }

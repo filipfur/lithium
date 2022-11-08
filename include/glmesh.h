@@ -12,7 +12,7 @@ namespace lithium
 	{
 	public:
 		enum class State{
-			POS, POS_UV, POS_NORMAL_UV, POS_NORMAL_UV_TANGENTS, POS_NORMAL_UV_TANGENTS_BONE_WEIGHT, XYZW
+			POS, POS_UV, POS_NORMAL_UV, POS_NORMAL_UV_BONE_WEIGHT, POS_NORMAL_UV_TANGENTS, POS_NORMAL_UV_TANGENTS_BONE_WEIGHT, XYZW
 		};
 
 		Mesh(const Mesh& other)
@@ -83,6 +83,14 @@ namespace lithium
 					_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 14 * sizeof(float), (void*)(6 * sizeof(float)));
 					_vertexArray->linkAttribPointer(3, 3, GL_FLOAT, 14 * sizeof(float), (void*)(8 * sizeof(float)));
 					_vertexArray->linkAttribPointer(4, 3, GL_FLOAT, 14 * sizeof(float), (void*)(11 * sizeof(float)));
+					_numLayouts = 5;
+					break;
+				case lithium::Mesh::State::POS_NORMAL_UV_BONE_WEIGHT:
+					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 16 * sizeof(float), (void*)0);
+					_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 16 * sizeof(float), (void*)(3 * sizeof(float)));
+					_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 16 * sizeof(float), (void*)(6 * sizeof(float)));
+					_vertexArray->linkAttribPointer(3, 4, GL_FLOAT, 16 * sizeof(float), (void*)(8 * sizeof(float)));
+					_vertexArray->linkAttribPointer(4, 4, GL_FLOAT, 16 * sizeof(float), (void*)(12 * sizeof(float)));
 					_numLayouts = 5;
 					break;
 				case lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT:
