@@ -207,6 +207,40 @@ namespace lithium
 			_currentTextureRegion.y = currentTextureRegionY;
 		}
 
+		void copyTranslation(lithium::Object* other)
+		{
+			for(int y{0}; y < 4; ++y)
+			{
+				this->_model[y][3] = other->_model[y][3];
+				this->_model[3][y] = other->_model[3][y];
+			}
+		}
+
+		void copyRotation(lithium::Object* other)
+		{
+			for(int y{0}; y < 3; ++y)
+			{
+				for(int x{0}; x < 3; ++x)
+				{
+					this->_model[y][x] = other->_model[y][x];
+				}
+			}
+			this->_modelInvalidated = false;
+		}
+
+		void copyModelMatrix(lithium::Object* other)
+		{
+			for(int y{0}; y < 4; ++y)
+			{
+				for(int x{0}; x < 4; ++x)
+				{
+					this->_model[y][x] = other->_model[y][x];
+				}
+			}
+
+			this->_modelInvalidated = false;
+		}
+
 		lithium::ImageTexture* texture() const
 		{
 			return _texture;
