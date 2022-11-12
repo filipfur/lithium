@@ -166,6 +166,50 @@ namespace lithium
 			glm::vec3 _orientation;
 		};
 
+		class KeyCache
+		{
+		public:
+			KeyCache(std::initializer_list<int> keys)
+			{
+				for(auto key : keys)
+				{
+					_keys.emplace(key, false);
+				}
+			}
+
+			bool isCached(int key)
+			{
+				auto it = _keys.find(key);
+				return it != _keys.end();
+			}
+
+			void setPressed(int key)
+			{
+				_keys[key] = true;
+			}
+
+			void setReleased(int key)
+			{
+				_keys[key] = false;
+			}
+
+			bool isPressed(int key)
+			{
+				auto it = _keys.find(key);
+				assert(it != _keys.end());
+				return it->second;
+			}
+
+		private:
+			std::map<int, bool> _keys;
+		};
+
+		void setKeyCache(lithium::Input::KeyCache* keyCache)
+		{
+			assert(_context != nullptr);
+			_keyCaches[_context] = keyCache;
+		}
+
 		Controller controller() const
 		{
 			return _controller;
@@ -190,6 +234,7 @@ namespace lithium
 		Context* _context{nullptr};
 		glm::vec2 _clickedPos;
 		glm::vec2 _mousePos;
+		std::map<Context*, KeyCache*> _keyCaches;
 		std::map<Context*,std::map<int, std::function<bool(int, int)>>> _pressedCallbacks;
 		std::map<Context*,std::map<int, std::function<bool(int, int)>>> _releasedCallbacks;
 		std::map<Context*, std::function<bool(float, float)>> _scrollCallbacks;
@@ -198,4 +243,5 @@ namespace lithium
 		glm::vec3 _up;
 		std::map<Context*, std::function<bool(char c)>> _typewriteCallbacks;
 	};
+
 }

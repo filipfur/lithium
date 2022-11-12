@@ -70,6 +70,14 @@ void lithium::Input::onKey(GLFWwindow *window, int key, int scanCode, int action
 	{
 		if(action == GLFW_PRESS)
 		{
+			auto cacheIt = _keyCaches.find(_context);
+			if(cacheIt != _keyCaches.end())
+			{
+				if(cacheIt->second->isCached(key))
+				{
+					cacheIt->second->setPressed(key);
+				}
+			}
 			auto it = _pressedCallbacks.find(_context);
 			if(it != _pressedCallbacks.end())
 			{
@@ -82,6 +90,14 @@ void lithium::Input::onKey(GLFWwindow *window, int key, int scanCode, int action
 		}
 		else if(action == GLFW_RELEASE)
 		{
+			auto cacheIt = _keyCaches.find(_context);
+			if(cacheIt != _keyCaches.end())
+			{
+				if(cacheIt->second->isCached(key))
+				{
+					cacheIt->second->setReleased(key);
+				}
+			}
 			auto it = _releasedCallbacks.find(_context);
 			if(it != _releasedCallbacks.end())
 			{

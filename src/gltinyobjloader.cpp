@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <vector>
+#include <iomanip>
 
 // Computes tangents using Lengyel's method for an indexed triangle list.
 // Tangents are computed as a 4d vector where w stores the sign need to reconstruct a bitangent in the shader.
@@ -83,6 +84,18 @@ void lithium::compute_tangents_lengyel(lithium::MeshVertex* pVertices, GLuint kV
 
     // cleanup the temp buffer
     delete[] buffer;
+}
+
+void lithium::tinyobjloader_load_many(const char* inputfile, lithium::Mesh::State state, int numFiles, std::vector<lithium::Mesh*>& meshes)
+{
+    lithium::Mesh* mesh{nullptr};
+    for(int i{1}; i <= numFiles; ++i)
+    {
+        std::stringstream ss{};
+        ss << inputfile << "_" << std::setw(6) << std::setfill('0') << i << ".obj";
+        mesh = lithium::tinyobjloader_load(ss.str().c_str(), state);
+        meshes.push_back(mesh);
+    }
 }
 
 lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, lithium::Mesh::State state, glm::vec2 uvScale)

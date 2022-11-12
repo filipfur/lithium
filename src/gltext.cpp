@@ -25,7 +25,7 @@ void lithium::Text::update(float dt)
     
 }
 
-void lithium::Text::shade(lithium::ShaderProgram* shaderProgram) const
+void lithium::Text::shade(lithium::ShaderProgram* shaderProgram)
 {
     if(!visible())
     {

@@ -62,12 +62,17 @@ void lithium::Object::update(float dt)
     _time += dt;
 }
 
-void lithium::Object::shade(lithium::ShaderProgram* shaderProgram) const
+void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
 {
     if(!_visible)
     {
         return;
     }
+    if(_modelInvalidated)
+    {
+        updateModel();
+    }
+
     shaderProgram->use();
     shaderProgram->setUniform("u_color", fadedColor());
     //shaderProgram->setUniform("u_shininess", _shininess);
@@ -81,11 +86,6 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram) const
 
 void lithium::Object::draw()
 {
-    if(_modelInvalidated)
-    {
-        updateModel();
-        _modelInvalidated = false;
-    }
     if(!_visible || (((int)(_flicker * 100) % 2) == 1))
     {
         return;
@@ -123,6 +123,7 @@ void lithium::Object::updateModel()
     _model = glm::rotate(_model, glm::radians(_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     _model = glm::rotate(_model, glm::radians(_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     _model = glm::scale(_model, _scale);
+    _modelInvalidated = false;
 }
 
 void lithium::Object::onDraw()

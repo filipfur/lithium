@@ -93,7 +93,7 @@ namespace lithium
 
         virtual void update(float dt) override;
 
-        virtual void shade(lithium::ShaderProgram* shaderProgram) const override;
+        virtual void shade(lithium::ShaderProgram* shaderProgram) override;
 
         virtual void draw() override;
 

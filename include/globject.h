@@ -25,7 +25,7 @@ namespace lithium
 
         virtual void draw();
 
-		virtual void shade(lithium::ShaderProgram* shaderProgram) const;
+		virtual void shade(lithium::ShaderProgram* shaderProgram);
 
         void setTexture(lithium::ImageTexture* texture)
 		{
@@ -144,7 +144,7 @@ namespace lithium
 
 		lithium::Object* setOpacity(float opacity)
 		{
-			setColor(glm::vec4{_color.r, _color.g, _color.b, opacity});
+			_color.a = opacity;
 			return this;
 		}
 		
@@ -316,12 +316,13 @@ namespace lithium
 			return _model;
 		}
 
+		virtual void updateModel();
+
 	protected:
 		virtual void onDraw();
         lithium::Mesh* _mesh;
 
 		bool _depthTest{true};
-		virtual void updateModel();
 		glm::vec3 _position;
 		glm::vec3 _rotation;
 		glm::vec3 _scale;
