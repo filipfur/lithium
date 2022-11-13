@@ -36,7 +36,6 @@ void lithium::Text::shade(lithium::ShaderProgram* shaderProgram)
     shaderProgram->setUniform("u_texture", 0);
     shaderProgram->setUniform("u_color", fadedColor());
     shaderProgram->setUniform("u_model", _model);
-
 }
 
 void lithium::Text::draw()

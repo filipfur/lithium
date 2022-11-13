@@ -40,7 +40,7 @@ namespace lithium
 		void setUniform(const std::string& name, int i)
 		{
 			glUniform1i(loadUniform(name), i);
-			_cache.emplace(name, i);
+			_intCache.emplace(name, i);
 		}
 
 		void setUniform(const std::string& name, const glm::vec3& vector)
@@ -63,9 +63,13 @@ namespace lithium
 			glUniform4fv(loadUniform(name), 1, glm::value_ptr(vector));
 		}
 
-		void setUniform(const std::string& name, const glm::mat4& matrix)
+		void setUniform(const std::string& name, const glm::mat4& matrix, bool cache=false)
 		{
 			glUniformMatrix4fv(loadUniform(name), 1, GL_FALSE, glm::value_ptr(matrix));
+			if(cache)
+			{
+				_mat4Cache.emplace(name, matrix);
+			}
 		}
 
 		void setResolution(const glm::vec2& resolution)
@@ -99,7 +103,8 @@ namespace lithium
 		static const GLuint INVALID_LOCATION{0xffffffff};
 
 	private:
-		std::map<std::string,int> _cache;
+		std::map<std::string,int> _intCache;
+		std::map<std::string,glm::mat4> _mat4Cache;
 		Shader<GL_VERTEX_SHADER>* _vertexShader{nullptr};
 		Shader<GL_FRAGMENT_SHADER>* _fragmentShader{nullptr};
 		Shader<GL_GEOMETRY_SHADER>* _geometryShader{nullptr};

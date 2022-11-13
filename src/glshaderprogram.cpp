@@ -43,7 +43,11 @@ void lithium::ShaderProgram::link()
         std::cout << "ERROR::During link of ShaderProgram\n" << infoLog << "\n ******************************** " << std::endl;
         exit(1);
     }
-    for(auto&& pair : _cache)
+    for(auto&& pair : _intCache)
+    {
+        setUniform(pair.first, pair.second);
+    }
+    for(auto&& pair : _mat4Cache)
     {
         setUniform(pair.first, pair.second);
     }
