@@ -9,8 +9,8 @@ namespace lithium
     class InstancedObject : public Object
     {
     public:
-        InstancedObject(lithium::Mesh* mesh, lithium::ShaderProgram* shaderProgram, lithium::Texture* diffuse, lithium::Texture* normal)
-            : lithium::Object{mesh, shaderProgram, diffuse, normal}, _instancedArray{}
+        InstancedObject(lithium::Mesh* mesh, lithium::ImageTexture* diffuse=nullptr, lithium::ImageTexture* normal=nullptr)
+            : lithium::Object{mesh, diffuse, normal}, _instancedArray{}
         {
             
         }
@@ -40,7 +40,7 @@ namespace lithium
         void allocateBufferData()
         {
             _mesh->bindVertexArray();
-            _instancedArray.allocate(_instances);
+            _instancedArray.allocate(_instances, 0);
         }
 
         template <GLenum U=GL_FLOAT>
