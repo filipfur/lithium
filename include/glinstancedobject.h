@@ -80,7 +80,7 @@ namespace lithium
             _drawMax = drawMax;
         }
 
-    private:
+    protected:
         int _drawMax{INT_MAX};
         std::vector<T> _instances;
         lithium::Buffer<T, GL_ARRAY_BUFFER> _instancedArray;
