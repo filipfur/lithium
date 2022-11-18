@@ -1,0 +1,60 @@
+# core
+glattributepointer.h
+glbuffer.h
+glelement.h
+glcubemap.h
+glframebuffer.h
+glimagetexture.h
+gltexture.h
+glmesh.h
+glshader.h
+glshaderprogram.h
+glrenderbuffer.h
+gluniformbufferobject.h
+glvertexarray.h
+
+# util
+gldebugostream.h
+glperiodictask.h
+glturntask.h
+gltask.h
+gltaskscheduler.h
+gltimemeasure.h
+
+# application
+glapplication.h
+glinput.h
+glmenu.h
+glmenuitem.h
+glmenuoption.h
+glsoundengine.h
+
+# render
+glanimatedobject.h
+glanimation.h
+glanimator.h
+glanimdata.h
+glassimp_glm_helpers.h
+glbone.h
+glmodel.h
+glcamera.h
+glfader.h
+glinstancedobject.h
+gllight.h
+globject.h
+glorthographiccamera.h
+glparticlesystem.h
+glperspectivecamera.h
+glsimplecamera.h
+gltinyobjloader.h
+glmodelloader.h
+gltext.h
+glupdateable.h
+glrenderable.h
+
+# obsolete
+gltriangle.h
+ianimatedobject.h
+iinput.h
+iobject.h
+glcomposedobject.h
