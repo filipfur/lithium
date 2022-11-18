@@ -7,6 +7,7 @@
 #include <assimp/Importer.hpp>
 #include "glanimation.h"
 #include "glbone.h"
+#include "glshaderprogram.h"
 
 namespace lithium
 {

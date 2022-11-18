@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include "iupdateable.h"
+#include "glupdateable.h"
 #include "glinput.h"
 
 #define MINIAUDIO_IMPLEMENTATION
@@ -11,7 +11,7 @@
 
 namespace lithium
 {
-    class Application : public IUpdateable, Input::Context
+    class Application : public lithium::Updateable, Input::Context
     {
     public:
         enum class Mode

@@ -7,10 +7,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "gltaskscheduler.h"
 #include "glfader.h"
+#include "glupdateable.h"
 
 namespace lithium
 {
-    class Object
+    class Object : public Updateable
     {
 		enum class State
 		{
@@ -306,11 +307,6 @@ namespace lithium
 			return new lithium::Object(*this);
 		}
 
-		void setUpdateCallback(const std::function<bool(Object*,float,float)>& updateCallback)
-		{
-			_updateCallback = updateCallback;
-		}
-
 		glm::mat4 model() const
 		{
 			return _model;
@@ -330,12 +326,10 @@ namespace lithium
 		float _shininess{32.0f};
 		float _flicker{0.0f};
 		bool _visible{true};
-		float _time{0.0f};
 		glm::vec4 _color{1.0f};
         lithium::ImageTexture* _texture{nullptr};
         lithium::ImageTexture* _specular{nullptr};
 		lithium::ImageTexture* _normalMap{nullptr};
-		std::function<bool(Object*,float,float)> _updateCallback;
 		
 	private:
 		std::shared_ptr<std::string> _objectName;

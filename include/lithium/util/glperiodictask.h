@@ -1,14 +1,14 @@
 
 #pragma once
 
-#include "iupdateable.h"
+#include "glupdateable.h"
 #include "gltask.h"
 #include <vector>
 #include <functional>
 
 namespace lithium
 {
-    class PeriodicTask : public Task, public IUpdateable
+    class PeriodicTask : public Task, public lithium::Updateable
     {
     public:
         PeriodicTask(float periodTime, const std::function<void()>& callback, bool _periodic=true, float* progress=nullptr);

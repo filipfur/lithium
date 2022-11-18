@@ -1,7 +1,7 @@
 #pragma once
 
 #include "glimagetexture.h"
-#include "iupdateable.h"
+#include "glupdateable.h"
 #include "globject.h"
 #include "glshaderprogram.h"
 #include "nlohmann/json.hpp"

@@ -1,3 +1,4 @@
+#/bin/bash
 # core
 glattributepointer.h
 glbuffer.h

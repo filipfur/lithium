@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "glinstancedobject.h"
 
 namespace lithium
@@ -40,14 +41,14 @@ namespace lithium
             glm::vec3 _dr;
         };
 
-        ParticleSystem(lithium::Mesh* mesh, lithium::ImageTexture* diffuse=nullptr, lithium::ImageTexture* normal=nullptr)
-            : lithium::InstancedObject<glm::mat4>{mesh, diffuse, normal}
+        ParticleSystem(lithium::Mesh* mesh, lithium::ImageTexture* diffuse, float spawnInterval, int maxParticles, const std::function<Particle*()>& onSpawn)
+            : lithium::InstancedObject<glm::mat4>{mesh, diffuse}, _spawnInterval{spawnInterval}, _maxParticles{maxParticles}, _onSpawn{onSpawn}
         {
             
         }
 
         ParticleSystem(const ParticleSystem& other)
-            : lithium::InstancedObject<glm::mat4>{other}
+            : lithium::InstancedObject<glm::mat4>{other}, _spawnInterval{other._spawnInterval}, _maxParticles{other._maxParticles}, _onSpawn{other._onSpawn}
         {
 
         }
@@ -60,6 +61,13 @@ namespace lithium
         virtual void update(float dt) override
         {
             lithium::Object::update(dt);
+            _spawnTime -= dt;
+            if(_spawnTime <= 0)
+            {
+                Particle* particle = _onSpawn();
+                //if()
+                _spawnTime = _spawnInterval;
+            }
             for(int i{0}; i < _particles.size(); ++i)
             {
                 Particle* particle = _particles[i];
@@ -77,5 +85,9 @@ namespace lithium
 
         private:
             std::vector<Particle*> _particles;
+            float _spawnInterval;
+            float _spawnTime{0.0f};
+            int _maxParticles;
+            const std::function<Particle*()> _onSpawn;
     };
 }

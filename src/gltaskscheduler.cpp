@@ -10,8 +10,8 @@ lithium::TaskScheduler::~TaskScheduler() noexcept
 
 }
 
-std::vector<IUpdateable*> _iUpdateables;
-std::vector<IUpdateable*> _iUBuffer;
+std::vector<lithium::Updateable*> _iUpdateables;
+std::vector<lithium::Updateable*> _iUBuffer;
 std::vector<lithium::TurnTask*> _turnTasks;
 
 void lithium::TaskScheduler::update(float dt)
@@ -24,7 +24,7 @@ void lithium::TaskScheduler::update(float dt)
     auto it = _iUpdateables.begin();
     while(it != _iUpdateables.end())
     {
-        IUpdateable* iUpdateable = (*it);
+        lithium::Updateable* iUpdateable = (*it);
         iUpdateable->update(dt);
         auto periodicTask = dynamic_cast<PeriodicTask*>(iUpdateable);
         if(periodicTask && (periodicTask->isExpired() || periodicTask->isCanceled()))
@@ -37,7 +37,7 @@ void lithium::TaskScheduler::update(float dt)
             ++it;
         }
     }
-    /*std::remove_if(_iUpdateables.begin(), _iUpdateables.end(), [](IUpdateable* iUpdateable){
+    /*std::remove_if(_iUpdateables.begin(), _iUpdateables.end(), [](lithium::Updateable* iUpdateable){
         if(auto periodicTask = dynamic_cast<PeriodicTask*>(iUpdateable))
         {
             return (periodicTask->isExpired() || periodicTask->isCanceled());
@@ -69,7 +69,7 @@ lithium::TaskScheduler& lithium::TaskScheduler::getInstance()
     return instance;
 }
 
-void lithium::TaskScheduler::append(IUpdateable* iUpdateable)
+void lithium::TaskScheduler::append(lithium::Updateable* iUpdateable)
 {
     lithium::TaskScheduler* inst =  &lithium::TaskScheduler::getInstance();
     inst->_iUBuffer.push_back(iUpdateable);

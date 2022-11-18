@@ -17,13 +17,14 @@
 #include "glanimdata.h"
 #include "glanimator.h"
 #include "globject.h"
-#include "iupdateable.h"
+#include "glupdateable.h"
+#include "glrenderable.h"
 
 namespace lithium
 {
     class Animation;
 
-    class Model : public IUpdateable
+    class Model : public lithium::Updateable
     {
     public:
         Model()
@@ -90,10 +91,6 @@ namespace lithium
         virtual void update(float dt) override
         {
             _animator.updateAnimation(dt, m_BoneInfoMap);
-            if(_updateCallback)
-            {
-                _updateCallback(this, dt);
-            }
             for(auto obj : _objects)
             {
                 obj->update(dt);
@@ -147,11 +144,6 @@ namespace lithium
             }
             return object;
         }
-        
-        void setUpdateCallback(const std::function<void(lithium::Model*,float)>& updateCallback) // updateCallback(Model* model, float dt)
-        {
-            _updateCallback = updateCallback;
-        }
 
         bool isCurrentAnimation(const std::string& name)
         {
@@ -170,8 +162,6 @@ namespace lithium
         std::map<std::string,lithium::Animation*> _animations;
         std::map<std::string,lithium::Animation*>::iterator _currentAnimation;
         std::map<std::string, BoneInfo> m_BoneInfoMap;
-        std::function<void(lithium::Model*,float)> _updateCallback;
-
         friend class ModelLoader;
     };
 }

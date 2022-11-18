@@ -1,12 +1,13 @@
 
 #pragma once
 
+#include "glupdateable.h"
 #include "glperiodictask.h"
 #include "glturntask.h"
 
 namespace lithium
 {
-    class TaskScheduler : public IUpdateable
+    class TaskScheduler : public lithium::Updateable
     {
     public:
         TaskScheduler();
@@ -14,7 +15,7 @@ namespace lithium
 
         static TaskScheduler& getInstance();
 
-        static void append(IUpdateable* IUpdateable);
+        static void append(lithium::Updateable* updateable);
 
         virtual void update(float dt) override;
 
@@ -45,8 +46,8 @@ namespace lithium
         void operator=(TaskScheduler const&)  = delete;
 
     private:
-        std::vector<IUpdateable*> _iUpdateables;
-        std::vector<IUpdateable*> _iUBuffer;
+        std::vector<lithium::Updateable*> _iUpdateables;
+        std::vector<lithium::Updateable*> _iUBuffer;
         std::vector<TurnTask*> _turnTasks;
     };
 }

@@ -35,7 +35,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
 
-target_include_directories(${PROJECT_NAME} PUBLIC include
+target_include_directories(${PROJECT_NAME} PUBLIC
+    include/lithium/app
+    include/lithium/core
+    include/lithium/obsolete
+    include/lithium/render
+    include/lithium/util
     dep/glad/include
     dep/glm
     dep/stb

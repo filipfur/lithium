@@ -40,13 +40,8 @@ lithium::Object::~Object() noexcept
 
 void lithium::Object::update(float dt)
 {
-    if(_updateCallback)
-    {
-        if(!_updateCallback(this, _time, dt))
-        {
-            _updateCallback = [](lithium::Object*, float, float){ return true; };
-        }
-    }
+    lithium::Updateable::update(dt);
+
     if(_flicker > 0)
     {
         _flicker -= dt;
@@ -59,7 +54,6 @@ void lithium::Object::update(float dt)
             }
         }
     }
-    _time += dt;
 }
 
 void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
