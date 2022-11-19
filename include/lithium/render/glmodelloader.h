@@ -6,6 +6,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "gltimemeasure.h"
 
 
 #define MAX_BONE_INFLUENCE 4
@@ -30,6 +31,7 @@ namespace lithium
 #ifdef MODELLOADER_VERTEX_LOG
             _vertexLog.open(__dirname(path) + "/vertexlog.txt");
 #endif
+            lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading model " + std::string(path), true)};
             lithium::Model* model = new lithium::Model();
             const std::string animDir = __dirname(path) + "/animations";
             loadModel(model, path, state);

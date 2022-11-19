@@ -63,7 +63,7 @@ GLuint lithium::ShaderProgram::loadUniform(const std::string &name)
         id = glGetUniformLocation(_id, name.c_str());
         if(id == INVALID_LOCATION)
         {
-            std::cerr << "Failed to load uniform: " << name << std::endl;
+            //std::cerr << "Failed to load uniform '" << name << "' inside " << _fragmentShader->fileName() << std::endl;
         }
         _uniforms.emplace(name, id);
     }

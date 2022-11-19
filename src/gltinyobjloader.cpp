@@ -3,6 +3,7 @@
 //#define TINYOBJLOADER_USE_MAPBOX_EARCUT
 #include "gltinyobjloader.h"
 #include "tiny_obj_loader.h"
+#include "gltimemeasure.h"
 
 #include <iostream>
 #include <vector>
@@ -88,6 +89,7 @@ void lithium::compute_tangents_lengyel(lithium::MeshVertex* pVertices, GLuint kV
 
 void lithium::tinyobjloader_load_many(const char* inputfile, lithium::Mesh::State state, int numFiles, std::vector<lithium::Mesh*>& meshes)
 {
+    lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading animated object " + std::string(inputfile), true)};
     lithium::Mesh* mesh{nullptr};
     for(int i{1}; i <= numFiles; ++i)
     {
@@ -100,6 +102,7 @@ void lithium::tinyobjloader_load_many(const char* inputfile, lithium::Mesh::Stat
 
 lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, lithium::Mesh::State state, glm::vec2 uvScale)
 {
+    //lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading object " + std::string(inputfile), true)};
     //std::string inputfile = "cornell_box.obj";
     tinyobj::ObjReaderConfig reader_config;
     std::string dir = inputfile;

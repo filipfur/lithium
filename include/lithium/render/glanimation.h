@@ -29,7 +29,7 @@ namespace lithium
 			const aiScene* scene = importer.ReadFile(animationPath, 0);//aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
 			assert(scene && scene->mRootNode);
 			auto animation = scene->mAnimations[index];
-			std::cout << animationPath << std::endl;
+			/*std::cout << animationPath << std::endl;
 			for(int i = 0; i < scene->mNumAnimations; ++i)
 			{
 				std::cout << scene->mAnimations[i]->mName.C_Str() << " | ";
@@ -43,7 +43,7 @@ namespace lithium
 				<< scene->mRootNode->mTransformation.c1 << "," << scene->mRootNode->mTransformation.c2 << ","
 				<< scene->mRootNode->mTransformation.c3 << "," << scene->mRootNode->mTransformation.c4 << std::endl
 				<< scene->mRootNode->mTransformation.d1 << "," << scene->mRootNode->mTransformation.d2 << ","
-				<< scene->mRootNode->mTransformation.d3 << "," << scene->mRootNode->mTransformation.d4 << std::endl;
+				<< scene->mRootNode->mTransformation.d3 << "," << scene->mRootNode->mTransformation.d4 << std::endl;*/
 			_duration = animation->mDuration;
 			_ticksPerSecond = animation->mTicksPerSecond;
 			aiMatrix4x4 globalTransformation = scene->mRootNode->mTransformation;
@@ -98,7 +98,7 @@ namespace lithium
 					BoneInfo boneInfo{};
 					boneInfo.id = boneInfoMap.size();
 					boneInfoMap.emplace(boneName, boneInfo);
-					std::cout << "adding bone: " << boneInfo.id << std::endl;
+					//std::cout << "adding bone: " << boneInfo.id << std::endl;
 				}
 				_bones.push_back(Bone(channel->mNodeName.data,
 					boneInfoMap[channel->mNodeName.data].id, channel));

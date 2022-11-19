@@ -58,7 +58,7 @@ namespace lithium
 			}
 			else
 			{
-				std::cout << "'" << _fileName << "' compiled sucessfully." << std::endl;
+				//std::cout << "'" << _fileName << "' compiled sucessfully." << std::endl;
 			}
 			_valid = true;
 		}
@@ -79,6 +79,11 @@ namespace lithium
 		bool valid() const
 		{
 			return _valid;
+		}
+
+		std::string fileName() const
+		{
+			return _fileName;
 		}
 
 	private:
