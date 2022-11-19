@@ -21,7 +21,6 @@ add_library(${PROJECT_NAME} STATIC
     src/glperspectivecamera.cpp
     src/glrenderbuffer.cpp
     src/glshaderprogram.cpp
-    src/glsoundengine.cpp
     src/gltext.cpp
     src/gltimemeasure.cpp
     src/gltriangle.cpp
@@ -36,14 +35,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    include/lithium/app
+    include/lithium/application
     include/lithium/core
     include/lithium/obsolete
     include/lithium/render
-    include/lithium/util
+    include/lithium/utility
     dep/glad/include
     dep/glm
-    dep/stb
     dep/json/include
     dep/tinyobjloader
     dep/filewatch
@@ -62,7 +60,7 @@ else ()
         "-framework OpenGL")
 endif ()
 
-add_subdirectory(dep/glfw-3.3.7)
+add_subdirectory(dep/glfw)
 add_subdirectory(dep/json)
 add_subdirectory(dep/assimp)
 

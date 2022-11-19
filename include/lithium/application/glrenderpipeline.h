@@ -9,14 +9,14 @@ namespace lithium
     class RenderPipeline : public lithium::Updateable
     {
     public:
-        RenderPipeline()
+        RenderPipeline(const glm::ivec2& resolution) : _resolution{resolution}
         {
 
         }
 
-        virtual void init(const glm::ivec2& resolution) = 0;
-
         virtual void update(float dt) override = 0;
+
+        virtual void render() = 0;
 
         void insertObject(lithium::Object* object)
         {
@@ -48,7 +48,13 @@ namespace lithium
             _models.erase(std::remove(_models.begin(), _models.end(), model), _models.end());
         }
 
+        void setViewportToResolution()
+        {
+            glViewport(0, 0, _resolution.x, _resolution.y);
+        }
+
     protected:
+        glm::ivec2 _resolution;
         std::vector<lithium::Object*> _objects;
         std::vector<lithium::Model*> _models;
     };
