@@ -73,6 +73,7 @@ namespace lithium
             auto it = _animations.find(animationName);
             if(it != _animations.end() && it != _currentAnimation)
             {
+                std::cout << "changing animation: " << animationName << std::endl;
                 _currentAnimation = it;
                 _animator.playAnimation(_currentAnimation->second);
             }
