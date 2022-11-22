@@ -23,9 +23,9 @@ namespace lithium
             _objects.push_back(object);
         }
 
-        void insertObjects(const std::initializer_list<lithium::Object*>& list)
+        void insertObjects(const std::vector<lithium::Object*>& list)
         {
-            _objects.insert(_objects.end(), list);
+            _objects.insert(_objects.end(), list.begin(), list.end());
         }
 
         void insertModel(lithium::Model* model)
@@ -33,9 +33,9 @@ namespace lithium
             _models.push_back(model);
         }
 
-        void insertModels(const std::initializer_list<lithium::Model*>& list)
+        void insertModels(const std::vector<lithium::Model*>& list)
         {
-            _models.insert(_models.end(), list);
+            _models.insert(_models.end(), list.begin(), list.end());
         }
 
         void removeObject(lithium::Object* object)
