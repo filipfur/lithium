@@ -33,6 +33,34 @@ void lithium::FrameBuffer::createRenderBuffer(lithium::RenderBuffer::Mode mode, 
     attach(new lithium::RenderBuffer(_resolution, mode, internalFormat), attachment);
 }
 
+void lithium::FrameBuffer::bindAsReadBuffer()
+{
+    glBindFramebuffer( GL_READ_FRAMEBUFFER, id() );
+}
+
+void lithium::FrameBuffer::bindAsDrawBuffer()
+{
+    glBindFramebuffer( GL_DRAW_FRAMEBUFFER, id() );
+}
+
+void lithium::FrameBuffer::blit(lithium::FrameBuffer* toFrameBuffer,
+    GLuint fromComponment, GLuint toComponment,
+    GLbitfield mask, GLenum filter)
+{
+    blit(toFrameBuffer, _resolution, toComponment, fromComponment, mask, filter);
+}
+
+void lithium::FrameBuffer::blit(lithium::FrameBuffer* toFrameBuffer, const glm::ivec2& resolution,
+    GLuint fromComponment, GLuint toComponment,
+    GLbitfield mask, GLenum filter)
+{
+    bindAsReadBuffer();
+    toFrameBuffer->bindAsDrawBuffer();
+    glReadBuffer( fromComponment );
+    glDrawBuffer( toComponment );
+    glBlitFramebuffer( 0, 0, resolution.x, resolution.y, 0, 0, resolution.x, resolution.y, mask, filter );
+}
+
 void lithium::FrameBuffer::bindTexture(GLuint colorAttachment)
 {
     auto it = _textureIds.find(colorAttachment);

@@ -33,6 +33,16 @@ namespace lithium
 
         void declareBuffers();
 
+        void bindAsReadBuffer();
+
+        void bindAsDrawBuffer();
+
+        void blit(lithium::FrameBuffer* frameBuffer, GLuint fromComponment, GLuint toComponment,
+    GLbitfield mask=GL_COLOR_BUFFER_BIT, GLenum filter=GL_NEAREST);
+
+        void blit(lithium::FrameBuffer* frameBuffer, const glm::ivec2& resolution, GLuint fromComponment, GLuint toComponment,
+    GLbitfield mask=GL_COLOR_BUFFER_BIT, GLenum filter=GL_NEAREST);
+
     private:
         static FrameBuffer* _bound;
         glm::ivec2 _resolution;
