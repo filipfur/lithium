@@ -43,9 +43,22 @@ namespace lithium
 			_intCache.emplace(name, i);
 		}
 
-		void setUniform(const std::string& name, const glm::vec3& vector)
+		void setUniform(const std::string& name, const glm::vec2& vector, bool cache=false)
+		{
+			glUniform2fv(loadUniform(name), 1, glm::value_ptr(vector));
+			if(cache)
+			{
+				_vec2Cache.emplace(name, vector);
+			}
+		}
+
+		void setUniform(const std::string& name, const glm::vec3& vector, bool cache=false)
 		{
 			glUniform3fv(loadUniform(name), 1, glm::value_ptr(vector));
+			if(cache)
+			{
+				_vec3Cache.emplace(name, vector);
+			}
 		}
 
 		void setUniform(const std::string& name, const glm::ivec3& vector)
@@ -53,14 +66,13 @@ namespace lithium
 			glUniform3iv(loadUniform(name), 1, glm::value_ptr(vector));
 		}
 
-		void setUniform(const std::string& name, const glm::vec2& vector)
-		{
-			glUniform2fv(loadUniform(name), 1, glm::value_ptr(vector));
-		}
-
-		void setUniform(const std::string& name, const glm::vec4& vector)
+		void setUniform(const std::string& name, const glm::vec4& vector, bool cache=false)
 		{
 			glUniform4fv(loadUniform(name), 1, glm::value_ptr(vector));
+			if(cache)
+			{
+				_vec4Cache.emplace(name, vector);
+			}
 		}
 
 		void setUniform(const std::string& name, const glm::mat4& matrix, bool cache=false)
@@ -105,6 +117,9 @@ namespace lithium
 	private:
 		std::map<std::string,int> _intCache;
 		std::map<std::string,glm::mat4> _mat4Cache;
+		std::map<std::string,glm::vec4> _vec4Cache;
+		std::map<std::string,glm::vec3> _vec3Cache;
+		std::map<std::string,glm::vec2> _vec2Cache;
 		Shader<GL_VERTEX_SHADER>* _vertexShader{nullptr};
 		Shader<GL_FRAGMENT_SHADER>* _fragmentShader{nullptr};
 		Shader<GL_GEOMETRY_SHADER>* _geometryShader{nullptr};

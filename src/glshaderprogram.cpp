@@ -51,6 +51,18 @@ void lithium::ShaderProgram::link()
     {
         setUniform(pair.first, pair.second);
     }
+    for(auto&& pair : _vec2Cache)
+    {
+        setUniform(pair.first, pair.second);
+    }
+    for(auto&& pair : _vec3Cache)
+    {
+        setUniform(pair.first, pair.second);
+    }
+    for(auto&& pair : _vec4Cache)
+    {
+        setUniform(pair.first, pair.second);
+    }
 }
 
 GLuint lithium::ShaderProgram::loadUniform(const std::string &name)
