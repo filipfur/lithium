@@ -73,7 +73,7 @@ namespace lithium
             auto it = _animations.find(animationName);
             if(it != _animations.end() && it != _currentAnimation)
             {
-                std::cout << "changing animation: " << animationName << std::endl;
+                //std::cout << "changing animation: " << animationName << std::endl;
                 _currentAnimation = it;
                 _animator.playAnimation(_currentAnimation->second);
             }
@@ -91,11 +91,11 @@ namespace lithium
 
         virtual void update(float dt) override
         {
-            _animator.updateAnimation(dt, m_BoneInfoMap);
             for(auto obj : _objects)
             {
                 obj->update(dt);
             }
+            _animator.updateAnimation(dt, m_BoneInfoMap);
         }
 
         void render(lithium::ShaderProgram* shaderProgram)

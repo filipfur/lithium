@@ -97,13 +97,14 @@ namespace lithium
         {
             _lastTime = glfwGetTime();
             _startTime = _lastTime;
+            _lastFpsCount = _lastTime;
             while (!glfwWindowShouldClose(_window))
             {
                 // Simple timer
                 double crntTime = glfwGetTime();
                 _time = crntTime - _startTime;
                 double dt = crntTime - _lastTime;
-                // dt *= 0.1; SLOMO
+                // dt *= 0.1; // SLOMO (bad because lowers fps)
                 if (dt > 1.0)
                 {
                     std::cerr << "Too long since last tick. Discarding time." << std::endl;
@@ -114,6 +115,14 @@ namespace lithium
                     update(dt);
                     _lastTime = crntTime;
                     glfwSwapBuffers(_window);
+                    ++_numFrames;
+                }
+                if(crntTime - _lastFpsCount >= 1)
+                {
+                    _fps = _numFrames;
+                    onFpsCount(_fps);
+                    _numFrames = 0;
+                    _lastFpsCount = crntTime;
                 }
                 glfwPollEvents();
             }
@@ -122,6 +131,11 @@ namespace lithium
         float time() const
         {
             return _time;
+        }
+
+        virtual void onFpsCount(int fps)
+        {
+
         }
 
         glm::ivec2 defaultFrameBufferResolution() const
@@ -161,6 +175,11 @@ namespace lithium
             return _input;
         }
 
+        int fps() const
+        {
+            return _fps;
+        }
+
     private:
         lithium::Input* _input{nullptr};
         glm::ivec2 _windowResolution;
@@ -172,6 +191,9 @@ namespace lithium
         bool _fullscreen{false};
         glm::ivec2 _defaultFrameBufferResolution;
         ma_engine _engine;
+        int _fps{0};
+        int _numFrames{0};
+        double _lastFpsCount;
         bool _audioEnabled{true};
     };
 }
