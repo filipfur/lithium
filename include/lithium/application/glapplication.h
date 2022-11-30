@@ -180,6 +180,11 @@ namespace lithium
             return _fps;
         }
 
+        GLFWwindow* window() const
+        {
+            return _window;
+        }
+
     private:
         lithium::Input* _input{nullptr};
         glm::ivec2 _windowResolution;
