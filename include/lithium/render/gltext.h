@@ -1,83 +1,13 @@
 #pragma once
 
-#include "glimagetexture.h"
 #include "glupdateable.h"
 #include "globject.h"
-#include "glshaderprogram.h"
-#include "nlohmann/json.hpp"
+#include "glfont.h"
 
 #include <map>
 
 namespace lithium
 {
-    class Fownt
-    {
-    public:
-        struct Character
-        {
-            float x;
-            float y;
-            float originX;
-            float originY;
-            float width;
-            float height;
-            float advance;
-        };
-
-        Fownt(lithium::ShaderProgram* shaderProgram, lithium::ImageTexture* texture, const std::string& jsonFile) : _shaderProgram{shaderProgram}, _texture{texture}
-        {
-            std::ifstream ifs{jsonFile};
-            ifs >> _fontMetrics;
-            _width = _fontMetrics["width"].get<float>();
-            _height = _fontMetrics["height"].get<float>();
-            _size = _fontMetrics["size"].get<float>();
-
-            auto characters = _fontMetrics["characters"];
-
-            for(int i = 32; i < 127; ++i)
-            {
-                char ch = static_cast<char>(i);
-                std::string str = std::string(1, ch);
-                auto c = characters[str];
-
-                Character character{
-                    c["x"].get<float>(),
-                    c["y"].get<float>(),
-                    c["originX"].get<float>(),
-                    c["originY"].get<float>(),
-                    c["width"].get<float>(),
-                    c["height"].get<float>(),
-                    c["advance"].get<float>()
-                };
-
-                _characters.emplace(ch, character);
-            }
-        }
-
-        const Character& character(char c)
-        {
-            auto it = _characters.find(c);
-            return it->second;
-        }
-
-        lithium::ShaderProgram* shaderProgram() const { return _shaderProgram; }
-        lithium::ImageTexture* texture() const { return _texture; }
-        float width() const { return _width; }
-        float height() const { return _height; }
-        float size() const { return _size; }
-
-    private:
-        lithium::ShaderProgram* _shaderProgram{nullptr};
-        lithium::ImageTexture* _texture{nullptr};
-        nlohmann::json _fontMetrics;
-        
-        float _width{0.0f};
-        float _height{0.0f};
-        float _size{0.0f};
-
-        std::map<char, lithium::Fownt::Character> _characters;
-    };
-
     class Text : public Object
     {
     public:
@@ -86,7 +16,7 @@ namespace lithium
             CENTER
         };
 
-        Text(Fownt* font, const std::string& text, float textScale=1.0f);
+        Text(Font* font, const std::string& text, float textScale=1.0f);
         Text(const Text& other);
         Text(const Object& other);
         virtual ~Text() noexcept;
@@ -155,7 +85,7 @@ namespace lithium
 
     private:
         void initBuffers();
-        lithium::Fownt* _font{nullptr};
+        lithium::Font* _font{nullptr};
         std::string _text{""};
         float _width{0.0f};
         float _height{0.0f};

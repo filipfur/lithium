@@ -1,6 +1,6 @@
 #include "gltext.h"
 
-lithium::Text::Text(lithium::Fownt* font, const std::string& text, float textScale) : lithium::Object{nullptr, font->texture()}, _font{font}, _textScale{textScale}
+lithium::Text::Text(lithium::Font* font, const std::string& text, float textScale) : lithium::Object{nullptr, font->texture()}, _font{font}, _textScale{textScale}
 {
     setText(text);
 }
