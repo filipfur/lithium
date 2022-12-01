@@ -40,7 +40,9 @@ void lithium::ShaderProgram::link()
     if (!result)
     {
         glGetProgramInfoLog(_id, info_log_length, NULL, infoLog);
-        std::cout << "ERROR::During link of ShaderProgram\n" << infoLog << "\n ******************************** " << std::endl;
+        std::cerr << "ERROR::During link of ShaderProgram\n" << infoLog << "\n ******************************** " << std::endl;
+        std::cerr << "File: " << _vertexShader->fileName() << std::endl;
+        std::cerr << "File: " << _fragmentShader->fileName() << std::endl;
         exit(1);
     }
     for(auto&& pair : _intCache)
