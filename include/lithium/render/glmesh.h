@@ -21,7 +21,7 @@ namespace lithium
 			_vertexArray->bind();
 			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>(*other._vertexArrayBuffer);
 			
-			if(_elementArrayBuffer) _elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(*other._elementArrayBuffer);
+			if(other._elementArrayBuffer) _elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(*other._elementArrayBuffer);
 			_vertexArrayBuffer->bind();
 			if(_elementArrayBuffer) _elementArrayBuffer->bind();
 			_state = other._state;
@@ -115,6 +115,11 @@ namespace lithium
 			delete _vertexArray;
 			delete _vertexArrayBuffer;
 			delete _elementArrayBuffer;
+		}
+
+		lithium::Mesh* clone()
+		{
+			return new lithium::Mesh(*this);
 		}
 
 		void bindVertexArray()
