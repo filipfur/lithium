@@ -26,14 +26,18 @@ namespace lithium
 
         }
 
-        lithium::Model* load(const std::string& name, std::string const &path, lithium::Mesh::State state=lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT)
+        lithium::Model* load(std::string const &path, lithium::Mesh::State state=lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT)
         {
 #ifdef MODELLOADER_VERTEX_LOG
             _vertexLog.open(__dirname(path) + "/vertexlog.txt");
 #endif
             lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading model " + std::string(path), true)};
-            lithium::Model* model = new lithium::Model();
-            const std::string animDir = __dirname(path) + "/animations";
+            const std::filesystem::path filePath{path};
+            _directory = filePath.parent_path();
+            const std::string name = _directory.filename().u8string();
+            lithium::Model* model = new lithium::Model(name);
+            std::filesystem::path animDir = _directory / "animations";
+
             loadModel(model, path, state);
             if(std::filesystem::exists(animDir))
             {
@@ -42,7 +46,7 @@ namespace lithium
                     const std::string ext = entry.path().extension().string();
                     if(ext == ".dae")
                     {
-                        loadAnimation(model, animDir + "/" + entry.path().filename().string(), 0);
+                        loadAnimation(model, entry.path(), 0);
                     }
                 }
             }
@@ -85,10 +89,10 @@ namespace lithium
 
         }
 
-        std::string loadAnimation(lithium::Model* model, const std::string path, size_t index)
+        std::string loadAnimation(lithium::Model* model, const std::filesystem::path path, size_t index)
         {
-            std::string animName =  __noextension(__filename(path));
-            auto animation = new lithium::Animation(path, model->m_BoneInfoMap, index);
+            std::string animName =  path.stem().u8string();
+            auto animation = new lithium::Animation(path.u8string(), model->m_BoneInfoMap, index);
             auto it = model->_animations.find(animName);
             if(it != model->_animations.end())
             {
@@ -112,8 +116,6 @@ namespace lithium
                 std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
                 return;
             }
-            // retrieve the directory path of the filepath
-            _directory = __dirname(path);
 
             // process ASSIMP's root node recursively
             processNode(model, scene->mRootNode, scene, state);
@@ -393,15 +395,15 @@ namespace lithium
             {
                 aiString str;
                 mat->GetTexture(type, i, &str);
-                auto path = _directory + "/" + std::string(str.C_Str());
-                lithium::ImageTexture* texture = lithium::ImageTexture::load(path, internalFormat, colorFormat, filter, textureWrap, textureUnit);
+                auto path = _directory / str.C_Str();
+                lithium::ImageTexture* texture = lithium::ImageTexture::load(path.u8string(), internalFormat, colorFormat, filter, textureWrap, textureUnit);
                 textures.push_back(texture);
             }
             return textures;
         }
 
         std::map<std::string, lithium::Model*> _models;
-        std::string _directory;
+        std::filesystem::path _directory;
 #ifdef MODELLOADER_VERTEX_LOG
         std::ofstream _vertexLog;
 #endif

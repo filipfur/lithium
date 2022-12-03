@@ -27,7 +27,7 @@ namespace lithium
     class Model : public lithium::Updateable
     {
     public:
-        Model()
+        Model(const std::string& name) : _name{name}
         {
             _currentAnimation = _animations.end();
         }
@@ -40,6 +40,11 @@ namespace lithium
             }
             _currentAnimation = _animations.end();
             playAnimation(0);
+        }
+
+        std::string name() const
+        {
+            return _name;
         }
 
         Model* clone() const
@@ -86,7 +91,6 @@ namespace lithium
                 _currentAnimation = _animations.begin();
             }
             _animator.playAnimation(_currentAnimation->second);
-            std::cout << "Cycle animation: " << _currentAnimation->first << std::endl;
         }
 
         virtual void update(float dt) override
@@ -157,7 +161,7 @@ namespace lithium
         }
 
     private:
-
+        const std::string _name;
         std::vector<lithium::Object*> _objects;
         lithium::Animator _animator;
         std::map<std::string,lithium::Animation*> _animations;
