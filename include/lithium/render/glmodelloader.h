@@ -35,7 +35,6 @@ namespace lithium
             lithium::Model* model = new lithium::Model();
             const std::string animDir = __dirname(path) + "/animations";
             loadModel(model, path, state);
-            //loadAnimation(path, 0);
             if(std::filesystem::exists(animDir))
             {
                 for(const auto& entry : std::filesystem::directory_iterator(animDir))
@@ -50,6 +49,13 @@ namespace lithium
             model->playAnimation(0);
             _models.emplace(name, model);
             return model;
+        }
+
+        void unload(const std::string& name)
+        {
+            auto it = _models.find(name);
+            delete it->second;
+            _models.erase(name);
         }
 
         lithium::Model* clone(const std::string& name)
@@ -79,6 +85,20 @@ namespace lithium
 
         }
 
+        std::string loadAnimation(lithium::Model* model, const std::string path, size_t index)
+        {
+            std::string animName =  __noextension(__filename(path));
+            auto animation = new lithium::Animation(path, model->m_BoneInfoMap, index);
+            auto it = model->_animations.find(animName);
+            if(it != model->_animations.end())
+            {
+                delete it->second;
+                model->_animations.erase(animName);
+            }
+            model->_animations.emplace(animName, animation);
+            return animName;
+        }
+
     private:
         // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
         void loadModel(lithium::Model* model, std::string const &path, lithium::Mesh::State state)
@@ -97,13 +117,6 @@ namespace lithium
 
             // process ASSIMP's root node recursively
             processNode(model, scene->mRootNode, scene, state);
-        }
-
-        void loadAnimation(lithium::Model* model, const std::string path, size_t index)
-        {
-            std::string animName =  __noextension(__filename(path));
-            auto animation = new lithium::Animation(path, model->m_BoneInfoMap, index);
-            model->_animations.emplace(animName, animation);
         }
 
         // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
