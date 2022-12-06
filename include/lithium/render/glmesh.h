@@ -8,6 +8,45 @@
 
 namespace lithium
 {
+	enum class AttributeType
+	{
+		FLOAT, VEC2, VEC3, VEC4, MAT3, MAT4
+	};
+
+	class AttributePointer2
+	{
+	public:
+		AttributePointer2(GLuint components, GLenum type) : _components{components}, _type{type}
+		{
+			_size = components * (type == GL_FLOAT ? sizeof(float) : sizeof(int));
+		}
+
+		virtual ~AttributePointer2() noexcept
+		{
+
+		}
+
+		GLuint components() const
+		{
+			return _components;
+		}
+
+		GLenum type() const
+		{
+			return _type;
+		}
+
+		GLuint size() const
+		{
+			return _size;
+		}
+
+	private:
+		GLuint _components;
+		GLenum _type;
+		GLuint _size;
+	};
+
 	class Mesh
 	{
 	public:
@@ -58,54 +97,115 @@ namespace lithium
 			_elementArrayBuffer->unbind();
 		}
 
+		void linkAttributes(const std::vector<AttributePointer2>& attribPtrs)
+		{
+			GLuint stride = 0;
+			GLuint offset = 0;
+			for(auto && attribPtr : attribPtrs)
+			{
+				stride += attribPtr.size();
+			}
+			for(int i{0}; i < attribPtrs.size(); ++i)
+            {
+				const AttributePointer2& attribPtr = attribPtrs.at(i);
+                _vertexArray->linkAttribPointer(i, attribPtr.components(), attribPtr.type(), stride, (void*) offset);
+				offset += attribPtr.size();
+            }
+			_numLayouts = attribPtrs.size();
+		}
+
+		void linkAttributes(const std::vector<AttributeType>& attributes)
+		{
+			std::vector<AttributePointer2> aPtrs; // TODO: Move to GL_ARRAY_BUFFER
+			for(AttributeType attribute : attributes)
+			{
+				switch(attribute)
+				{
+					case AttributeType::FLOAT:
+						aPtrs.push_back(AttributePointer2{1, GL_FLOAT});
+						break;
+					case AttributeType::VEC2:
+						aPtrs.push_back(AttributePointer2{2, GL_FLOAT});
+						break;
+					case AttributeType::VEC3:
+						aPtrs.push_back(AttributePointer2{3, GL_FLOAT});
+						break;
+					case AttributeType::VEC4:
+						aPtrs.push_back(AttributePointer2{4, GL_FLOAT});
+						break;
+					case AttributeType::MAT3:
+						aPtrs.push_back(AttributePointer2{3, GL_FLOAT});
+						aPtrs.push_back(AttributePointer2{3, GL_FLOAT});
+						aPtrs.push_back(AttributePointer2{3, GL_FLOAT});
+						break;
+					case AttributeType::MAT4:
+						aPtrs.push_back(AttributePointer2{4, GL_FLOAT});
+						aPtrs.push_back(AttributePointer2{4, GL_FLOAT});
+						aPtrs.push_back(AttributePointer2{4, GL_FLOAT});
+						aPtrs.push_back(AttributePointer2{4, GL_FLOAT});
+						break;
+				}
+			}
+		}
+
 		void setAttribPointer(State state)
 		{
 			switch(state)
 			{
 				case lithium::Mesh::State::POS:
-					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
-					_numLayouts = 1;
+					//_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+					//_numLayouts = 1;
+					linkAttributes({AttributeType::VEC3});
 					break;
 				case lithium::Mesh::State::POS_UV:
-					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 5 * sizeof(float), (void*)0);
-					_vertexArray->linkAttribPointer(1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-					_numLayouts = 2;
+					//_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 5 * sizeof(float), (void*)0);
+					//_vertexArray->linkAttribPointer(1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+					//_numLayouts = 2;
+					linkAttributes({AttributeType::VEC3, AttributeType::VEC2});
 					break;
 				case lithium::Mesh::State::POS_NORMAL_UV:
-					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-					_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-					_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-					_numLayouts = 3;
+					//_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+					//_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+					//_numLayouts = 3;
+					linkAttributes({AttributeType::VEC3, AttributeType::VEC3, AttributeType::VEC2});
 					break;
 				case lithium::Mesh::State::POS_NORMAL_UV_TANGENTS:
-					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 14 * sizeof(float), (void*)0);
-					_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 14 * sizeof(float), (void*)(3 * sizeof(float)));
-					_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 14 * sizeof(float), (void*)(6 * sizeof(float)));
-					_vertexArray->linkAttribPointer(3, 3, GL_FLOAT, 14 * sizeof(float), (void*)(8 * sizeof(float)));
-					_vertexArray->linkAttribPointer(4, 3, GL_FLOAT, 14 * sizeof(float), (void*)(11 * sizeof(float)));
-					_numLayouts = 5;
+					//_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 14 * sizeof(float), (void*)0);
+					//_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 14 * sizeof(float), (void*)(3 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 14 * sizeof(float), (void*)(6 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(3, 3, GL_FLOAT, 14 * sizeof(float), (void*)(8 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(4, 3, GL_FLOAT, 14 * sizeof(float), (void*)(11 * sizeof(float)));
+					//_numLayouts = 5;
+					linkAttributes({AttributeType::VEC3, AttributeType::VEC3, AttributeType::VEC2,
+						AttributeType::VEC3, AttributeType::VEC3});
 					break;
 				case lithium::Mesh::State::POS_NORMAL_UV_BONE_WEIGHT:
-					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 16 * sizeof(float), (void*)0);
-					_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 16 * sizeof(float), (void*)(3 * sizeof(float)));
-					_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 16 * sizeof(float), (void*)(6 * sizeof(float)));
-					_vertexArray->linkAttribPointer(3, 4, GL_FLOAT, 16 * sizeof(float), (void*)(8 * sizeof(float)));
-					_vertexArray->linkAttribPointer(4, 4, GL_FLOAT, 16 * sizeof(float), (void*)(12 * sizeof(float)));
-					_numLayouts = 5;
+					//_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 16 * sizeof(float), (void*)0);
+					//_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 16 * sizeof(float), (void*)(3 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 16 * sizeof(float), (void*)(6 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(3, 4, GL_FLOAT, 16 * sizeof(float), (void*)(8 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(4, 4, GL_FLOAT, 16 * sizeof(float), (void*)(12 * sizeof(float)));
+					//_numLayouts = 5;
+					linkAttributes({AttributeType::VEC3, AttributeType::VEC3, AttributeType::VEC2,
+						AttributeType::VEC4, AttributeType::VEC4});
 					break;
 				case lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT:
-					_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 22 * sizeof(float), (void*)0);
-					_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 22 * sizeof(float), (void*)(3 * sizeof(float)));
-					_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 22 * sizeof(float), (void*)(6 * sizeof(float)));
-					_vertexArray->linkAttribPointer(3, 3, GL_FLOAT, 22 * sizeof(float), (void*)(8 * sizeof(float)));
-					_vertexArray->linkAttribPointer(4, 3, GL_FLOAT, 22 * sizeof(float), (void*)(11 * sizeof(float)));
-					_vertexArray->linkAttribPointer(5, 4, GL_FLOAT, 22 * sizeof(float), (void*)(14 * sizeof(float)));
-					_vertexArray->linkAttribPointer(6, 4, GL_FLOAT, 22 * sizeof(float), (void*)(18 * sizeof(float)));
-					_numLayouts = 7;
+					//_vertexArray->linkAttribPointer(0, 3, GL_FLOAT, 22 * sizeof(float), (void*)0);
+					//_vertexArray->linkAttribPointer(1, 3, GL_FLOAT, 22 * sizeof(float), (void*)(3 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(2, 2, GL_FLOAT, 22 * sizeof(float), (void*)(6 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(3, 3, GL_FLOAT, 22 * sizeof(float), (void*)(8 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(4, 3, GL_FLOAT, 22 * sizeof(float), (void*)(11 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(5, 4, GL_FLOAT, 22 * sizeof(float), (void*)(14 * sizeof(float)));
+					//_vertexArray->linkAttribPointer(6, 4, GL_FLOAT, 22 * sizeof(float), (void*)(18 * sizeof(float)));
+					//_numLayouts = 7;
+					linkAttributes({AttributeType::VEC3, AttributeType::VEC3, AttributeType::VEC2,
+						AttributeType::VEC3, AttributeType::VEC3, AttributeType::VEC4, AttributeType::VEC4});
 					break;
 				case lithium::Mesh::State::XYZW:
-					_vertexArray->linkAttribPointer(0, 4, GL_FLOAT, 4 * sizeof(float), (void*)0);
-					_numLayouts = 1;
+					//_vertexArray->linkAttribPointer(0, 4, GL_FLOAT, 4 * sizeof(float), (void*)0);
+					//_numLayouts = 1;
+					linkAttributes({AttributeType::VEC4});
 					break;
 			}
 		}
