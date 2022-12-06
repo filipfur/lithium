@@ -87,7 +87,7 @@ void lithium::compute_tangents_lengyel(lithium::MeshVertex* pVertices, GLuint kV
     delete[] buffer;
 }
 
-void lithium::tinyobjloader_load_many(const char* inputfile, lithium::Mesh::State state, int numFiles, std::vector<lithium::Mesh*>& meshes)
+void lithium::tinyobjloader_load_many(const char* inputfile, const std::vector<lithium::VertexArray::AttributeType>& attributes, int numFiles, std::vector<lithium::Mesh*>& meshes)
 {
     lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading animated object " + std::string(inputfile), true)};
     lithium::Mesh* mesh{nullptr};
@@ -95,12 +95,12 @@ void lithium::tinyobjloader_load_many(const char* inputfile, lithium::Mesh::Stat
     {
         std::stringstream ss{};
         ss << inputfile << "_" << std::setw(6) << std::setfill('0') << i << ".obj";
-        mesh = lithium::tinyobjloader_load(ss.str().c_str(), state);
+        mesh = lithium::tinyobjloader_load(ss.str().c_str(), attributes);
         meshes.push_back(mesh);
     }
 }
 
-lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, lithium::Mesh::State state, glm::vec2 uvScale)
+lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, const std::vector<lithium::VertexArray::AttributeType>& attributes, glm::vec2 uvScale)
 {
     //lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading object " + std::string(inputfile), true)};
     //std::string inputfile = "cornell_box.obj";
@@ -129,7 +129,7 @@ lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, lithium::Mesh:
     std::vector<GLuint> indices;
     std::vector<GLfloat> vertices;
 
-    bool computeTangents{state == lithium::Mesh::State::POS_NORMAL_UV_TANGENTS};
+    bool computeTangents{false /*state == lithium::Mesh::State::POS_NORMAL_UV_TANGENTS*/};
     bool first{true};
 
     //if(!computeTangents) vertices.reserve(shape.mesh.indices.size() * 8 * sizeof(float));
@@ -185,6 +185,6 @@ lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, lithium::Mesh:
         }
     }
 
-    lithium::Mesh* mesh = new lithium::Mesh(vertices, indices, state);
+    lithium::Mesh* mesh = new lithium::Mesh(attributes, vertices, indices);
     return mesh;
 }

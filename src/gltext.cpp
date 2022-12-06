@@ -54,23 +54,23 @@ void lithium::Text::draw()
         _initialised = true;
         if(_mesh != nullptr)
         {
-            _mesh->bindVertexArray();
+            _mesh->bind();
             _mesh->vertexArrayBuffer()->allocate(_vertices, 0);
             _mesh->elementArrayBuffer()->allocate(_indices, 0);
         }
         else
         {
-            _mesh = new lithium::Mesh(_vertices, _indices, lithium::Mesh::State::XYZW);
+            _mesh = new lithium::Mesh({lithium::VertexArray::AttributeType::VEC4}, _vertices, _indices);
             setMesh(_mesh);
         }
     }
-    _mesh->bindVertexArray();
+    _mesh->bind();
     _font->texture()->bind();
 
     glDisable(GL_DEPTH_TEST); // TODO: This is a hack due to letter quads overlapping.
-    _mesh->drawElements();
+    _mesh->draw();
     glEnable(GL_DEPTH_TEST);
-    _mesh->vertexArray()->unbind();
+    _mesh->unbind();
 }
 
 void lithium::Text::initBuffers()

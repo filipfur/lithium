@@ -12,7 +12,7 @@ namespace lithium
         InstancedObject(lithium::Mesh* mesh, lithium::ImageTexture* diffuse=nullptr, lithium::ImageTexture* normal=nullptr)
             : lithium::Object{mesh, diffuse, normal}, _instancedArray{}
         {
-            
+            mesh->setDrawFunction(lithium::VertexArray::DrawFunction::ELEMENTS_INSTANCED);
         }
 
         InstancedObject(const InstancedObject& other)
@@ -39,15 +39,16 @@ namespace lithium
 
         void allocateBufferData()
         {
-            _mesh->bindVertexArray();
-            _instancedArray.allocate(_instances, 0);
+            _mesh->bind();
+            _instancedArray.allocate(_instances);
+            _mesh->setInstanceCount(_instances.size());
         }
 
         template <GLenum U=GL_FLOAT>
         void linkBuffer(std::vector<lithium::AttributePointer<U>> attribPtrs)
         {
-            auto vao = _mesh->vertexArray();
-            vao->bind();
+            _mesh->bind();
+            //_instancedArray.bind();
             int n = _mesh->numLayouts();
             /*vao->linkAttribPointer(n, 4, GL_FLOAT, sizeof(glm::mat4), (void*)0);
             vao->linkAttribPointer(n+1, 4, GL_FLOAT, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
@@ -60,28 +61,14 @@ namespace lithium
 
             for(auto && attribPtr : attribPtrs)
             {
-                vao->linkAttribPointer(n + attribPtr.layout(), attribPtr.numComponents(), attribPtr.type(), attribPtr.stride(), attribPtr.offset());
+                _mesh->linkAttribPointer(n + attribPtr.layout(), attribPtr.numComponents(), attribPtr.type(), attribPtr.stride(), attribPtr.offset());
                 glVertexAttribDivisor(n + attribPtr.layout(), 1);
             }
 
-            vao->unbind();
-        }
-
-        virtual void onDraw() override
-        {
-            //_mesh->drawElements();
-            //_instancedArray.bind();
-            int n = _instances.size();
-            _mesh->drawElementsInstanced(_drawMax < n ? _drawMax : n);
-        }
-
-        void setDrawMax(int drawMax)
-        {
-            _drawMax = drawMax;
+            _mesh->unbind();
         }
 
     protected:
-        int _drawMax{INT_MAX};
         std::vector<T> _instances;
         lithium::Buffer<T, GL_ARRAY_BUFFER> _instancedArray;
     };

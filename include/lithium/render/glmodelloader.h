@@ -26,7 +26,7 @@ namespace lithium
 
         }
 
-        lithium::Model* load(std::string const &path, lithium::Mesh::State state=lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT)
+        lithium::Model* load(std::string const &path, const std::vector<lithium::VertexArray::AttributeType>& attributes)
         {
 #ifdef MODELLOADER_VERTEX_LOG
             _vertexLog.open(__dirname(path) + "/vertexlog.txt");
@@ -38,7 +38,7 @@ namespace lithium
             lithium::Model* model = new lithium::Model(name);
             std::filesystem::path animDir = _directory / "animations";
 
-            loadModel(model, path, state);
+            loadModel(model, path, attributes);
             if(std::filesystem::exists(animDir))
             {
                 for(const auto& entry : std::filesystem::directory_iterator(animDir))
@@ -105,7 +105,7 @@ namespace lithium
 
     private:
         // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-        void loadModel(lithium::Model* model, std::string const &path, lithium::Mesh::State state)
+        void loadModel(lithium::Model* model, std::string const &path, const std::vector<lithium::VertexArray::AttributeType>& attributes)
         {
             // read file via ASSIMP
             Assimp::Importer importer;
@@ -118,11 +118,11 @@ namespace lithium
             }
 
             // process ASSIMP's root node recursively
-            processNode(model, scene->mRootNode, scene, state);
+            processNode(model, scene->mRootNode, scene, attributes);
         }
 
         // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-        void processNode(lithium::Model* model, aiNode *node, const aiScene *scene, lithium::Mesh::State state)
+        void processNode(lithium::Model* model, aiNode *node, const aiScene *scene, const std::vector<lithium::VertexArray::AttributeType>& attributes)
         {
             // process each mesh located at the current node
             for(unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -136,13 +136,13 @@ namespace lithium
                 }
                 else
                 {
-                    model->_objects.push_back(processMesh(model, mesh, scene, state));
+                    model->_objects.push_back(processMesh(model, mesh, scene, attributes));
                 }
             }
             // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
             for(unsigned int i = 0; i < node->mNumChildren; i++)
             {
-                processNode(model, node->mChildren[i], scene, state);
+                processNode(model, node->mChildren[i], scene, attributes);
             }
 
         }
@@ -235,13 +235,13 @@ namespace lithium
             delete[] buffer;
         }
 
-        lithium::Object* processMesh(lithium::Model* model, aiMesh* mesh, const aiScene* scene, lithium::Mesh::State state)
+        lithium::Object* processMesh(lithium::Model* model, aiMesh* mesh, const aiScene* scene, const std::vector<lithium::VertexArray::AttributeType>& attributes)
         {
             //vector<Vertex> vertices;
             std::vector<unsigned int> indices;
             std::vector<lithium::ImageTexture*> textures;
 
-            bool computeTangents = (state == lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT);
+            bool computeTangents = false; // TODO: Fixme and tinyobjloader (state == lithium::Mesh::State::POS_NORMAL_UV_TANGENTS_BONE_WEIGHT);
 
             std::vector<MeshVertex> meshVertices;
 
@@ -337,7 +337,7 @@ namespace lithium
             _vertexLog.close();
 #endif
 
-            auto lithiummesh = new lithium::Mesh(vertices, indices, state);
+            auto lithiummesh = new lithium::Mesh(attributes, vertices, indices);
 
             auto object = new lithium::Object(lithiummesh, diffuseMaps.size() > 0 ? diffuseMaps[0] : nullptr, normalMaps.size() > 0 ? normalMaps[0] : nullptr);
 

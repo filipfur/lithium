@@ -315,7 +315,6 @@ namespace lithium
 		virtual void updateModel();
 
 	protected:
-		virtual void onDraw();
         lithium::Mesh* _mesh;
 
 		bool _depthTest{true};

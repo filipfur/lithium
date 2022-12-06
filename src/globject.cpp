@@ -101,10 +101,10 @@ void lithium::Object::draw()
 
     }
 
-    _mesh->bindVertexArray();
+    _mesh->bind();
 
     //glDepthMask(false);
-    this->onDraw();
+    _mesh->draw();
     //glDepthMask(true);
     
     glActiveTexture(GL_TEXTURE0);
@@ -118,9 +118,4 @@ void lithium::Object::updateModel()
     _model = glm::rotate(_model, glm::radians(_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     _model = glm::scale(_model, _scale);
     _modelInvalidated = false;
-}
-
-void lithium::Object::onDraw()
-{
-    _mesh->drawElements();
 }

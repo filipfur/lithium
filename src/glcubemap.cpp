@@ -50,11 +50,11 @@ void lithium::Cubemap::draw(Camera* camera)
     //glBindVertexArray(skyboxVAO);
     glUniformMatrix4fv(glGetUniformLocation(_shaderProgram->id(), "u_camera"), 1, GL_FALSE, glm::value_ptr(camera->rotationMatrix()));
 
-    _mesh->bindVertexArray();
+    _mesh->bind();
     glActiveTexture(GL_TEXTURE0);
     bind();
     //glDrawArrays(GL_TRIANGLES, 0, 36);
-    _mesh->drawElements();
+    _mesh->draw();
     glDepthFunc(GL_LESS);
     unbind();
 }
