@@ -9,8 +9,6 @@
 
 namespace lithium
 {
-	
-
 	class Mesh : public VertexArray
 	{
 	public:

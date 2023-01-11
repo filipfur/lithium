@@ -1,4 +1,8 @@
+#include <fstream>
+
 #include "nlohmann/json.hpp"
+
+#include "glskinnedobject.h"
 
 namespace gltf
 {
@@ -8,6 +12,25 @@ namespace gltf
         Loader()
         {
 
+        }
+
+        virtual ~Loader() noexcept
+        {
+
+        }
+        
+        lithium::SkinnedObject* load(const std::string& filePath)
+        {
+            std::ifstream ifs{filePath};
+            ifs >> _json;
+            std::cout << "scenes: " << _json["scenes"] << std::endl;
+
+            for(node : _json["nodes"].get())
+            {
+
+            }
+
+            return nullptr;
         }
 
     private:

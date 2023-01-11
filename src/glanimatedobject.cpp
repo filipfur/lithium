@@ -1,7 +1,7 @@
 #include "glanimatedobject.h"
 
 lithium::AnimatedObject::AnimatedObject(std::shared_ptr<std::vector<lithium::Mesh*>> meshes, lithium::ImageTexture* texture, lithium::ImageTexture* specular)
-    : lithium::Object{meshes->at(0), texture, specular}, _meshes{meshes}, lithium::Animation2{"", meshes->size()}
+    : lithium::Object{meshes->at(0), texture, specular}, _meshes{meshes}, lithium::Animation2{"", static_cast<int>(meshes->size())}
 {
 }
 
