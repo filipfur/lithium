@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
+#include <set>
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace lithium
 {
@@ -23,7 +25,7 @@ namespace lithium
         glm::mat4 _localMatrix{1.0f};
         glm::mat4 _worldMatrix{1.0f};
         glm::vec3 _position{0.0f};
-        glm::quat _rotation{0.0f};
+        glm::quat _rotation{1.0f, 0.0f, 0.0f, 0.0f};
         glm::vec3 _scale{0.0f};
         Node* _parent{nullptr};
         std::set<Node*> _children;

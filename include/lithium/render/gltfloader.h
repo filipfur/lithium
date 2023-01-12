@@ -29,10 +29,6 @@ namespace gltf
 
             std::map<int,lithium::Node*> nodeMap;
 
-            lithium::Node* rootNode = new lithium::Node("", glm::vec3{0.0f}, glm::quat{1.0f, 0.0f, 0.0f, 0.0f}, glm::vec3{0.0f});
-
-            nodeMap[-1] = rootNode;
-
             auto& jsonNodes = _json["nodes"];
 
             for(int i{0}; i < jsonNodes.size(); ++i)
@@ -68,8 +64,18 @@ namespace gltf
 
             for(auto entry : nodeMap)
             {
-                
+                auto& node = jsonNodes[entry.first];
+                if(node.contains("children"))
+                {
+                    for(auto childId : node["children"])
+                    {
+                        std::cout << "childId: " << childId << std::endl;
+                    }
+                }
             }
+
+            int rootNodeId = _json["scenes"][0]["nodes"][0].get<int>();
+            lithium::Node* rootNode = nodeMap.find(rootNodeId)->second;
 
             return nullptr;
         }

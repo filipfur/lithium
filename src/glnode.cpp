@@ -2,7 +2,7 @@
 
 lithium::Node::Node(const std::string& name, const glm::vec3& position,
             const glm::quat& rotation, const glm::vec3 scale)
-            : _name{name}, _position{position}, _rotation{rotation} _scale{scale}
+            : _name{name}, _position{position}, _rotation{rotation}, _scale{scale}
 {
 }
 
@@ -19,9 +19,12 @@ void lithium::Node::setParent(Node* parent)
 
 void lithium::Node::updateWorldMatrix(const glm::mat4& parentWorldMatrix)
 {
-    for(int i{0}; i < _children.size(); ++i)
+    auto it = _children.begin();
+    while(it != _children.end())
     {
-        delete _children[i];
+        Node* node = *it;
+        it = _children.erase(it);
+        delete node;
     }
 }
 

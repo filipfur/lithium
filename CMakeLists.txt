@@ -28,6 +28,7 @@ add_library(${PROJECT_NAME} STATIC
     src/glperiodictask.cpp
     src/gltaskscheduler.cpp
     src/gltinyobjloader.cpp
+    src/glnode.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
