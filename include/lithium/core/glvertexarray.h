@@ -53,6 +53,11 @@ namespace lithium
 			GLuint _size;
 		};
 
+		VertexArray(DrawFunction drawFunction) : _drawFunction{drawFunction}
+		{
+			glGenVertexArrays(1, &_id);
+		}
+
 		VertexArray(DrawFunction drawFunction, const std::vector<AttributeType>& attributes)
 			: _drawFunction{drawFunction}, _attributes{attributes}
 		{
@@ -64,11 +69,9 @@ namespace lithium
 			: VertexArray{drawFunction, attributes}
 		{
 			bind();
-			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>(vertices);
-			linkAttributes(attributes);
-			glEnableVertexAttribArray(0);
+			auto vao = createArrayBuffer(attributes, vertices);
 			//_vertexArray->unbind(); TODO: Uncomment me when things have settled.
-			_vertexArrayBuffer->unbind();
+			vao->unbind();
 		}
 
 		VertexArray(DrawFunction drawFunction, const std::vector<AttributeType>& attributes,
@@ -76,11 +79,10 @@ namespace lithium
 			: VertexArray{drawFunction, attributes}
 		{
 			bind();
-			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>(vertices);
-			linkAttributes(attributes);
-			_elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(indices);
+			auto vao = createArrayBuffer(attributes, vertices);
+			createElementArrayBuffer(indices);
 			unbind();
-			_vertexArrayBuffer->unbind();
+			vao->unbind();
 			_elementArrayBuffer->unbind();
 		}
 
@@ -88,9 +90,12 @@ namespace lithium
 		{
 			bind();
 			_drawMode = other._drawMode;
-			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>(*other._vertexArrayBuffer);
+			for(auto vao : other._vertexArrayBuffers)
+			{
+				_vertexArrayBuffers.push_back(vao.clone());
+			}
 			
-			if(other._elementArrayBuffer) _elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(*other._elementArrayBuffer);
+			if(other._elementArrayBuffer) _elementArrayBuffer = other._elementArrayBuffer.clone();
 			_vertexArrayBuffer->bind();
 			linkAttributes(_attributes);
 			if(_elementArrayBuffer) _elementArrayBuffer->bind();
@@ -107,15 +112,18 @@ namespace lithium
 			glDeleteVertexArrays(1, &_id);
 		}
 
-		lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>* createArrayBuffer()
+		lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>* createArrayBuffer(const std::vector<AttributeType>& attributes, const std::vector<GLfloat>& vertices)
 		{
-			_vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>();
-			return _vertexArrayBuffer;
+			auto vertexArrayBuffer = new lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>(vertices);
+			linkAttributes(attributes);
+			glEnableVertexAttribArray(0);
+			_vertexArrayBuffers.push_back(vertexArrayBuffer);
+			return vertexArrayBuffer;
 		}
 
-		lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>* createElementArrayBuffer()
+		lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>* createElementArrayBuffer(const std::vector<GLuint>& indices)
 		{
-			_elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>();
+			_elementArrayBuffer = new lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>(indices);
 			return _elementArrayBuffer;
 		}
 
@@ -135,9 +143,9 @@ namespace lithium
 			glBindVertexArray(0);
 		}
 
-		lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>* vertexArrayBuffer() const
+		lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>* vertexArrayBuffer(size_t index) const
 		{
-			return _vertexArrayBuffer;
+			return _vertexArrayBuffers[index];
 		}
 
 		lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>* elementArrayBuffer() const
@@ -239,7 +247,7 @@ namespace lithium
 		DrawFunction _drawFunction;
 		std::vector<AttributeType> _attributes;
 		GLenum _drawMode{GL_TRIANGLES};
-		lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>* _vertexArrayBuffer{nullptr};
+		std::vector<lithium::Buffer<GLfloat, GL_ARRAY_BUFFER>*> _vertexArrayBuffers;
 		lithium::Buffer<GLuint, GL_ELEMENT_ARRAY_BUFFER>* _elementArrayBuffer{nullptr};
 		GLuint _numLayouts{0};
 		GLuint _count{0};

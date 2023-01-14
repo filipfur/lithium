@@ -19,23 +19,31 @@ namespace lithium
 		Buffer(GLuint size, GLenum usage=GL_STATIC_DRAW) : Buffer{}
 		{
 			_size = size / sizeof(T);
+			_usage = usage;
 			bind();
 			glBufferData(S, size, NULL, usage);
 		}
 
-		Buffer(const Buffer& other, GLenum usage=GL_STATIC_DRAW) : Buffer{}
+		Buffer(const Buffer& other) : Buffer{}
 		{
 			bind();
-			_size = other._size * sizeof(T);
+			auto size = other._size * sizeof(T);
+			_size = other._size;
+			_usage = other._usage;
 			glBufferData(S, _size, 0, usage);
 			glBindBuffer(GL_COPY_READ_BUFFER, other._id);
 			glBindBuffer(GL_COPY_WRITE_BUFFER, _id);
-			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, _size);
+			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
 		}
 
 		Buffer(const std::vector<T>& data, GLenum usage=GL_STATIC_DRAW) : Buffer{}
 		{
 			allocate(data, usage);
+		}
+
+		virtual Buffer* clone() const
+		{
+			return new Buffer(*this);
 		}
 
 		~Buffer() noexcept
@@ -46,6 +54,7 @@ namespace lithium
 		void allocate(const std::vector<T>& data, GLenum usage=GL_STATIC_DRAW)
 		{
 			_size = data.size();
+			_usage = usage;
 			bind();
 			glBufferData(S, _size * sizeof(T), data.data(), usage);
 		}
@@ -67,5 +76,6 @@ namespace lithium
 
 	private:
 		GLuint _size{0};
+		GLenum _usage{};
 	};
 }

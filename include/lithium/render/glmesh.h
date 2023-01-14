@@ -13,6 +13,11 @@ namespace lithium
 	{
 	public:
 
+		Mesh(DrawFunction drawFunction) : VertexArray{drawFunction}
+		{
+			
+		}
+
 		Mesh(const Mesh& other) : VertexArray{other}
 		{
 		}
