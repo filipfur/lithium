@@ -22,14 +22,14 @@ namespace lithium
 		{
 		}
 
-		Mesh(const std::vector<AttributeType>& attributes,
+		Mesh(const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes,
 			const std::vector<GLfloat>& vertices)
 			: VertexArray(DrawFunction::ARRAYS, attributes, vertices)
 		{
 			
 		}
 
-		Mesh(const std::vector<AttributeType>& attributes,
+		Mesh(const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes,
 			const std::vector<GLfloat>& vertices, const std::vector<GLuint>& indices)
 			: VertexArray{DrawFunction::ELEMENTS, attributes, vertices, indices}
 		{

@@ -10,13 +10,13 @@ namespace lithium
     {
     public:
         InstancedObject(lithium::Mesh* mesh, lithium::ImageTexture* diffuse=nullptr, lithium::ImageTexture* normal=nullptr)
-            : lithium::Object{mesh, diffuse, normal}, _instancedArray{}
+            : lithium::Object{mesh, diffuse, normal}, _instancedArray{GL_ARRAY_BUFFER}
         {
             mesh->setDrawFunction(lithium::VertexArray::DrawFunction::ELEMENTS_INSTANCED);
         }
 
         InstancedObject(const InstancedObject& other)
-            : lithium::Object{other}, _instancedArray{}
+            : lithium::Object{other}, _instancedArray{GL_ARRAY_BUFFER}
         {
             setMesh(new Mesh(*other._mesh));    
         }
@@ -70,6 +70,6 @@ namespace lithium
 
     protected:
         std::vector<T> _instances;
-        lithium::Buffer<T, GL_ARRAY_BUFFER> _instancedArray;
+        lithium::Buffer _instancedArray;
     };
 }

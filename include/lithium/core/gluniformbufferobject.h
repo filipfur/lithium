@@ -5,12 +5,13 @@
 
 namespace lithium
 {
-    class UniformBufferObject : public Buffer<GLfloat, GL_UNIFORM_BUFFER>
+    class UniformBufferObject : public Buffer
     {
     public:
-        UniformBufferObject(GLuint size, const std::string& label, GLuint layout) : Buffer{size}, _label{label}, _layout{layout}
+        UniformBufferObject(GLuint size, const std::string& label, GLuint layout) : Buffer{GL_UNIFORM_BUFFER}, _label{label}, _layout{layout}
         {
-
+            bind();
+            glBufferData(type(), size, 0, GL_STATIC_DRAW);
         }
 
         void bindBufferBase(const std::vector<lithium::ShaderProgram*>& shaders) const

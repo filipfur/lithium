@@ -20,7 +20,7 @@ namespace lithium
             }
         }
 
-        void setUpdateCallback(const std::function<bool(Updateable*,float,float)>& updateCallback)
+        void setUpdateCallback(const std::function<bool(Updateable*,float,float)>& updateCallback) // Updateable* u, float time, float dt
 		{
 			_updateCallback = updateCallback;
 		}

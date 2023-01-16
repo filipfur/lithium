@@ -8,7 +8,13 @@ lithium::Node::Node(const std::string& name, const glm::vec3& position,
 
 lithium::Node::~Node() noexcept
 {
-
+    auto it = _children.begin();
+    while(it != _children.end())
+    {
+        Node* node = *it;
+        it = _children.erase(it);
+        delete node;
+    }
 }
 
 void lithium::Node::setParent(Node* parent)
@@ -17,14 +23,17 @@ void lithium::Node::setParent(Node* parent)
     parent->addChild(this);
 }
 
-void lithium::Node::updateWorldMatrix(const glm::mat4& parentWorldMatrix)
+void lithium::Node::updateWorldMatrix(glm::mat4 parentWorldMatrix)
 {
-    auto it = _children.begin();
-    while(it != _children.end())
+    if(this->modelInvalidated())
     {
-        Node* node = *it;
-        it = _children.erase(it);
-        delete node;
+        this->updateModel();
+    }
+    _worldMatrix = parentWorldMatrix * _localMatrix;
+
+    for(auto child : _children)
+    {
+        child->updateWorldMatrix(_worldMatrix);
     }
 }
 

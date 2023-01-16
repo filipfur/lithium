@@ -29,6 +29,7 @@ add_library(${PROJECT_NAME} STATIC
     src/gltaskscheduler.cpp
     src/gltinyobjloader.cpp
     src/glnode.cpp
+    src/glskinnedobject.cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})

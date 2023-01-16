@@ -87,7 +87,7 @@ void lithium::compute_tangents_lengyel(lithium::MeshVertex* pVertices, GLuint kV
     delete[] buffer;
 }
 
-void lithium::tinyobjloader_load_many(const char* inputfile, const std::vector<lithium::VertexArray::AttributeType>& attributes, int numFiles, std::vector<lithium::Mesh*>& meshes)
+void lithium::tinyobjloader_load_many(const char* inputfile, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes, int numFiles, std::vector<lithium::Mesh*>& meshes)
 {
     lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading animated object " + std::string(inputfile), true)};
     lithium::Mesh* mesh{nullptr};
@@ -100,7 +100,7 @@ void lithium::tinyobjloader_load_many(const char* inputfile, const std::vector<l
     }
 }
 
-lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, const std::vector<lithium::VertexArray::AttributeType>& attributes, glm::vec2 uvScale)
+lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes, glm::vec2 uvScale)
 {
     //lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading object " + std::string(inputfile), true)};
     //std::string inputfile = "cornell_box.obj";

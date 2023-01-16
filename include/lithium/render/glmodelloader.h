@@ -26,7 +26,7 @@ namespace lithium
 
         }
 
-        lithium::Model* load(std::string const &path, const std::vector<lithium::VertexArray::AttributeType>& attributes)
+        lithium::Model* load(std::string const &path, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes)
         {
 #ifdef MODELLOADER_VERTEX_LOG
             _vertexLog.open(__dirname(path) + "/vertexlog.txt");
@@ -105,7 +105,7 @@ namespace lithium
 
     private:
         // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-        void loadModel(lithium::Model* model, std::string const &path, const std::vector<lithium::VertexArray::AttributeType>& attributes)
+        void loadModel(lithium::Model* model, std::string const &path, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes)
         {
             // read file via ASSIMP
             Assimp::Importer importer;
@@ -122,7 +122,7 @@ namespace lithium
         }
 
         // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-        void processNode(lithium::Model* model, aiNode *node, const aiScene *scene, const std::vector<lithium::VertexArray::AttributeType>& attributes)
+        void processNode(lithium::Model* model, aiNode *node, const aiScene *scene, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes)
         {
             // process each mesh located at the current node
             for(unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -235,7 +235,7 @@ namespace lithium
             delete[] buffer;
         }
 
-        lithium::Object* processMesh(lithium::Model* model, aiMesh* mesh, const aiScene* scene, const std::vector<lithium::VertexArray::AttributeType>& attributes)
+        lithium::Object* processMesh(lithium::Model* model, aiMesh* mesh, const aiScene* scene, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes)
         {
             //vector<Vertex> vertices;
             std::vector<unsigned int> indices;

@@ -6,39 +6,28 @@
 
 namespace lithium
 {
-	template <typename T, GLuint S>
+	//template <typename T, GLuint S>
 	class Buffer : public Element
 	{
 	public:
 
-		Buffer()
+		Buffer(GLenum type, GLenum usage=GL_STATIC_DRAW) : _type{type}, _usage{usage}
 		{
 			glGenBuffers(1, &_id);
-		}
-
-		Buffer(GLuint size, GLenum usage=GL_STATIC_DRAW) : Buffer{}
-		{
-			_size = size / sizeof(T);
 			_usage = usage;
-			bind();
-			glBufferData(S, size, NULL, usage);
 		}
 
-		Buffer(const Buffer& other) : Buffer{}
+		Buffer(const Buffer& other)
 		{
-			bind();
-			auto size = other._size * sizeof(T);
-			_size = other._size;
+			glGenBuffers(1, &_id);
+			_type = other._type;
+			_byteLength = other._byteLength;
 			_usage = other._usage;
-			glBufferData(S, _size, 0, usage);
+			bind();
+			glBufferData(_type, _byteLength, 0, _usage);
 			glBindBuffer(GL_COPY_READ_BUFFER, other._id);
 			glBindBuffer(GL_COPY_WRITE_BUFFER, _id);
-			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, size);
-		}
-
-		Buffer(const std::vector<T>& data, GLenum usage=GL_STATIC_DRAW) : Buffer{}
-		{
-			allocate(data, usage);
+			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, _byteLength); // ? / sizeof(T)
 		}
 
 		virtual Buffer* clone() const
@@ -51,31 +40,40 @@ namespace lithium
 			glDeleteBuffers(1, &_id);
 		}
 
+		template <typename T>
 		void allocate(const std::vector<T>& data, GLenum usage=GL_STATIC_DRAW)
 		{
-			_size = data.size();
+			_byteLength = data.size() * sizeof(T);
+			_count = data.size();
 			_usage = usage;
 			bind();
-			glBufferData(S, _size * sizeof(T), data.data(), usage);
+			glBufferData(_type, _byteLength, data.data(), usage);
 		}
 
 		virtual void bind() override
 		{
-			glBindBuffer(S, _id);
+			glBindBuffer(_type, _id);
 		}
 
 		virtual void unbind() override
 		{
-			glBindBuffer(S, 0);
+			glBindBuffer(_type, 0);
 		}
 
-		GLuint size()
+		GLenum type() const
 		{
-			return _size;
+			return _type;
+		}
+
+		GLuint count()
+		{
+			return _count;
 		}
 
 	private:
-		GLuint _size{0};
+		GLenum _type{};
+		GLuint _byteLength{0};
+		GLuint _count{0};
 		GLenum _usage{};
 	};
 }
