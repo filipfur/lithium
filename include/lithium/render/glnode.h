@@ -16,7 +16,7 @@ namespace lithium
         virtual ~Node() noexcept;
 
         void setParent(Node* parent);
-        void updateWorldMatrix(glm::mat4 parentWorldMatrix);
+        void updateWorldMatrix(glm::mat4 parentWorldMatrix, bool doStuff=true);
 
         std::string name() const
         {
@@ -107,7 +107,7 @@ namespace lithium
         glm::mat4 _worldMatrix{1.0f};
         glm::vec3 _position{0.0f};
         glm::quat _rotation{1.0f, 0.0f, 0.0f, 0.0f};
-        glm::vec3 _scale{0.0f};
+        glm::vec3 _scale{1.0f};
         bool _modelInvalidated{true};
         Node* _parent{nullptr};
         std::set<Node*> _children;

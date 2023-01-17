@@ -21,7 +21,7 @@ namespace lithium
             setMesh(new Mesh(*other._mesh));    
         }
 
-        InstancedObject(const Object& other) : lithium::Object{other}, _instancedArray{}
+        InstancedObject(const Object& other) : lithium::Object{other}, _instancedArray{GL_ARRAY_BUFFER}
         {
 
         }
@@ -49,7 +49,7 @@ namespace lithium
         {
             _mesh->bind();
             //_instancedArray.bind();
-            int n = _mesh->numLayouts();
+            int n = _mesh->vertexArrayBuffer(0)->numLayouts();
             /*vao->linkAttribPointer(n, 4, GL_FLOAT, sizeof(glm::mat4), (void*)0);
             vao->linkAttribPointer(n+1, 4, GL_FLOAT, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
             vao->linkAttribPointer(n+2, 4, GL_FLOAT, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
@@ -61,7 +61,7 @@ namespace lithium
 
             for(auto && attribPtr : attribPtrs)
             {
-                _mesh->linkAttribPointer(n + attribPtr.layout(), attribPtr.numComponents(), attribPtr.type(), attribPtr.stride(), attribPtr.offset());
+                _mesh->vertexArrayBuffer(0)->linkAttribPointer(n + attribPtr.layout(), attribPtr.numComponents(), attribPtr.type(), attribPtr.stride(), attribPtr.offset());
                 glVertexAttribDivisor(n + attribPtr.layout(), 1);
             }
 

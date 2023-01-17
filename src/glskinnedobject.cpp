@@ -19,7 +19,7 @@ void lithium::SkinnedObject::shade(lithium::ShaderProgram* shaderProgram)
     lithium::Object::shade(shaderProgram);
     _own->setLocalMatrix(_model);
     const glm::mat4 identity{1.0f};
-    _root->updateWorldMatrix(identity);
+    _root->updateWorldMatrix(identity, false);
     updateJointMatrices();
     for(int i=0; i < _jointMatrices.size(); ++i)
     {
@@ -51,7 +51,8 @@ void lithium::SkinnedObject::skinData(const std::vector<lithium::Node*>& joints,
     for(int i{0}; i < joints.size(); ++i)
     {
         int I = i * 16;
-        _inverseBindMatrices.push_back(glm::mat4(
+        _inverseBindMatrices.push_back(glm::make_mat4(inverseBindMatrixData.data() + I));
+        /*_inverseBindMatrices.push_back(glm::mat4(
             inverseBindMatrixData[I + 0],
             inverseBindMatrixData[I + 1],
             inverseBindMatrixData[I + 2],
@@ -71,7 +72,7 @@ void lithium::SkinnedObject::skinData(const std::vector<lithium::Node*>& joints,
             inverseBindMatrixData[I + 13],
             inverseBindMatrixData[I + 14],
             inverseBindMatrixData[I + 15]
-        ));
+        ));*/
         _jointMatrices.push_back(glm::mat4{1.0f});
     }
 }

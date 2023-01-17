@@ -23,13 +23,20 @@ void lithium::Node::setParent(Node* parent)
     parent->addChild(this);
 }
 
-void lithium::Node::updateWorldMatrix(glm::mat4 parentWorldMatrix)
+void lithium::Node::updateWorldMatrix(glm::mat4 parentWorldMatrix, bool doStuff)
 {
     if(this->modelInvalidated())
     {
         this->updateModel();
     }
-    _worldMatrix = parentWorldMatrix * _localMatrix;
+    if(doStuff)
+    {
+        _worldMatrix = parentWorldMatrix * _localMatrix;
+    }
+    else
+    {
+        _worldMatrix = _localMatrix;
+    }
 
     for(auto child : _children)
     {
