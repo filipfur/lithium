@@ -2,6 +2,7 @@
 #include <map>
 #include <filesystem>
 
+//#include <glm/gtx/quaternion.hpp>
 #include "nlohmann/json.hpp"
 
 #include "glnode.h"
@@ -17,9 +18,17 @@ namespace gltf
             std::vector<GLushort> usData;
             std::vector<GLuint> uiData;
             std::vector<GLubyte> ubData;
+            glm::vec3 min{0.0f};
+            glm::vec3 max{0.0f};
             int componentType;
             int count;
             std::string type;
+        };
+
+        struct Sampler
+        {
+            std::vector<GLfloat>* input{nullptr};
+            std::vector<GLfloat>* output{nullptr};
         };
 
 
@@ -114,6 +123,25 @@ namespace gltf
                 accessors[acsId].componentType = accessor["componentType"].get<int>();
                 accessors[acsId].count = accessor["count"].get<int>();
                 accessors[acsId].type = accessor["type"].get<std::string>();
+                if(accessor.contains("max"))
+                {
+                    int j{0};
+                    for(auto& value : accessor["max"])
+                    {
+                        accessors[acsId].max[j++] = value.get<int>();
+                    }
+                }
+
+                if(accessor.contains("min"))
+                {
+                    int j{0};
+                    for(auto& value : accessor["min"])
+                    {
+                        accessors[acsId].min[j++] = value.get<int>();
+                    }
+                }
+
+
                 std::cout << acsId << std::endl;
                 if(accessors[acsId].componentType == GL_FLOAT)
                 {
@@ -212,7 +240,7 @@ namespace gltf
                     scale.y = node["scale"][1].get<float>();
                     scale.z = node["scale"][2].get<float>();
                 }
-                lithium::Node* actualNode = new lithium::Node(nodeName, position, rotation, scale);
+                lithium::Node* actualNode = new lithium::Node(i, nodeName, position, rotation, scale);
                 if(node.contains("mesh"))
                 {
                     skinnedObj->setOwn(actualNode); // Actual mesh.
@@ -252,6 +280,76 @@ namespace gltf
                 joints.push_back(nodeMap.find(j)->second);
             }
             skinnedObj->skinData(joints, accessors[inverseBindAcs].fData);
+
+            for(auto& animation: _json["animations"])
+            {
+                std::cout << "Animation: " << animation["name"] << std::endl;
+                std::vector<float>* input;
+                std::vector<float>* output;
+                float minTime, maxTime, sPerFrame, fps;
+                int frames;
+                std::vector<Sampler> samplers;
+                for(auto& sampler : animation["samplers"])
+                {
+                    Accessor& inputAcs = accessors[sampler["input"].get<int>()];
+                    input = &inputAcs.fData;
+                    minTime = inputAcs.min[0];
+                    maxTime = inputAcs.max[0];
+                    frames = input->size();
+                    sPerFrame = maxTime / frames;
+                    fps = 1.0f / sPerFrame;
+                    break;
+                }
+                for(auto& sampler : animation["samplers"])
+                {
+                    Accessor& inputAcs = accessors[sampler["input"].get<int>()];
+                    Accessor& outputAcs = accessors[sampler["output"].get<int>()];
+                    input = &inputAcs.fData;     
+                    output = &outputAcs.fData;
+                    samplers.push_back(Sampler{input, output});
+                }
+
+                std::map<int, std::vector<glm::vec3>> translationsMap;
+                std::map<int, std::vector<glm::quat>> rotationsMap;
+
+                for(auto& channel : animation["channels"])
+                {
+                    auto& sampler = samplers[channel["sampler"].get<int>()];
+                    const std::string targetPath = channel["target"]["path"].get<std::string>();
+                    const int targetNode = channel["target"]["node"].get<int>();
+                    if(targetPath == "translation")
+                    {
+                        std::vector<glm::vec3> frameTranslations{static_cast<size_t>(frames)};
+                        for(int i{0}; i < frames; ++i)
+                        {
+                            int I = i * 3;
+                            frameTranslations[i] = glm::vec3{sampler.output->at(I), sampler.output->at(I + 1), sampler.output->at(I + 2)};
+                        }
+                        translationsMap.emplace(targetNode, frameTranslations);
+                    }
+                    else if(targetPath == "rotation")
+                    {
+                        std::vector<glm::quat> frameRotations{static_cast<size_t>(frames)};
+                        for(int i{0}; i < frames; ++i)
+                        {
+                            int I = i * 4;
+                            frameRotations[i] = glm::quat{sampler.output->at(I),
+                            sampler.output->at(I + 1),
+                            sampler.output->at(I + 2),
+                            sampler.output->at(I + 3)};
+                        }
+                        rotationsMap.emplace(targetNode, frameRotations);
+                    }
+                    else if(targetPath == "scale")
+                    {
+
+                    }
+                }
+                lithium::SkinAnimation* skinAnimation = new lithium::SkinAnimation(animation["name"].get<std::string>(),
+                    frames, translationsMap, rotationsMap);
+                skinAnimation->setInterval(sPerFrame);
+                skinnedObj->addSkinAnimation(skinAnimation);
+            }
 
             return skinnedObj;
         }

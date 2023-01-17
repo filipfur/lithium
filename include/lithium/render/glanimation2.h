@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "glianimation2.h"
 
 namespace lithium
@@ -127,6 +128,16 @@ namespace lithium
                 return _playing;
             }
 
+            std::string name() const
+            {
+                return _name;
+            }
+
+            int frame() const
+            {
+                return _frame;
+            }
+
         private:
             const std::string _name;
             const int _numberOfFrames;
@@ -134,8 +145,8 @@ namespace lithium
             int _frame{0};
             float _interval{1.0f / 30.0f};
             float _duration{_interval};
-            bool _looping{false};
-            bool _playing{false};
+            bool _looping{true};
+            bool _playing{true};
             bool _reverse{false};
     };
 }

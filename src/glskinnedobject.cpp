@@ -1,5 +1,7 @@
 #include "glskinnedobject.h"
 
+#include "utility.h"
+
 lithium::SkinnedObject::SkinnedObject(lithium::Mesh* mesh, lithium::ImageTexture* texture, lithium::ImageTexture* specular)
     : lithium::Object{mesh, texture, specular}
 {
@@ -17,6 +19,11 @@ lithium::SkinnedObject::~SkinnedObject() noexcept
 void lithium::SkinnedObject::shade(lithium::ShaderProgram* shaderProgram)
 {
     lithium::Object::shade(shaderProgram);
+    for(lithium::Node* joint : _joints)
+    {
+        joint->setPosition(_currentAnimation->getPosition(joint->id()));
+        joint->setRotation(_currentAnimation->getRotation(joint->id()));
+    }
     _own->setLocalMatrix(_model);
     const glm::mat4 identity{1.0f};
     _root->updateWorldMatrix(identity, false);
@@ -30,6 +37,7 @@ void lithium::SkinnedObject::shade(lithium::ShaderProgram* shaderProgram)
 void lithium::SkinnedObject::update(float dt)
 {
     lithium::Object::update(dt);
+    _currentAnimation->step(dt);
 }
 
 void lithium::SkinnedObject::updateJointMatrices()
@@ -37,12 +45,12 @@ void lithium::SkinnedObject::updateJointMatrices()
     const glm::mat4 globalWorldInverse = //glm::inverse(_model); // maybe own.worldMatrix
         glm::inverse(_own->worldMatrix());
 
-
     int j{0};
     for(int j{0}; j < _joints.size(); ++j)
     {
         _jointMatrices[j] = globalWorldInverse * _joints[j]->worldMatrix() * _inverseBindMatrices[j];
     }
+    
 }
 
 void lithium::SkinnedObject::skinData(const std::vector<lithium::Node*>& joints, const std::vector<GLfloat>& inverseBindMatrixData)

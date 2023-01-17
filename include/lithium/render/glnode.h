@@ -11,7 +11,7 @@ namespace lithium
     class Node
     {
     public:
-        Node(const std::string& name, const glm::vec3& position,
+        Node(const int id, const std::string& name, const glm::vec3& position,
             const glm::quat& rotation, const glm::vec3 scale);
         virtual ~Node() noexcept;
 
@@ -35,7 +35,7 @@ namespace lithium
 
         glm::mat4 worldMatrix() const
         {
-            return _localMatrix;
+            return _worldMatrix;
         }
 
         glm::vec3 position() const
@@ -98,10 +98,16 @@ namespace lithium
             return _modelInvalidated;
         }
 
+        int id() const
+        {
+            return _id;
+        }
+
     private:
         void addChild(Node* child);
         void removeChild(Node* child);
 
+        const int _id;
         const std::string _name;
         glm::mat4 _localMatrix{1.0f};
         glm::mat4 _worldMatrix{1.0f};

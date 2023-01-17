@@ -2,6 +2,7 @@
 
 #include "globject.h"
 #include "glnode.h"
+#include "glskinanimation.h"
 
 namespace lithium
 {
@@ -40,6 +41,15 @@ namespace lithium
             return _nodesByName[name];
         }
 
+        void addSkinAnimation(lithium::SkinAnimation* skinAnimation)
+        {
+            _animations.emplace(skinAnimation->name(), skinAnimation);
+            if(_currentAnimation == nullptr)
+            {
+                _currentAnimation = skinAnimation;
+            }
+        }
+
     private:
         lithium::Node* _root{nullptr};
         lithium::Node* _own{nullptr};
@@ -47,5 +57,7 @@ namespace lithium
         std::vector<glm::mat4> _inverseBindMatrices;
         std::vector<glm::mat4> _jointMatrices;
         std::map<std::string, lithium::Node*> _nodesByName;
+        std::map<std::string, lithium::SkinAnimation*> _animations;
+        lithium::SkinAnimation* _currentAnimation{nullptr};
     };
 }

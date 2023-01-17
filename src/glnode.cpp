@@ -1,8 +1,8 @@
 #include "glnode.h"
 
-lithium::Node::Node(const std::string& name, const glm::vec3& position,
+lithium::Node::Node(const int id, const std::string& name, const glm::vec3& position,
             const glm::quat& rotation, const glm::vec3 scale)
-            : _name{name}, _position{position}, _rotation{rotation}, _scale{scale}
+            : _id{id}, _name{name}, _position{position}, _rotation{rotation}, _scale{scale}
 {
 }
 
