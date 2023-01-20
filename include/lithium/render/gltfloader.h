@@ -85,7 +85,7 @@ namespace gltf
             return lithium::VertexArrayBuffer::AttributeType::FLOAT;
         }
         
-        lithium::SkinnedObject* load(const std::filesystem::path& filePath)
+        lithium::SkinnedObject* load(const std::filesystem::path& filePath, bool loadTexture=true)
         {
             std::ifstream ifs{filePath};
             ifs >> _json;
@@ -109,6 +109,24 @@ namespace gltf
             {
                 std::cout << val << ' ';
             }*/
+
+            lithium::ImageTexture* imageTexture{nullptr};
+            if(loadTexture)
+            {
+                for(auto& image : _json["images"])
+                {
+                    const std::string uri = image["uri"].get<std::string>();
+                    imageTexture = lithium::ImageTexture::load(
+                        filePath.parent_path() / uri,
+                        GL_SRGB,
+                        GL_RGB,
+                        GL_LINEAR,
+                        GL_CLAMP_TO_EDGE,
+                        GL_TEXTURE0,
+                        4,
+                        false); // flip = false
+                }
+            }
 
             size_t numAccessors = static_cast<size_t>(_json["accessors"].size());
             std::vector<Accessor> accessors{numAccessors};
@@ -182,7 +200,7 @@ namespace gltf
             {
                 const std::string name{mesh["name"]};
                 skinnedMesh = new lithium::Mesh(lithium::VertexArray::DrawFunction::ELEMENTS16);
-                skinnedObj = new lithium::SkinnedObject(skinnedMesh, nullptr);
+                skinnedObj = new lithium::SkinnedObject(skinnedMesh, imageTexture);
                 for(auto& primitive : mesh["primitives"])
                 {
                     skinnedMesh->bind();
@@ -333,10 +351,10 @@ namespace gltf
                         for(int i{0}; i < frames; ++i)
                         {
                             int I = i * 4;
-                            frameRotations[i] = glm::quat{sampler.output->at(I),
+                            frameRotations[i] = glm::quat{sampler.output->at(I + 3),
+                            sampler.output->at(I + 0),
                             sampler.output->at(I + 1),
-                            sampler.output->at(I + 2),
-                            sampler.output->at(I + 3)};
+                            sampler.output->at(I + 2)};
                         }
                         rotationsMap.emplace(targetNode, frameRotations);
                     }
