@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stb_image.h>
+#include <filesystem>
 #include "gltexture.h"
 #include "gldebugostream.h"
 
@@ -10,11 +11,11 @@ namespace lithium
     class ImageTexture : public Texture<unsigned char, GL_UNSIGNED_BYTE>
     {
         public:
-            static ImageTexture* load(const std::string& path, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint filter=GL_LINEAR, GLuint textureWrap=GL_CLAMP_TO_EDGE, GLuint textureUnit=GL_TEXTURE0, GLuint unpackAlignment=4, bool flip=true)
+            static ImageTexture* load(const std::filesystem::path& path, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint filter=GL_LINEAR, GLuint textureWrap=GL_CLAMP_TO_EDGE, GLuint textureUnit=GL_TEXTURE0, GLuint unpackAlignment=4, bool flip=true)
             {
                 stbi_set_flip_vertically_on_load(flip);
                 int width, height, colorChannels;
-                unsigned char* bytes = stbi_load(path.c_str(), &width, &height, &colorChannels, 0);
+                unsigned char* bytes = stbi_load(path.u8string().c_str(), &width, &height, &colorChannels, 0);
                 if(colorChannels == 3 && colorFormat == GL_RGBA)
                 {
                     colorFormat = GL_RGB;
@@ -33,13 +34,13 @@ namespace lithium
                 return imageTexture;
             }
 
-            std::string path() const
+            std::filesystem::path path() const
             {
                 return _path;
             }
 
         private:
-            ImageTexture(const std::string& path, unsigned char* buffer, int width, int height, GLenum internalFormat, GLenum colorFormat, GLuint filter,
+            ImageTexture(const std::filesystem::path& path, unsigned char* buffer, int width, int height, GLenum internalFormat, GLenum colorFormat, GLuint filter,
                 GLuint textureWrap, GLuint textureUnit, GLuint unpackAlignment)
             : Texture<unsigned char, GL_UNSIGNED_BYTE>{buffer, width, height, internalFormat, colorFormat, filter, textureWrap,
                 textureUnit, unpackAlignment}, _path{path}
@@ -47,6 +48,6 @@ namespace lithium
 
             }
         
-            const std::string _path;
+            const std::filesystem::path _path;
     };
 }

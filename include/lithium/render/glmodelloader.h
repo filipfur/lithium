@@ -276,8 +276,8 @@ namespace lithium
             std::vector<lithium::ImageTexture*> normalMaps;
             for(auto texture : textures)
             {
-                auto texName = texture->path();
-                auto normalName = texName.substr(0, texName.find_last_of("."))
+                const std::string texName = texture->path().u8string();
+                const std::string normalName = texName.substr(0, texName.find_last_of("."))
                     + "-nmap"
                     + texName.substr(texName.find_last_of("."), std::string::npos);
                 std::ifstream f{normalName};

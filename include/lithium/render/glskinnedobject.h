@@ -50,6 +50,32 @@ namespace lithium
             }
         }
 
+        lithium::SkinAnimation* nextAnimation()
+        {
+            bool wasIt{false};
+            for(auto entry : _animations)
+            {
+                if(wasIt)
+                {
+                    _currentAnimation = entry.second;
+                    wasIt = false;
+                    break;
+                }
+                wasIt = entry.second == _currentAnimation;
+            }
+            if(wasIt)
+            {
+                _currentAnimation = _animations.begin()->second;
+            }
+
+            return _currentAnimation;
+        }
+
+        lithium::SkinAnimation* currentAnimation() const
+        {
+            return _currentAnimation;
+        }
+
     private:
         lithium::Node* _root{nullptr};
         lithium::Node* _own{nullptr};

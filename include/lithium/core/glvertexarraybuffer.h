@@ -59,7 +59,8 @@ namespace lithium
 		};
 
         VertexArrayBuffer(const VertexArrayBuffer& other)
-			: Buffer{other}, _attributes{other._attributes}, _layoutOffset{other._layoutOffset}, _attribDivisor{other._attribDivisor}
+			: Buffer{other}, _attributes{other._attributes}, _numLayouts{other._numLayouts}, _componentCount{other._componentCount},
+			_layoutOffset{other._layoutOffset}, _attribDivisor{other._attribDivisor}, _componentType{other._componentType}
         {
             bind();
             linkAttributes();
@@ -146,7 +147,7 @@ namespace lithium
 				const AttributePointer2& attribPtr = attribPtrs.at(i);
                 linkAttribPointer(i, attribPtr.components(), attribPtr.type(), stride, (void*) offset);
 				offset += attribPtr.size();
-				_count += attribPtr.components();
+				_componentCount += attribPtr.components();
             }
 			_numLayouts = attribPtrs.size();
 		}
@@ -191,15 +192,15 @@ namespace lithium
 			return _numLayouts;
 		}
 
-        GLuint count() const
+        GLuint componentCount() const
         {
-            return _count;
+            return _componentCount;
         }
 
     private:
         std::vector<AttributeType> _attributes;
         GLuint _numLayouts{0};
-		GLuint _count{0};
+		GLuint _componentCount{0};
 		GLuint _layoutOffset;
 		GLuint _attribDivisor;
 		GLuint _componentType;

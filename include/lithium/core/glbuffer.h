@@ -17,12 +17,9 @@ namespace lithium
 			_usage = usage;
 		}
 
-		Buffer(const Buffer& other)
+		Buffer(const Buffer& other) : _type{other._type}, _byteLength{other._byteLength}, _count{other._count}, _usage{other._usage}
 		{
 			glGenBuffers(1, &_id);
-			_type = other._type;
-			_byteLength = other._byteLength;
-			_usage = other._usage;
 			bind();
 			glBufferData(_type, _byteLength, 0, _usage);
 			glBindBuffer(GL_COPY_READ_BUFFER, other._id);

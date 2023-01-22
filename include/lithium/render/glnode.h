@@ -103,6 +103,16 @@ namespace lithium
             return _id;
         }
 
+        void setMeshId(int meshId)
+        {
+            _meshId = meshId;
+        }
+
+        int meshId() const
+        {
+            return _meshId;
+        }
+
     private:
         void addChild(Node* child);
         void removeChild(Node* child);
@@ -117,5 +127,6 @@ namespace lithium
         bool _modelInvalidated{true};
         Node* _parent{nullptr};
         std::set<Node*> _children;
+        int _meshId{-1};
     };
 }

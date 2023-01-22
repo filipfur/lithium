@@ -30,9 +30,13 @@ namespace gltf
             std::vector<GLfloat>* input{nullptr};
             std::vector<GLfloat>* output{nullptr};
         };
-
-
     public:
+        struct NodeProperties
+        {
+            lithium::Node* node;
+            std::map<std::string, float> propertyF;
+        };
+
         Loader()
         {
 
@@ -84,52 +88,92 @@ namespace gltf
             }
             return lithium::VertexArrayBuffer::AttributeType::FLOAT;
         }
-        
-        lithium::SkinnedObject* load(const std::filesystem::path& filePath, bool loadTexture=true)
+
+        bool loadJson(const std::filesystem::path& filePath)
         {
             std::ifstream ifs{filePath};
+            if(!ifs)
+            {
+                std::cerr << "Failed to load: " << filePath << std::endl;
+                return false;
+            }
             ifs >> _json;
-            std::cout << "scenes: " << _json["scenes"] << std::endl;
+            return true;
+        }
 
-            std::map<int,lithium::Node*> nodeMap;
+        lithium::ImageTexture* loadTexture(const std::filesystem::path& filePath)
+        {
+            lithium::ImageTexture* imageTexture{nullptr};
+            for(auto& image : _json["images"])
+            {
+                const std::string uri = image["uri"].get<std::string>();
+                imageTexture = lithium::ImageTexture::load(
+                    filePath.parent_path() / uri,
+                    GL_SRGB,
+                    GL_RGB,
+                    GL_LINEAR,
+                    GL_CLAMP_TO_EDGE,
+                    GL_TEXTURE0,
+                    4,
+                    false); // flip = false
+                break;
+            }
+            return imageTexture;
+        }
 
+
+
+        bool loadNodeProperties(const std::filesystem::path& filePath, std::vector<NodeProperties>& nodeProperties)
+        {
+            if(!loadJson(filePath))
+            {
+                return false;
+            }
+
+            //loadDataAccessors(filePath);
+
+            loadNodes();
+
+            for(auto entry : _nodeMap)
+            {
+                lithium::Node* node = entry.second;
+                const int meshId = node->meshId();                
+                if(meshId == -1)
+                {
+                    continue;
+                }
+
+                auto& mesh = _json["meshes"][meshId];
+                if(!mesh.contains("extras"))
+                {
+                    continue;
+                }
+                NodeProperties np{};
+                np.node = node;
+                for(auto& extra : mesh["extras"].items())
+                {
+                    std::cout << extra.key() << ": : :" << extra.value() << std::endl;
+
+                    np.propertyF.emplace(extra.key(), extra.value());
+                }
+                nodeProperties.push_back(np);
+            }
+
+            return true;
+        }
+
+        void loadDataAccessors(const std::filesystem::path& filePath)
+        {
             auto& buffer = _json["buffers"][0];
-
-            std::cout << buffer << std::endl;
             const int bufByteLength = buffer["byteLength"].get<int>();
             const std::string bufUri = buffer["uri"].get<std::string>();
             const std::filesystem::path binPath = filePath.parent_path() / bufUri;
 
-            //bufData.reserve(bufByteLength);
             std::ifstream bufIfs{binPath, std::ios::binary};
             std::vector<uint8_t> bufData{std::istreambuf_iterator<char>(bufIfs), {}};
-            //std::copy(std::istream_iterator<uint8_t>(bufIfs), std::istream_iterator<uint8_t>(), std::back_inserter(bufData));
-
-            /*for(uint8_t val : bufData)
-            {
-                std::cout << val << ' ';
-            }*/
-
-            lithium::ImageTexture* imageTexture{nullptr};
-            if(loadTexture)
-            {
-                for(auto& image : _json["images"])
-                {
-                    const std::string uri = image["uri"].get<std::string>();
-                    imageTexture = lithium::ImageTexture::load(
-                        filePath.parent_path() / uri,
-                        GL_SRGB,
-                        GL_RGB,
-                        GL_LINEAR,
-                        GL_CLAMP_TO_EDGE,
-                        GL_TEXTURE0,
-                        4,
-                        false); // flip = false
-                }
-            }
 
             size_t numAccessors = static_cast<size_t>(_json["accessors"].size());
-            std::vector<Accessor> accessors{numAccessors};
+            _accessors.resize(numAccessors);
 
             for(auto& accessor : _json["accessors"])
             {
@@ -138,15 +182,15 @@ namespace gltf
                 const int byteLength = bufferView["byteLength"].get<int>();
                 const int byteOffset = bufferView["byteOffset"].get<int>();
                 int byteEnd = byteOffset + byteLength;
-                accessors[acsId].componentType = accessor["componentType"].get<int>();
-                accessors[acsId].count = accessor["count"].get<int>();
-                accessors[acsId].type = accessor["type"].get<std::string>();
+                _accessors[acsId].componentType = accessor["componentType"].get<int>();
+                _accessors[acsId].count = accessor["count"].get<int>();
+                _accessors[acsId].type = accessor["type"].get<std::string>();
                 if(accessor.contains("max"))
                 {
                     int j{0};
                     for(auto& value : accessor["max"])
                     {
-                        accessors[acsId].max[j++] = value.get<int>();
+                        _accessors[acsId].max[j++] = value.get<int>();
                     }
                 }
 
@@ -155,81 +199,37 @@ namespace gltf
                     int j{0};
                     for(auto& value : accessor["min"])
                     {
-                        accessors[acsId].min[j++] = value.get<int>();
+                        _accessors[acsId].min[j++] = value.get<int>();
                     }
                 }
 
-
-                std::cout << acsId << std::endl;
-                if(accessors[acsId].componentType == GL_FLOAT)
+                if(_accessors[acsId].componentType == GL_FLOAT)
                 {
-                    //std::vector<uint8_t>::const_iterator first = bufData.begin() + byteOffset;
-                    //std::vector<uint8_t>::const_iterator last = bufData.begin() + byteEnd;
                     float* buf = (float*)(bufData.data() + byteOffset);
-                    std::copy(&buf[0], &buf[byteLength / 4], std::back_inserter(accessors[acsId].fData));
-
-                    //accessors[acsId].data.reserve(byteLength);
-                    //memcpy(accessors[acsId].data.data(), bufData.data() + byteOffset, byteLength);
+                    std::copy(&buf[0], &buf[byteLength / 4], std::back_inserter(_accessors[acsId].fData));
                 }
-                else if(accessors[acsId].componentType == GL_UNSIGNED_SHORT)
+                else if(_accessors[acsId].componentType == GL_UNSIGNED_SHORT)
                 {
                     uint16_t* buf = (uint16_t*)(bufData.data() + byteOffset);
-                    std::copy(&buf[0], &buf[byteLength / 2], std::back_inserter(accessors[acsId].usData));
+                    std::copy(&buf[0], &buf[byteLength / 2], std::back_inserter(_accessors[acsId].usData));
                 }
-                else if(accessors[acsId].componentType == GL_UNSIGNED_BYTE)
+                else if(_accessors[acsId].componentType == GL_UNSIGNED_BYTE)
                 {
                     std::vector<uint8_t>::const_iterator first = bufData.begin() + byteOffset;
                     std::vector<uint8_t>::const_iterator last = bufData.begin() + byteEnd;
                     std::vector<GLubyte> ubData{first, last};
-                    accessors[acsId].ubData = ubData;
+                    _accessors[acsId].ubData = ubData;
                 }
                 else
                 {
                     GLuint* buf = (GLuint*)(bufData.data() + byteOffset);
-                    std::copy(&buf[0], &buf[byteLength / 4], std::back_inserter(accessors[acsId].usData));
-
-                    //accessors[acsId].iData.reserve(byteLength);
-                    //memcpy(accessors[acsId].iData.data(), bufData.data() + byteOffset, byteLength);
+                    std::copy(&buf[0], &buf[byteLength / 4], std::back_inserter(_accessors[acsId].usData));
                 }
             }
+        }
 
-            lithium::SkinnedObject* skinnedObj{nullptr};
-            lithium::Mesh* skinnedMesh{nullptr};
-
-            for(auto& mesh : _json["meshes"])
-            {
-                const std::string name{mesh["name"]};
-                skinnedMesh = new lithium::Mesh(lithium::VertexArray::DrawFunction::ELEMENTS16);
-                skinnedObj = new lithium::SkinnedObject(skinnedMesh, imageTexture);
-                for(auto& primitive : mesh["primitives"])
-                {
-                    skinnedMesh->bind();
-                    for(const std::string attr : {"POSITION", "NORMAL", "TEXCOORD_0", "JOINTS_0", "WEIGHTS_0"})
-                    {
-                        int acsId = primitive["attributes"][attr].get<int>();
-                        auto& accessor = accessors.at(acsId);
-                        if(accessor.componentType == GL_UNSIGNED_BYTE)
-                        {
-                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.ubData, accessor.componentType);
-                        }
-                        else if(accessor.componentType == GL_UNSIGNED_INT)
-                        {
-                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.uiData, accessor.componentType);
-                        }
-                        else if(accessor.componentType == GL_UNSIGNED_SHORT)
-                        {
-                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.usData, accessor.componentType);
-                        }
-                        else
-                        {
-                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.fData, accessor.componentType);
-                        }
-                    }
-                    int acsId = primitive["indices"].get<int>();
-                    skinnedMesh->createElementArrayBuffer(accessors.at(acsId).usData);
-                }
-            }
-
+        void loadNodes()
+        {
             auto& jsonNodes = _json["nodes"];
             for(int i{0}; i < jsonNodes.size(); ++i)
             {
@@ -261,47 +261,105 @@ namespace gltf
                 lithium::Node* actualNode = new lithium::Node(i, nodeName, position, rotation, scale);
                 if(node.contains("mesh"))
                 {
-                    skinnedObj->setOwn(actualNode); // Actual mesh.
+                    actualNode->setMeshId(node["mesh"].get<int>());
                 }
-                nodeMap[i] = actualNode;
+                _nodeMap[i] = actualNode;
             }
 
-
-            for(auto entry : nodeMap)
+            for(auto entry : _nodeMap)
             {
                 auto& node = jsonNodes[entry.first];
-                skinnedObj->addNode(entry.second);
                 if(node.contains("children"))
                 {
                     for(auto childId : node["children"])
                     {
-                        nodeMap[childId]->setParent(entry.second);
+                        _nodeMap[childId]->setParent(entry.second);
                     }
+                }
+            }
+        }
+        
+        lithium::SkinnedObject* loadSkinnedObject(const std::filesystem::path& filePath, bool loadTexture=true)
+        {
+            if(!loadJson(filePath))
+            {
+                return nullptr;
+            }
+
+            lithium::ImageTexture* imageTexture{nullptr};
+            if(loadTexture)
+            {
+                imageTexture = this->loadTexture(filePath);
+            }
+
+            loadDataAccessors(filePath);
+
+            lithium::SkinnedObject* skinnedObj{nullptr};
+            lithium::Mesh* skinnedMesh{nullptr};
+
+            for(auto& mesh : _json["meshes"])
+            {
+                const std::string name{mesh["name"]};
+                skinnedMesh = new lithium::Mesh(lithium::VertexArray::DrawFunction::ELEMENTS16);
+                skinnedObj = new lithium::SkinnedObject(skinnedMesh, imageTexture);
+                for(auto& primitive : mesh["primitives"])
+                {
+                    skinnedMesh->bind();
+                    for(const std::string attr : {"POSITION", "NORMAL", "TEXCOORD_0", "JOINTS_0", "WEIGHTS_0"})
+                    {
+                        int acsId = primitive["attributes"][attr].get<int>();
+                        auto& accessor = _accessors.at(acsId);
+                        if(accessor.componentType == GL_UNSIGNED_BYTE)
+                        {
+                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.ubData, accessor.componentType);
+                        }
+                        else if(accessor.componentType == GL_UNSIGNED_INT)
+                        {
+                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.uiData, accessor.componentType);
+                        }
+                        else if(accessor.componentType == GL_UNSIGNED_SHORT)
+                        {
+                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.usData, accessor.componentType);
+                        }
+                        else
+                        {
+                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.fData, accessor.componentType);
+                        }
+                    }
+                    int acsId = primitive["indices"].get<int>();
+                    skinnedMesh->createElementArrayBuffer(_accessors.at(acsId).usData);
+                }
+            }
+
+            loadNodes();
+
+            for(auto entry : _nodeMap)
+            {
+                skinnedObj->addNode(entry.second);
+                if(entry.second->meshId() != -1)
+                {
+                    skinnedObj->setOwn(entry.second); // Actual mesh.
                 }
             }
 
             int rootNodeId = _json["scenes"][0]["nodes"][0].get<int>();
-            lithium::Node* rootNode = nodeMap.find(rootNodeId)->second;
-            std::cout << rootNode->name() << std::endl;
-            printTree(rootNode, "");
+            lithium::Node* rootNode = _nodeMap.find(rootNodeId)->second;
+            //printTree(rootNode, "");
 
             skinnedObj->setRoot(rootNode);
 
             auto& skin = _json["skins"][0];
             int inverseBindAcs = skin["inverseBindMatrices"].get<int>();
-            std::cout << "invBindAcs: " << inverseBindAcs << std::endl;
             std::vector<lithium::Node*> joints;
             for(auto& joint : skin["joints"])
             {
                 int j = joint.get<int>();
-                std::cout << "joint: " << joint << std::endl;
-                joints.push_back(nodeMap.find(j)->second);
+                joints.push_back(_nodeMap.find(j)->second);
             }
-            skinnedObj->skinData(joints, accessors[inverseBindAcs].fData);
+            skinnedObj->skinData(joints, _accessors[inverseBindAcs].fData);
 
             for(auto& animation: _json["animations"])
             {
-                std::cout << "Animation: " << animation["name"] << std::endl;
                 std::vector<float>* input;
                 std::vector<float>* output;
                 float minTime, maxTime, sPerFrame, fps;
@@ -309,7 +367,7 @@ namespace gltf
                 std::vector<Sampler> samplers;
                 for(auto& sampler : animation["samplers"])
                 {
-                    Accessor& inputAcs = accessors[sampler["input"].get<int>()];
+                    Accessor& inputAcs = _accessors[sampler["input"].get<int>()];
                     input = &inputAcs.fData;
                     minTime = inputAcs.min[0];
                     maxTime = inputAcs.max[0];
@@ -320,8 +378,8 @@ namespace gltf
                 }
                 for(auto& sampler : animation["samplers"])
                 {
-                    Accessor& inputAcs = accessors[sampler["input"].get<int>()];
-                    Accessor& outputAcs = accessors[sampler["output"].get<int>()];
+                    Accessor& inputAcs = _accessors[sampler["input"].get<int>()];
+                    Accessor& outputAcs = _accessors[sampler["output"].get<int>()];
                     input = &inputAcs.fData;     
                     output = &outputAcs.fData;
                     samplers.push_back(Sampler{input, output});
@@ -374,6 +432,7 @@ namespace gltf
 
     private:
         nlohmann::json _json;
-
+        std::vector<Accessor> _accessors;
+        std::map<int,lithium::Node*> _nodeMap;
     };
 }
