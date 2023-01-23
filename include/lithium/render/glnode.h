@@ -5,6 +5,7 @@
 #include <functional>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <map>
 
 namespace lithium
 {
@@ -113,6 +114,34 @@ namespace lithium
             return _meshId;
         }
 
+        void addPropertyF(const std::string& key, float f)
+        {
+            _propertiesF.emplace(key, f);
+        }
+
+        bool hasProperties() const
+        {
+            return _propertiesF.size();
+        }
+
+        void forEachPropertyF(const std::function<void(const std::string&, float)>& callback)
+        {
+            for(auto entry : _propertiesF)
+            {
+                callback(entry.first, entry.second);
+            }
+        }
+
+        bool hasPropertyF(const std::string& key) const
+        {
+            return _propertiesF.find(key) != _propertiesF.end();
+        }
+
+        float propertyF(const std::string& key) const
+        {
+            return _propertiesF.find(key)->second;
+        }
+
     private:
         void addChild(Node* child);
         void removeChild(Node* child);
@@ -128,5 +157,6 @@ namespace lithium
         Node* _parent{nullptr};
         std::set<Node*> _children;
         int _meshId{-1};
+        std::map<std::string, float> _propertiesF;
     };
 }

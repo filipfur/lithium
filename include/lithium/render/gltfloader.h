@@ -30,13 +30,8 @@ namespace gltf
             std::vector<GLfloat>* input{nullptr};
             std::vector<GLfloat>* output{nullptr};
         };
-    public:
-        struct NodeProperties
-        {
-            lithium::Node* node;
-            std::map<std::string, float> propertyF;
-        };
 
+    public:
         Loader()
         {
 
@@ -123,7 +118,7 @@ namespace gltf
 
 
 
-        bool loadNodeProperties(const std::filesystem::path& filePath, std::vector<NodeProperties>& nodeProperties)
+        bool loadNodeProperties(const std::filesystem::path& filePath, std::vector<lithium::Node*>& nodeProperties)
         {
             if(!loadJson(filePath))
             {
@@ -137,26 +132,10 @@ namespace gltf
             for(auto entry : _nodeMap)
             {
                 lithium::Node* node = entry.second;
-                const int meshId = node->meshId();                
-                if(meshId == -1)
+                if(node->hasProperties())
                 {
-                    continue;
+                    nodeProperties.push_back(node);
                 }
-
-                auto& mesh = _json["meshes"][meshId];
-                if(!mesh.contains("extras"))
-                {
-                    continue;
-                }
-                NodeProperties np{};
-                np.node = node;
-                for(auto& extra : mesh["extras"].items())
-                {
-                    std::cout << extra.key() << ": : :" << extra.value() << std::endl;
-
-                    np.propertyF.emplace(extra.key(), extra.value());
-                }
-                nodeProperties.push_back(np);
             }
 
             return true;
@@ -263,6 +242,16 @@ namespace gltf
                 {
                     actualNode->setMeshId(node["mesh"].get<int>());
                 }
+
+                if(node.contains("extras"))
+                {
+                    for(auto& extra : node["extras"].items())
+                    {
+                        std::cout << extra.key() << "=" << extra.value() << std::endl;
+                        actualNode->addPropertyF(extra.key(), extra.value());
+                    }
+                }
+
                 _nodeMap[i] = actualNode;
             }
 
