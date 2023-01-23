@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(lithium VERSION 1.0.0 DESCRIPTION "Lightweight C++/OpenGL game engine.")
 
-add_library(${PROJECT_NAME} STATIC 
+add_library(lithium STATIC 
     dep/glad/src/glad.c 
     src/gldebugostream.cpp
     src/glanimatedobject.cpp
@@ -32,11 +32,11 @@ add_library(${PROJECT_NAME} STATIC
     src/glskinnedobject.cpp
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION 1)
+set_target_properties(lithium PROPERTIES SOVERSION 1)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(lithium PUBLIC
     include/lithium/application
     include/lithium/core
     include/lithium/obsolete
@@ -51,14 +51,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     dep/miniaudio
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/*.h)
+set_target_properties(lithium PROPERTIES PUBLIC_HEADER include/*.h)
 
 include(GNUInstallDirs)
 
 if (WIN32) 
-    target_link_libraries(${PROJECT_NAME} glfw assimp opengl32)
+    target_link_libraries(lithium glfw assimp opengl32)
 else ()
-    target_link_libraries(${PROJECT_NAME} glfw assimp
+    target_link_libraries(lithium glfw assimp
         "-framework OpenGL")
 endif ()
 
@@ -66,6 +66,6 @@ add_subdirectory(dep/glfw)
 add_subdirectory(dep/json)
 add_subdirectory(dep/assimp)
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS lithium
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
