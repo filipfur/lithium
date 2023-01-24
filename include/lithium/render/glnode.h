@@ -5,6 +5,7 @@
 #include <functional>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <vector>
 #include <map>
 
 namespace lithium
@@ -119,6 +120,11 @@ namespace lithium
             _propertiesF.emplace(key, f);
         }
 
+        void addPropertyArrayF(const std::string& key, const std::vector<float>& f)
+        {
+            _propertiesArrayF.emplace(key, f);
+        }
+
         bool hasProperties() const
         {
             return _propertiesF.size();
@@ -137,9 +143,29 @@ namespace lithium
             return _propertiesF.find(key) != _propertiesF.end();
         }
 
+        bool hasPropertyArrayF(const std::string& key) const
+        {
+            return _propertiesArrayF.find(key) != _propertiesArrayF.end();
+        }
+
         float propertyF(const std::string& key) const
         {
             return _propertiesF.find(key)->second;
+        }
+
+        int propertyArrayFSize(const std::string& key) const
+        {
+            return _propertiesArrayF.find(key)->second.size();
+        }
+
+        float propertyArrayF(const std::string& key, int index) const
+        {
+            return _propertiesArrayF.find(key)->second[index];
+        }
+
+        const std::vector<float>& propertyArrayF(const std::string& key) const
+        {
+            return _propertiesArrayF.find(key)->second;
         }
 
     private:
@@ -158,5 +184,6 @@ namespace lithium
         std::set<Node*> _children;
         int _meshId{-1};
         std::map<std::string, float> _propertiesF;
+        std::map<std::string, std::vector<float>> _propertiesArrayF;
     };
 }

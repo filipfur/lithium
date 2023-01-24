@@ -248,7 +248,14 @@ namespace gltf
                     for(auto& extra : node["extras"].items())
                     {
                         std::cout << extra.key() << "=" << extra.value() << std::endl;
-                        actualNode->addPropertyF(extra.key(), extra.value());
+                        if(extra.value().is_array())
+                        {
+                            actualNode->addPropertyArrayF(extra.key(), extra.value());
+                        }
+                        else
+                        {
+                            actualNode->addPropertyF(extra.key(), extra.value());
+                        }
                     }
                 }
 
