@@ -127,7 +127,7 @@ namespace lithium
 
         bool hasProperties() const
         {
-            return _propertiesF.size();
+            return _propertiesF.size() || _propertiesArrayF.size();
         }
 
         void forEachPropertyF(const std::function<void(const std::string&, float)>& callback)
