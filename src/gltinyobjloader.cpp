@@ -100,7 +100,8 @@ void lithium::tinyobjloader_load_many(const char* inputfile, const std::vector<l
     }
 }
 
-lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes, glm::vec2 uvScale)
+lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes, glm::vec2 uvScale,
+    std::vector<glm::vec3>* vertexPositions)
 {
     //lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading object " + std::string(inputfile), true)};
     //std::string inputfile = "cornell_box.obj";
@@ -169,6 +170,11 @@ lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, const std::vec
                 vertices.insert(vertices.end(), {vx, vy, vz, nx, ny, nz, tx, ty});
             }
             
+            if(vertexPositions)
+            {
+                vertexPositions->push_back(glm::vec3{vx, vy, vz});
+            }
+
             indices.push_back(indices.size());
         }
     }
