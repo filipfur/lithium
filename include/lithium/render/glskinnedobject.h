@@ -17,6 +17,11 @@ namespace lithium
 
         virtual void shade(lithium::ShaderProgram* shaderProgram) override;
 
+        virtual lithium::SkinnedObject* clone() const override
+        {
+            return new lithium::SkinnedObject{*this};
+        }
+
         void updateJointMatrices();
 
         void skinData(const std::vector<lithium::Node*>& joints, const std::vector<GLfloat>& inverseBindMatrixData);
@@ -73,6 +78,22 @@ namespace lithium
 
         lithium::SkinAnimation* currentAnimation() const
         {
+            return _currentAnimation;
+        }
+
+        lithium::SkinAnimation* animation(const std::string& key)
+        {
+            auto it = _animations.find(key);
+            if(it != _animations.end())
+            {
+                return it->second;
+            }
+            return nullptr;
+        }
+
+        lithium::SkinAnimation* setAnimation(const std::string& key)
+        {
+            _currentAnimation = animation(key);
             return _currentAnimation;
         }
 

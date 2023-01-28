@@ -34,7 +34,7 @@ namespace lithium
             _skinnedObjects.push_back(object);
         }
 
-        void insertSkinnedObject(const std::vector<lithium::SkinnedObject*>& list)
+        void insertSkinnedObjects(const std::vector<lithium::SkinnedObject*>& list)
         {
             _skinnedObjects.insert(_skinnedObjects.end(), list.begin(), list.end());
         }

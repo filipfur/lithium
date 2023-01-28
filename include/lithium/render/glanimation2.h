@@ -138,6 +138,11 @@ namespace lithium
                 return _frame;
             }
 
+            float progress() const
+            {
+                return 1.0f - _duration / _interval;
+            }
+
         private:
             const std::string _name;
             const int _numberOfFrames;

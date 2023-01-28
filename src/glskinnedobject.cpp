@@ -1,13 +1,19 @@
 #include "glskinnedobject.h"
 
-#include "utility.h"
-
 lithium::SkinnedObject::SkinnedObject(lithium::Mesh* mesh, lithium::ImageTexture* texture, lithium::ImageTexture* specular)
     : lithium::Object{mesh, texture, specular}
 {
 }
 
-lithium::SkinnedObject::SkinnedObject(const lithium::SkinnedObject& other) : lithium::Object{other}
+lithium::SkinnedObject::SkinnedObject(const lithium::SkinnedObject& other) : lithium::Object{other}, 
+        _root{other._root},
+        _own{other._own},
+        _joints{other._joints}, // TODO: Look this over.
+         _inverseBindMatrices{other._inverseBindMatrices}, // TODO: Look this over.
+         _jointMatrices{other._jointMatrices}, // ... 
+        _nodesByName{other._nodesByName},
+        _animations{other._animations},
+        _currentAnimation{_animations.begin()->second}
 {
 }
 
@@ -43,7 +49,7 @@ void lithium::SkinnedObject::update(float dt)
 void lithium::SkinnedObject::updateJointMatrices()
 {
     const glm::mat4 globalWorldInverse = //glm::inverse(_model); // maybe own.worldMatrix
-        glm::inverse(_own->worldMatrix());
+        glm::inverse(glm::mat4{1.0f});
 
     int j{0};
     for(int j{0}; j < _joints.size(); ++j)

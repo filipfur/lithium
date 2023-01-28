@@ -41,14 +41,47 @@ namespace lithium
 #endif
             }
 
+            glm::vec3 lerp(const glm::vec3& a, const glm::vec3& b, float t)
+            {
+                return a * (1.f - t) + b * t;
+            }
+
             glm::vec3 getPosition(int index)
             {
-                return _translationsMap[index][frame()];
+                if(!_interpolate)
+                {
+                    return _translationsMap[index][frame()];
+                }
+                const int j = frame();
+                const int k = j == _translationsMap[index].size() - 1 ? 0 : j + 1;
+
+                glm::vec3 p0 = _translationsMap[index][j];
+                glm::vec3 p1 = _translationsMap[index][k];
+                return lerp(p0, p1, progress());
             }
 
             glm::quat getRotation(int index)
             {
-                return _rotationsMap[index][frame()];
+                if(!_interpolate)
+                {
+                    return _rotationsMap[index][frame()];
+                }
+                const int j = frame();
+                const int k = j == _rotationsMap[index].size() - 1 ? 0 : j + 1;
+
+                glm::quat p0 = _rotationsMap[index][j];
+                glm::quat p1 = _rotationsMap[index][k];
+                return glm::slerp(p0, p1, progress());
+            }
+
+            void setInterpolate(bool interpolate)
+            {
+                _interpolate = interpolate;
+            }
+
+            bool interpolate() const
+            {
+                return _interpolate;
             }
 
         private:
@@ -57,5 +90,6 @@ namespace lithium
             std::ofstream _animOfs;
             std::chrono::steady_clock::time_point _lastFrame;
             int _counter{0};
+            bool _interpolate{true};
     };
 }

@@ -55,8 +55,12 @@ void lithium::Text::draw()
         if(_mesh != nullptr)
         {
             _mesh->bind();
-            _mesh->vertexArrayBuffer(0)->allocate(_vertices, 0);
-            _mesh->elementArrayBuffer()->allocate(_indices, 0);
+            //_mesh->vertexArrayBuffer(0)->bind();
+            _mesh->vertexArrayBuffer(0)->allocate(_vertices);
+            //_mesh->elementArrayBuffer()->bind();
+            _mesh->elementArrayBuffer()->allocate(_indices);
+            //delete _mesh;
+            //_mesh = nullptr;
         }
         else
         {
