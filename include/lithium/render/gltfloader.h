@@ -86,6 +86,9 @@ namespace gltf
 
         bool loadJson(const std::filesystem::path& filePath)
         {
+            this->_json.clear();
+            this->_accessors.clear();
+            this->_nodeMap.clear();
             std::ifstream ifs{filePath};
             if(!ifs)
             {

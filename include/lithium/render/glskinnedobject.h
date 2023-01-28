@@ -93,7 +93,12 @@ namespace lithium
 
         lithium::SkinAnimation* setAnimation(const std::string& key)
         {
-            _currentAnimation = animation(key);
+            lithium::SkinAnimation* anim = animation(key);
+            if(_currentAnimation != anim)
+            {
+                _currentAnimation = anim;
+                _currentAnimation->play();
+            }
             return _currentAnimation;
         }
 

@@ -66,6 +66,7 @@ namespace lithium
                         ++_frame;
                         if(_frame == _numberOfFrames)
                         {
+                            _frame = _numberOfFrames - 1;
                             if(_looping)
                             {
                                 _frame = 0;

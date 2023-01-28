@@ -7,10 +7,11 @@
 #include <glm/gtx/quaternion.hpp>
 #include <vector>
 #include <map>
+#include "gltrs.h"
 
 namespace lithium
 {
-    class Node
+    class Node : public TRS
     {
     public:
         Node(const int id, const std::string& name, const glm::vec3& position,
@@ -30,47 +31,9 @@ namespace lithium
             return _parent;
         }
 
-        glm::mat4 localMatrix() const
-        {
-            return _localMatrix;
-        }
-
         glm::mat4 worldMatrix() const
         {
             return _worldMatrix;
-        }
-
-        glm::vec3 position() const
-        {
-            return _position;
-        }
-
-        glm::quat rotation() const
-        {
-            return _rotation;
-        }
-
-        glm::vec3 scale() const
-        {
-            return _scale;
-        }
-
-        void setPosition(const glm::vec3& position)
-        {
-            _position = position;
-            _modelInvalidated = true;
-        }
-
-        void setRotation(const glm::quat& rotation)
-        {
-            _rotation = rotation;
-            _modelInvalidated = true;
-        }
-
-        void setScale(const glm::vec3& scale)
-        {
-            _scale = scale;
-            _modelInvalidated = true;
         }
 
         void forAllChildren(const std::function<void(lithium::Node*)>& callback)
@@ -81,23 +44,10 @@ namespace lithium
             }
         }
 
-        void updateModel()
-        {
-            _localMatrix = glm::translate(glm::mat4{1.0f}, _position);
-            _localMatrix *= glm::toMat4(_rotation);
-            _localMatrix = glm::scale(_localMatrix, _scale);
-            _modelInvalidated = false;
-        }
-
         void setLocalMatrix(const glm::mat4 matrix)
         {
-            _localMatrix = matrix;
+            _model = matrix;
             _modelInvalidated = false;
-        }
-
-        bool modelInvalidated() const
-        {
-            return _modelInvalidated;
         }
 
         int id() const
@@ -174,12 +124,7 @@ namespace lithium
 
         const int _id;
         const std::string _name;
-        glm::mat4 _localMatrix{1.0f};
         glm::mat4 _worldMatrix{1.0f};
-        glm::vec3 _position{0.0f};
-        glm::quat _rotation{1.0f, 0.0f, 0.0f, 0.0f};
-        glm::vec3 _scale{1.0f};
-        bool _modelInvalidated{true};
         Node* _parent{nullptr};
         std::set<Node*> _children;
         int _meshId{-1};

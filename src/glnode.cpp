@@ -2,7 +2,7 @@
 
 lithium::Node::Node(const int id, const std::string& name, const glm::vec3& position,
             const glm::quat& rotation, const glm::vec3 scale)
-            : _id{id}, _name{name}, _position{position}, _rotation{rotation}, _scale{scale}
+            : TRS{position, rotation, scale}, _id{id}, _name{name}
 {
 }
 
@@ -31,11 +31,11 @@ void lithium::Node::updateWorldMatrix(glm::mat4 parentWorldMatrix, bool doStuff)
     }
     if(doStuff)
     {
-        _worldMatrix = parentWorldMatrix * _localMatrix;
+        _worldMatrix = parentWorldMatrix * _model;
     }
     else
     {
-        _worldMatrix = _localMatrix;
+        _worldMatrix = _model;
     }
 
     for(auto child : _children)

@@ -2,60 +2,13 @@
 
 #include <functional>
 #include "glinstancedobject.h"
+#include "glparticle.h"
 
 namespace lithium
 {
     class ParticleSystem : public lithium::InstancedObject<glm::mat4>
     {
     public:
-        class Particle
-        {
-        public:
-            Particle()
-            {
-            }
-
-            Particle(const glm::mat4& model, float duration, const glm::vec3& dv, const glm::vec3& ds, const glm::vec3& dr)
-                : _model{model}, _duration{duration}, _dv{dv}, _ds{ds}, _dr{dr}, _active{true}
-            {
-                
-            }
-
-            void update(float dt)
-            {
-                if(_active)
-                {
-                    _model = glm::translate(_model, _dv * dt);
-                    if(_dr.x != 0.0f) _model = glm::rotate(_model, glm::radians(_dr.x * dt), glm::vec3(1.0f, 0.0f, 0.0f));
-                    if(_dr.y != 0.0f) _model = glm::rotate(_model, glm::radians(_dr.y * dt), glm::vec3(0.0f, 1.0f, 0.0f));
-                    if(_dr.z != 0.0f) _model = glm::rotate(_model, glm::radians(_dr.z * dt), glm::vec3(0.0f, 0.0f, 1.0f));
-                    _model = glm::scale(_model, glm::vec3{1.0f} + _ds * dt);
-                }
-            }
-
-            glm::mat4 model() const
-            {
-                return _model;
-            }
-
-            bool isExpired()
-            {
-                return _duration <= 0;
-            }
-
-            bool active() const
-            {
-                return _active;
-            }
-
-        private:
-            bool _active{false};
-            glm::mat4 _model;
-            float _duration;
-            glm::vec3 _dv;
-            glm::vec3 _ds;
-            glm::vec3 _dr;
-        };
 
         ParticleSystem(lithium::Mesh* mesh, lithium::ImageTexture* diffuse, float spawnInterval, int maxParticles, const std::function<Particle()>& onSpawn)
             : lithium::InstancedObject<glm::mat4>{mesh, diffuse}, _spawnInterval{spawnInterval}, _maxParticles{maxParticles}, _onSpawn{onSpawn}
