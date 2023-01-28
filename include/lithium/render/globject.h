@@ -3,7 +3,6 @@
 #include "glmesh.h"
 #include "glcamera.h"
 #include "glimagetexture.h"
-#include "iobject.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "gltaskscheduler.h"
 #include "glfader.h"
@@ -131,17 +130,6 @@ namespace lithium
 		}
 
 		virtual void update(float dt);
-
-		lithium::Object* setFlicker(float flicker)
-		{
-			_flicker = flicker;
-			return this;
-		}
-
-		void setIObject(IObject* iObject)
-		{
-			_iObject = iObject;
-		}
 
 		lithium::Object* setOpacity(float opacity)
 		{
@@ -323,7 +311,6 @@ namespace lithium
 		glm::vec3 _scale;
 		glm::mat4 _model;
 		float _shininess{32.0f};
-		float _flicker{0.0f};
 		bool _visible{true};
 		glm::vec4 _color{1.0f};
         lithium::ImageTexture* _texture{nullptr};
@@ -336,7 +323,6 @@ namespace lithium
 		glm::vec2 _textureRegions{1.0f, 1.0f};
 		glm::vec2 _currentTextureRegion{0.0f, 0.0f};
 
-		IObject* _iObject;
 		lithium::Fader* _opacityFader{nullptr};
 		bool _modelInvalidated{false};
     };

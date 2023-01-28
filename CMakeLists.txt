@@ -39,7 +39,6 @@ set_target_properties(lithium PROPERTIES SOVERSION 1)
 target_include_directories(lithium PUBLIC
     include/lithium/application
     include/lithium/core
-    include/lithium/obsolete
     include/lithium/render
     include/lithium/utility
     dep/glad/include
@@ -47,7 +46,6 @@ target_include_directories(lithium PUBLIC
     dep/json/include
     dep/tinyobjloader
     dep/filewatch
-    dep/assimp/include
     dep/miniaudio
 )
 
@@ -56,15 +54,14 @@ set_target_properties(lithium PROPERTIES PUBLIC_HEADER include/*.h)
 include(GNUInstallDirs)
 
 if (WIN32) 
-    target_link_libraries(lithium glfw assimp opengl32)
+    target_link_libraries(lithium glfw opengl32)
 else ()
-    target_link_libraries(lithium glfw assimp
+    target_link_libraries(lithium glfw
         "-framework OpenGL")
 endif ()
 
 add_subdirectory(dep/glfw)
 add_subdirectory(dep/json)
-add_subdirectory(dep/assimp)
 
 install(TARGETS lithium
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

@@ -11,7 +11,6 @@ lithium::Object::Object(lithium::Mesh* mesh, lithium::ImageTexture* diffuse, lit
 lithium::Object::Object(const lithium::Object& other) : Object{other._mesh, other._texture, other._specular}
 {
     _objectName = other._objectName;
-    _iObject = other._iObject;
     _color = other._color;
     _position = other._position;
     _rotation = other._rotation;
@@ -30,7 +29,6 @@ lithium::Object::~Object() noexcept
     _texture = nullptr;
     _specular = nullptr;
     _objectName = nullptr;
-    _iObject = nullptr;
     if(_opacityFader)
     {
         delete _opacityFader;
@@ -41,19 +39,6 @@ lithium::Object::~Object() noexcept
 void lithium::Object::update(float dt)
 {
     lithium::Updateable::update(dt);
-
-    if(_flicker > 0)
-    {
-        _flicker -= dt;
-        if(_flicker <= 0)
-        {
-            _flicker = 0.0f;
-            if(_iObject)
-            {
-                _iObject->onDoneFlickering(this);
-            }
-        }
-    }
 }
 
 void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
@@ -80,11 +65,6 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
 
 void lithium::Object::draw()
 {
-    if(!_visible || (((int)(_flicker * 100) % 2) == 1))
-    {
-        return;
-    }
-
     if (_texture)
     {
         _texture->bind();

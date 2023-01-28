@@ -1,6 +1,5 @@
 #pragma once
 
-#include "iinput.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -27,11 +26,6 @@ namespace lithium
 		Input(GLFWwindow* window);
 		virtual ~Input() noexcept;
 		void update();
-
-		void addIInput()
-		{
-
-		}
 
 		static void onKeyStatic(GLFWwindow *window, int key, int scanCode, int action, int mods)
 		{
@@ -228,7 +222,6 @@ namespace lithium
 	private:
 		GLFWwindow* _window;
 		Controller _controller;
-		IInput* _iInput;
 		int _width;
 		int _height;
 		Context* _context{nullptr};
