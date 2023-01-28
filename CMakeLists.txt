@@ -23,7 +23,6 @@ add_library(lithium STATIC
     src/glshaderprogram.cpp
     src/gltext.cpp
     src/gltimemeasure.cpp
-    src/gltriangle.cpp
     src/stb_image.cpp
     src/glperiodictask.cpp
     src/gltaskscheduler.cpp
