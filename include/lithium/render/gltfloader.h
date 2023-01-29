@@ -361,6 +361,7 @@ namespace gltf
             {
                 std::vector<float>* input;
                 std::vector<float>* output;
+                const std::string animName = animation["name"].get<std::string>();
                 float minTime, maxTime, sPerFrame, fps;
                 int frames;
                 std::vector<Sampler> samplers;
@@ -420,8 +421,10 @@ namespace gltf
 
                     }
                 }
-                lithium::SkinAnimation* skinAnimation = new lithium::SkinAnimation(animation["name"].get<std::string>(),
+                lithium::SkinAnimation* skinAnimation = new lithium::SkinAnimation(animName,
                     frames, translationsMap, rotationsMap);
+                std::cout << "animName=" << animName << ", frames=" << frames << std::endl;
+                
                 skinAnimation->setInterval(sPerFrame);
                 skinnedObj->addSkinAnimation(skinAnimation);
             }
