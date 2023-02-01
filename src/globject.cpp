@@ -65,6 +65,10 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
 
 void lithium::Object::draw()
 {
+    if(!_visible)
+    {
+        return;
+    }
     if (_texture)
     {
         _texture->bind();
