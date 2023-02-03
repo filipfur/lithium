@@ -82,8 +82,9 @@ lithium::MenuItem* lithium::Menu::previous()
     return nullptr;
 }
 
-void lithium::Menu::enter()
+int lithium::Menu::enter()
 {
+    int actionId{0};
     if(_expanded)
     {
         _expanded->enter();
@@ -92,12 +93,14 @@ void lithium::Menu::enter()
     {
         if(_menuIterator != _menuItems.end())
         {
-            if(!current()->perform(this))
+            actionId = current()->perform(this);
+            if(actionId && parent())
             {
                 parent()->setExpanded(nullptr);
             }
         }
     }
+    return actionId;
 }
 
 lithium::Menu* lithium::Menu::bottomLevel()
@@ -152,7 +155,7 @@ std::string lithium::Menu::label() const
     return lithium::MenuItem::label();
 }
 
-bool lithium::Menu::perform(lithium::Menu* parent)
+int lithium::Menu::perform(lithium::Menu* parent)
 {
     setParent(parent);
     parent->setExpanded(this);

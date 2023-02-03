@@ -19,7 +19,7 @@ namespace lithium
 
         lithium::MenuItem* previous();
 
-        void enter();
+        int enter();
 
         bool back();
 
@@ -33,9 +33,17 @@ namespace lithium
 
         lithium::MenuItem* itemAt(size_t index);
 
-        virtual bool perform(lithium::Menu* menu) override;
+        virtual int perform(lithium::Menu* menu) override;
 
         virtual std::string label() const override;
+
+        void forEachChild(const std::function<void(lithium::MenuItem*)>& callback)
+        {
+            for(auto menuItem : _menuItems)
+            {
+                callback(menuItem);
+            }
+        }
 
         void setExpanded(lithium::Menu* expanded) { _expanded = expanded; }
         lithium::Menu* expanded() const { return _expanded; }

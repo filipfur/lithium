@@ -19,14 +19,14 @@ namespace lithium
             return _label;
         }
 
-        virtual bool perform(lithium::Menu* parent)
+        virtual int perform(lithium::Menu* parent)
         {
             if(_callback)
             {
                 _callback(this);
-                return true;
+                return _actionId;
             }
-            return false;
+            return _actionId;
         }
 
         bool enabled() const
@@ -46,6 +46,17 @@ namespace lithium
             return this;
         }
 
+        lithium::MenuItem* setActionId(int actionId)
+        {
+            _actionId = actionId;
+            return this;
+        }
+
+        int actionId() const
+        {
+            return _actionId;
+        }
+
         lithium::MenuItem* setId(int id)
         {
             _id = id;
@@ -59,5 +70,6 @@ namespace lithium
         bool _enabled{true};
         std::function<void(lithium::MenuItem*)> _callback;
         int _id{-1};
+        int _actionId{0};
     };
 }
