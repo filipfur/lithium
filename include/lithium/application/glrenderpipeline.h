@@ -14,7 +14,10 @@ namespace lithium
 
         }
 
-        virtual void update(float dt) override = 0;
+        virtual void update(float dt) override
+        {
+            lithium::Updateable::update(dt);
+        }
 
         virtual void render() = 0;
 
