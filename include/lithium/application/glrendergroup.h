@@ -1,20 +1,19 @@
 #pragma once
 
-#include "glshaderprogram.h"
-#include "globject.h"
+#include "glrenderable.h"
 
 namespace lithium
 {
-    class Rendering
+    class RenderGroup
     {
     public:
-        Rendering(lithium::ShaderProgram* shaderProgram, const std::vector<lithium::Object*>& objects)
-            : _shaderProgram{shaderProgram}, _objects{objects}
+        RenderGroup(const std::vector<lithium::Renderable*>& objects)
+            : _objects{objects}
         {
 
         }
 
-        virtual ~Rendering() noexcept
+        virtual ~RenderGroup() noexcept
         {
 
         }
@@ -30,6 +29,6 @@ namespace lithium
 
     private:
         lithium::ShaderProgram* _shaderProgram{nullptr};
-        std::vector<lithium::Object*> _objects{nullptr};
+        std::vector<lithium::Renderable*> _objects{nullptr};
     };
 }
