@@ -18,7 +18,6 @@
 #include "glanimator.h"
 #include "globject.h"
 #include "glupdateable.h"
-#include "glrenderable.h"
 
 namespace lithium
 {

@@ -1,19 +1,19 @@
 #pragma once
 
 #include <string>
-#include "glianimation2.h"
+#include "glianimation.h"
 
 namespace lithium
 {
-    class Animation2
+    class Animation
     {
         public:
-            Animation2(const std::string& name, int numberOfFrames) : _name{name}, _numberOfFrames{numberOfFrames}
+            Animation(const std::string& name, int numberOfFrames) : _name{name}, _numberOfFrames{numberOfFrames}
             {
                 
             }
 
-            Animation2(const Animation2& other)
+            Animation(const Animation& other)
                 : _name{other._name}, _numberOfFrames{other._numberOfFrames},
                 _iAnimation{other._iAnimation}, _looping{other._looping}, _playing{other._playing},
                 _interval{other._interval}, _duration{other._duration}
@@ -21,7 +21,7 @@ namespace lithium
 
             }
 
-            virtual ~Animation2() noexcept
+            virtual ~Animation() noexcept
             {
 
             }
@@ -109,7 +109,7 @@ namespace lithium
                 _playing = false;
             }
 
-            void setIAnimation(lithium::IAnimation2* iAnimation)
+            void setIAnimation(lithium::IAnimation* iAnimation)
             {
                 _iAnimation = iAnimation;
             }
@@ -147,7 +147,7 @@ namespace lithium
         private:
             const std::string _name;
             const int _numberOfFrames;
-            lithium::IAnimation2* _iAnimation{nullptr};
+            lithium::IAnimation* _iAnimation{nullptr};
             int _frame{0};
             float _interval{1.0f / 30.0f};
             float _duration{_interval};

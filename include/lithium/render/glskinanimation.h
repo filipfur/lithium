@@ -4,23 +4,23 @@
 #include <map>
 #include <glm/glm.hpp>
 
-#include "glanimation2.h"
+#include "glanimation.h"
 
 namespace lithium
 {
-    class SkinAnimation : public Animation2
+    class SkinAnimation : public Animation
     {
         public:
             SkinAnimation(const std::string& name, int numberOfFrames,
                 const std::map<int, std::vector<glm::vec3>>& translationsMap,
                 const std::map<int, std::vector<glm::quat>>& rotationsMap)
-                : Animation2{name, numberOfFrames}, _translationsMap{translationsMap}, _rotationsMap{rotationsMap},
+                : Animation{name, numberOfFrames}, _translationsMap{translationsMap}, _rotationsMap{rotationsMap},
                 _animOfs{"anim.ofs"}
             {
                 _lastFrame = std::chrono::steady_clock::now();
             }
 
-            SkinAnimation(const SkinAnimation& other) : Animation2{other}
+            SkinAnimation(const SkinAnimation& other) : Animation{other}
             {
 
             }

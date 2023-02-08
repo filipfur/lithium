@@ -1,11 +1,11 @@
 #pragma once
 
 #include "globject.h"
-#include "glanimation2.h"
+#include "glanimation.h"
 
 namespace lithium
 {
-    class AnimatedObject : public lithium::Object, public lithium::Animation2
+    class AnimatedObject : public lithium::Object, public lithium::Animation
     {
     public:
         AnimatedObject(std::shared_ptr<std::vector<lithium::Mesh*>> meshes, lithium::ImageTexture* texture, lithium::ImageTexture* specular=nullptr);
