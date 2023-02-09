@@ -17,14 +17,16 @@ namespace lithium
 
         lithium::RenderGroup* createRenderGroup(const lithium::RenderGroup::ContainerType& renderables)
         {
-            _renderGroups.push_back(lithium::RenderGroup{[](lithium::Renderable* renderable){return false;}, renderables});
-            return &_renderGroups.at(_renderGroups.size() - 1);
+            lithium::RenderGroup* renderGroup = new RenderGroup([](lithium::Renderable* renderable){return false;}, renderables);
+            _renderGroups.push_back(renderGroup);
+            return renderGroup;
         }
 
         lithium::RenderGroup* createRenderGroup(const lithium::RenderGroup::FilterType& filter)
         {
-            _renderGroups.push_back(lithium::RenderGroup{filter});
-            return &_renderGroups.at(_renderGroups.size() - 1);
+            lithium::RenderGroup* renderGroup = new RenderGroup(filter);
+            _renderGroups.push_back(renderGroup);
+            return renderGroup;
         }
         
         virtual void render() = 0;
@@ -36,9 +38,9 @@ namespace lithium
 
         void addRenderable(lithium::Renderable* renderable)
         {
-            for(auto it = _renderGroups.begin(); it != _renderGroups.end(); ++it)
+            for(auto renderGroup : _renderGroups)
             {
-                it->filteredPushBack(renderable);
+                renderGroup->filteredPushBack(renderable);
             }
         }
 
@@ -52,6 +54,6 @@ namespace lithium
 
     protected:
         glm::ivec2 _resolution;
-        std::vector<lithium::RenderGroup> _renderGroups;
+        std::vector<lithium::RenderGroup*> _renderGroups;
     };
 }
