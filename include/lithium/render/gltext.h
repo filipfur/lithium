@@ -25,7 +25,7 @@ namespace lithium
 
         virtual void shade(lithium::ShaderProgram* shaderProgram) override;
 
-        virtual void draw() override;
+        virtual void draw() const override;
 
         void setAlignment(Alignment alignment)
         {

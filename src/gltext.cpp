@@ -36,17 +36,9 @@ void lithium::Text::shade(lithium::ShaderProgram* shaderProgram)
     shaderProgram->setUniform("u_texture", 0);
     shaderProgram->setUniform("u_color", fadedColor());
     shaderProgram->setUniform("u_model", _model);
-}
-
-void lithium::Text::draw()
-{
     if(modelInvalidated())
     {
         updateModel();
-    }
-    if(!visible())
-    {
-        return;
     }
 
     if(!_initialised)
@@ -68,6 +60,15 @@ void lithium::Text::draw()
             setMesh(_mesh);
         }
     }
+}
+
+void lithium::Text::draw() const
+{
+    if(!visible())
+    {
+        return;
+    }
+
     _mesh->bind();
     _font->texture()->bind();
 

@@ -7,10 +7,11 @@
 #include "gltaskscheduler.h"
 #include "glfader.h"
 #include "glupdateable.h"
+#include "glrenderable.h"
 
 namespace lithium
 {
-    class Object : public Updateable
+    class Object : public Updateable, public Renderable
     {
 		enum class State
 		{
@@ -23,9 +24,9 @@ namespace lithium
         Object(const Object& other);
         virtual ~Object() noexcept;
 
-        virtual void draw();
+        virtual void draw() const override;
 
-		virtual void shade(lithium::ShaderProgram* shaderProgram);
+		virtual void shade(lithium::ShaderProgram* shaderProgram) override;
 
         void setTexture(lithium::ImageTexture* texture)
 		{
@@ -128,8 +129,6 @@ namespace lithium
 		{
 			return _visible;
 		}
-
-		virtual void update(float dt);
 
 		lithium::Object* setOpacity(float opacity)
 		{

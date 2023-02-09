@@ -3,27 +3,37 @@
 #include <memory>
 #include <set>
 #include "glshaderprogram.h"
+#include "glirenderable.h"
 
 namespace lithium
 {
     class Renderable
     {
     public:
-        virtual void shade(lithium::ShaderProgram* shaderProgram) const = 0;
+        virtual void shade(lithium::ShaderProgram* shaderProgram) = 0;
 
         virtual void draw() const = 0;
 
-        void registerRenderGroup(std::shared_ptr<lithium::RenderGroup> renderGroup)
+        virtual ~Renderable() noexcept
         {
-            _renderGroups.emplace(renderGroup);
+            for(auto iRenderable : _iRenderables)
+            {
+                iRenderable->onRenderableRemoved(this);
+            }
+            _iRenderables.clear();
+        }
+
+        void registerRenderGroup(lithium::IRenderable* iRenderable)
+        {
+            _iRenderables.emplace(iRenderable);
         }
         
-        void unregisterRenderGroup()
+        void unregisterRenderGroup(lithium::IRenderable* iRenderable)
         {
-            //_renderGroups.dele
+            _iRenderables.erase(iRenderable);
         }
 
     private:
-        std::set<std::shared_ptr<lithium::RenderGroup>> _renderGroups;
+        std::set<lithium::IRenderable*> _iRenderables;
     };
 }

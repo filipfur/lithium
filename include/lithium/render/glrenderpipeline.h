@@ -3,10 +3,11 @@
 #include <vector>
 #include "glskinnedobject.h"
 #include "glupdateable.h"
+#include "glrendergroup.h"
 
 namespace lithium
 {
-    class RenderPipeline : public lithium::Updateable
+    class RenderPipeline
     {
     public:
         RenderPipeline(const glm::ivec2& resolution) : _resolution{resolution}
@@ -14,51 +15,43 @@ namespace lithium
 
         }
 
-        virtual void update(float dt) override
+        lithium::RenderGroup* createRenderGroup(const lithium::RenderGroup::ContainerType& renderables)
         {
-            lithium::Updateable::update(dt);
+            _renderGroups.push_back(lithium::RenderGroup{[](lithium::Renderable* renderable){return false;}, renderables});
+            return &_renderGroups.at(_renderGroups.size() - 1);
         }
 
+        lithium::RenderGroup* createRenderGroup(const lithium::RenderGroup::FilterType& filter)
+        {
+            _renderGroups.push_back(lithium::RenderGroup{filter});
+            return &_renderGroups.at(_renderGroups.size() - 1);
+        }
+        
         virtual void render() = 0;
-
-        void insertObject(lithium::Object* object)
-        {
-            _objects.push_back(object);
-        }
-
-        void insertObjects(const std::vector<lithium::Object*>& list)
-        {
-            _objects.insert(_objects.end(), list.begin(), list.end());
-        }
-
-        void insertSkinnedObject(lithium::SkinnedObject* object)
-        {
-            _skinnedObjects.push_back(object);
-        }
-
-        void insertSkinnedObjects(const std::vector<lithium::SkinnedObject*>& list)
-        {
-            _skinnedObjects.insert(_skinnedObjects.end(), list.begin(), list.end());
-        }
-
-        void removeObject(lithium::Object* object)
-        {
-            _objects.erase(std::remove(_objects.begin(), _objects.end(), object), _objects.end());
-        }
-
-        void removeSkinnedObject(lithium::SkinnedObject* object)
-        {
-            _skinnedObjects.erase(std::remove(_skinnedObjects.begin(), _skinnedObjects.end(), object), _skinnedObjects.end());
-        }
 
         void setViewportToResolution()
         {
             glViewport(0, 0, _resolution.x, _resolution.y);
         }
 
+        void addRenderable(lithium::Renderable* renderable)
+        {
+            for(auto it = _renderGroups.begin(); it != _renderGroups.end(); ++it)
+            {
+                it->filteredPushBack(renderable);
+            }
+        }
+
+        void addRenderables(const std::initializer_list<lithium::Renderable*>& renderables)
+        {
+            for(auto renderable : renderables)
+            {
+                addRenderable(renderable);
+            }
+        }
+
     protected:
         glm::ivec2 _resolution;
-        std::vector<lithium::Object*> _objects;
-        std::vector<lithium::SkinnedObject*> _skinnedObjects;
+        std::vector<lithium::RenderGroup> _renderGroups;
     };
 }

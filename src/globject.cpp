@@ -36,11 +36,6 @@ lithium::Object::~Object() noexcept
     }
 }
 
-void lithium::Object::update(float dt)
-{
-    lithium::Updateable::update(dt);
-}
-
 void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
 {
     if(!_visible)
@@ -63,7 +58,7 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
     //shaderProgram->setUniform("u_normal_0", 2);
 }
 
-void lithium::Object::draw()
+void lithium::Object::draw() const
 {
     if(!_visible)
     {
