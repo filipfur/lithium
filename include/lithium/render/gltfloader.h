@@ -111,9 +111,6 @@ namespace gltf
                     filePath.parent_path() / uri,
                     GL_SRGB,
                     GL_RGB,
-                    GL_LINEAR,
-                    GL_CLAMP_TO_EDGE,
-                    GL_TEXTURE0,
                     4,
                     false); // flip = false
                 break;
@@ -280,29 +277,29 @@ namespace gltf
             }
         }
         
-        lithium::SkinnedObject* loadSkinnedObject(const std::filesystem::path& filePath, bool loadTexture=true)
+        std::shared_ptr<lithium::SkinnedObject> loadSkinnedObject(const std::filesystem::path& filePath, bool loadTexture=true)
         {
             if(!loadJson(filePath))
             {
                 return nullptr;
             }
 
-            lithium::ImageTexture* imageTexture{nullptr};
+            std::shared_ptr<lithium::ImageTexture> imageTexture{nullptr};
             if(loadTexture)
             {
-                imageTexture = this->loadTexture(filePath);
+                imageTexture.reset(this->loadTexture(filePath));
             }
 
             loadDataAccessors(filePath);
 
-            lithium::SkinnedObject* skinnedObj{nullptr};
-            lithium::Mesh* skinnedMesh{nullptr};
+            std::shared_ptr<lithium::SkinnedObject> skinnedObj{nullptr};
+            std::shared_ptr<lithium::Mesh> skinnedMesh{nullptr};
 
             for(auto& mesh : _json["meshes"])
             {
                 const std::string name{mesh["name"]};
-                skinnedMesh = new lithium::Mesh(lithium::VertexArray::DrawFunction::ELEMENTS16);
-                skinnedObj = new lithium::SkinnedObject(skinnedMesh, imageTexture);
+                skinnedMesh = std::make_shared<lithium::Mesh>(lithium::VertexArray::DrawFunction::ELEMENTS16);
+                skinnedObj.reset(new lithium::SkinnedObject(skinnedMesh, {imageTexture}));
                 for(auto& primitive : mesh["primitives"])
                 {
                     skinnedMesh->bind();

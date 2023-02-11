@@ -1,7 +1,7 @@
 #include "gllight.h"
 
-lithium::Light::Light(lithium::Mesh* mesh)
-    : lithium::Object{mesh, nullptr, nullptr}
+lithium::Light::Light(std::shared_ptr<lithium::Mesh> mesh)
+    : lithium::Object{mesh, {}}
 {
 }
 

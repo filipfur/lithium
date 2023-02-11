@@ -1,14 +1,13 @@
 #include "globject.h"
 #include <glm/gtx/quaternion.hpp>
 
-lithium::Object::Object(lithium::Mesh* mesh, lithium::ImageTexture* diffuse, lithium::ImageTexture* normal): 
-        _mesh{mesh}, _texture{diffuse}, _normalMap{normal},
-        _position{ 0.0f }, _rotation{0.0f, 0.0f, 0.0f}, _scale{1.0f}
+lithium::Object::Object(std::shared_ptr<lithium::Mesh> mesh, const std::vector<lithium::Object::TexturePointer>& textures)
+    : _mesh{mesh}, _textures{textures}
 {
     updateModel();
 }
 
-lithium::Object::Object(const lithium::Object& other) : Object{other._mesh, other._texture, other._specular}
+lithium::Object::Object(const lithium::Object& other) : Object{other._mesh, other._textures}
 {
     _objectName = other._objectName;
     _color = other._color;
@@ -16,7 +15,6 @@ lithium::Object::Object(const lithium::Object& other) : Object{other._mesh, othe
     _rotation = other._rotation;
     _scale = other._scale;
     _visible = other._visible;
-    _normalMap = other._normalMap;
     _textureRegions = other._textureRegions;
     _currentTextureRegion = other._currentTextureRegion;
     _shininess = other._shininess;
@@ -26,14 +24,13 @@ lithium::Object::Object(const lithium::Object& other) : Object{other._mesh, othe
 lithium::Object::~Object() noexcept
 {
     _mesh = nullptr;
-    _texture = nullptr;
-    _specular = nullptr;
     _objectName = nullptr;
     if(_opacityFader)
     {
         delete _opacityFader;
         _opacityFader = nullptr;
     }
+    _textures.clear();
 }
 
 void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
@@ -64,29 +61,12 @@ void lithium::Object::draw() const
     {
         return;
     }
-    if (_texture)
+    for(int i{0}; i < _textures.size(); ++i)
     {
-        _texture->bind();
+        _textures[i]->bind(GL_TEXTURE0 + i);
     }
-
-    if (_specular)
-    {
-        _specular->bind();
-    }
-
-    if(_normalMap)
-    {
-        _normalMap->bind();
-
-    }
-
     _mesh->bind();
-
-    //glDepthMask(false);
     _mesh->draw();
-    //glDepthMask(true);
-    
-    glActiveTexture(GL_TEXTURE0);
 }
 
 void lithium::Object::updateModel()

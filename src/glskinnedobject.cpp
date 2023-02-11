@@ -1,8 +1,9 @@
 #include "glskinnedobject.h"
 
-lithium::SkinnedObject::SkinnedObject(lithium::Mesh* mesh, lithium::ImageTexture* texture, lithium::ImageTexture* specular)
-    : lithium::Object{mesh, texture, specular}
+lithium::SkinnedObject::SkinnedObject(std::shared_ptr<lithium::Mesh> mesh, const std::vector<lithium::Object::TexturePointer>& textures)
+    : lithium::Object{mesh, textures}
 {
+    
 }
 
 lithium::SkinnedObject::SkinnedObject(const lithium::SkinnedObject& other) : lithium::Object{other}, 

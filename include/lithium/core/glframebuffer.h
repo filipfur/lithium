@@ -4,6 +4,7 @@
 #include "gltexture.h"
 #include "glrenderbuffer.h"
 #include <map>
+#include "gltexture.h"
 
 namespace lithium
 {
@@ -16,7 +17,7 @@ namespace lithium
             MULTISAMPLED
         };
 
-        FrameBuffer(glm::ivec2 resolution, Mode mode=Mode::DEFAULT);
+        FrameBuffer(const glm::ivec2& resolution, Mode mode=Mode::DEFAULT);
         virtual ~FrameBuffer() noexcept;
 
         virtual void bind() override;
@@ -27,9 +28,9 @@ namespace lithium
 
         void attach(RenderBuffer* renderBuffer, GLenum attachment);
 
-        void createTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0, GLuint internalFormat=GL_RGB, GLuint format=GL_RGB, GLuint type=GL_UNSIGNED_BYTE, GLuint filter=GL_NEAREST, GLuint wrap=GL_CLAMP_TO_EDGE);
+        void createTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0, GLuint internalFormat=GL_RGB, GLuint format=GL_RGB, GLuint type=GL_UNSIGNED_BYTE);
 
-        void bindTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0);
+        void bindTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0, GLuint textureUnit=GL_TEXTURE0);
 
         void declareBuffers();
 
@@ -37,18 +38,22 @@ namespace lithium
 
         void bindAsDrawBuffer();
 
-        void blit(lithium::FrameBuffer* frameBuffer, GLuint fromComponment, GLuint toComponment,
+        std::shared_ptr<lithium::Texture<unsigned char>> texture(GLuint colorAttachment)
+        {
+            return _textures.at(colorAttachment);
+        }
+
+        void blit(std::shared_ptr<lithium::FrameBuffer> frameBuffer, GLuint fromComponment, GLuint toComponment,
     GLbitfield mask=GL_COLOR_BUFFER_BIT, GLenum filter=GL_NEAREST);
 
-        void blit(lithium::FrameBuffer* frameBuffer, const glm::ivec2& resolution, GLuint fromComponment, GLuint toComponment,
+        void blit(std::shared_ptr<lithium::FrameBuffer> frameBuffer, const glm::ivec2& resolution, GLuint fromComponment, GLuint toComponment,
     GLbitfield mask=GL_COLOR_BUFFER_BIT, GLenum filter=GL_NEAREST);
 
     private:
         static FrameBuffer* _bound;
         glm::ivec2 _resolution;
         Mode _mode;
-        GLuint _glTextureMode;
         GLuint _colorAttachment;
-        std::map<GLuint, GLuint> _textureIds;
+        std::map<GLuint, std::shared_ptr<lithium::Texture<unsigned char>>> _textures;
     };
 }

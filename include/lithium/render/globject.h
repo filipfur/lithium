@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "glmesh.h"
 #include "glcamera.h"
 #include "glimagetexture.h"
@@ -20,7 +21,10 @@ namespace lithium
 		};
 
     public:
-        Object(lithium::Mesh* mesh, lithium::ImageTexture* texture, lithium::ImageTexture* normal=nullptr);
+
+		using TexturePointer = std::shared_ptr<lithium::Texture<unsigned char>>;
+
+		Object(std::shared_ptr<lithium::Mesh> mesh, const std::vector<TexturePointer>& textures);
         Object(const Object& other);
         virtual ~Object() noexcept;
 
@@ -28,14 +32,9 @@ namespace lithium
 
 		virtual void shade(lithium::ShaderProgram* shaderProgram) override;
 
-        void setTexture(lithium::ImageTexture* texture)
+        void setTextures(const std::vector<TexturePointer>& textures)
 		{
-			_texture = texture;
-		}
-		
-		void setSpecular(lithium::ImageTexture* specular)
-		{
-			_specular = specular;
+			_textures = textures;
 		}
 
 		lithium::Object* setPosition(const glm::vec3& position)
@@ -114,7 +113,7 @@ namespace lithium
 			return *_objectName;
 		}
 
-		void setMesh(lithium::Mesh* mesh)
+		void setMesh(std::shared_ptr<lithium::Mesh> mesh)
 		{
 			_mesh = mesh;
 		}
@@ -150,11 +149,6 @@ namespace lithium
 			fadeOpacity(fadeTime, opacity(), 0.0f, [this](){
 				setVisible(false);
 			});
-		}
-
-		void setNormalMap(lithium::ImageTexture* normalMap)
-		{
-			_normalMap = normalMap;
 		}
 
 		lithium::Object* setColor(const glm::vec3 color)
@@ -229,12 +223,12 @@ namespace lithium
 			this->_modelInvalidated = false;
 		}
 
-		lithium::ImageTexture* texture() const
+		TexturePointer texture(int textureUnit) const
 		{
-			return _texture;
+			return _textures[textureUnit];
 		}
 
-		lithium::Mesh* mesh() const
+		std::shared_ptr<lithium::Mesh> mesh() const
 		{
 			return _mesh;
 		}
@@ -302,19 +296,17 @@ namespace lithium
 		virtual void updateModel();
 
 	protected:
-        lithium::Mesh* _mesh;
+        std::shared_ptr<lithium::Mesh> _mesh{nullptr};
 
 		bool _depthTest{true};
-		glm::vec3 _position;
-		glm::vec3 _rotation;
-		glm::vec3 _scale;
-		glm::mat4 _model;
+		glm::vec3 _position{0.0f};
+		glm::vec3 _rotation{0.0f};
+		glm::vec3 _scale{1.0f};
+		glm::mat4 _model{1.0f};
 		float _shininess{32.0f};
 		bool _visible{true};
 		glm::vec4 _color{1.0f};
-        lithium::ImageTexture* _texture{nullptr};
-        lithium::ImageTexture* _specular{nullptr};
-		lithium::ImageTexture* _normalMap{nullptr};
+        std::vector<TexturePointer> _textures;
 		
 	private:
 		std::shared_ptr<std::string> _objectName;

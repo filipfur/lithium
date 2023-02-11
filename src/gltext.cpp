@@ -1,6 +1,7 @@
 #include "gltext.h"
 
-lithium::Text::Text(lithium::Font* font, const std::string& text, float textScale) : lithium::Object{nullptr, font->texture()}, _font{font}, _textScale{textScale}
+lithium::Text::Text(std::shared_ptr<Font> font, const std::string& text, float textScale)
+    : lithium::Object{nullptr, {font->texture()}}, _font{font}, _textScale{textScale}
 {
     setText(text);
 }
@@ -56,7 +57,8 @@ void lithium::Text::shade(lithium::ShaderProgram* shaderProgram)
         }
         else
         {
-            _mesh = new lithium::Mesh({lithium::VertexArrayBuffer::AttributeType::VEC4}, _vertices, _indices);
+            static const std::vector<lithium::VertexArrayBuffer::AttributeType> attribs = {lithium::VertexArrayBuffer::AttributeType::VEC4};
+            _mesh = std::make_shared<lithium::Mesh>(attribs, _vertices, _indices);
             setMesh(_mesh);
         }
     }
@@ -70,7 +72,7 @@ void lithium::Text::draw() const
     }
 
     _mesh->bind();
-    _font->texture()->bind();
+    _font->texture()->bind(GL_TEXTURE0);
 
     glDisable(GL_DEPTH_TEST); // TODO: This is a hack due to letter quads overlapping.
     _mesh->draw();

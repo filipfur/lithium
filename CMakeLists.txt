@@ -41,6 +41,7 @@ target_include_directories(lithium PUBLIC
     include/lithium/core
     include/lithium/render
     include/lithium/utility
+    include/lithium
     dep/glad/include
     dep/glm
     dep/json/include

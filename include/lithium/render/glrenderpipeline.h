@@ -31,11 +31,8 @@ namespace lithium
             return renderGroup;
         }
 
-        std::shared_ptr<lithium::RenderStage> createRenderStage(std::shared_ptr<lithium::FrameBuffer> frameBuffer,
-            const glm::ivec4& viewport,
-            const lithium::RenderStage::CallbackType& callback)
+        std::shared_ptr<lithium::RenderStage> addRenderStage(std::shared_ptr<lithium::RenderStage> renderStage)
         {
-            std::shared_ptr<lithium::RenderStage> renderStage = std::make_shared<RenderStage>(frameBuffer, viewport, callback);
             _renderStages.push_back(renderStage);
             return renderStage;
         }

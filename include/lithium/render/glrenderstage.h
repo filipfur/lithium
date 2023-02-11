@@ -16,7 +16,12 @@ namespace lithium
 
         virtual ~RenderStage() noexcept;
 
-        void render();
+        virtual void render();
+
+        void setFrameBuffer(std::shared_ptr<lithium::FrameBuffer> frameBuffer)
+        {
+            _frameBuffer = frameBuffer;
+        }
 
     private:
         std::shared_ptr<lithium::FrameBuffer> _frameBuffer;

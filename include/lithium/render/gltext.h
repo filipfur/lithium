@@ -16,7 +16,7 @@ namespace lithium
             CENTER
         };
 
-        Text(Font* font, const std::string& text, float textScale=1.0f);
+        Text(std::shared_ptr<Font> font, const std::string& text, float textScale=1.0f);
         Text(const Text& other);
         Text(const Object& other);
         virtual ~Text() noexcept;
@@ -85,7 +85,7 @@ namespace lithium
 
     private:
         void initBuffers();
-        lithium::Font* _font{nullptr};
+        std::shared_ptr<Font> _font{nullptr};
         std::string _text{""};
         float _width{0.0f};
         float _height{0.0f};

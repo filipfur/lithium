@@ -9,7 +9,7 @@ namespace lithium
     class SkinnedObject : public lithium::Object
     {
     public:
-        SkinnedObject(lithium::Mesh* mesh, lithium::ImageTexture* texture, lithium::ImageTexture* specular=nullptr);
+        SkinnedObject(std::shared_ptr<lithium::Mesh> mesh, const std::vector<lithium::Object::TexturePointer>& textures);
         SkinnedObject(const SkinnedObject& other);
         virtual ~SkinnedObject() noexcept;
 

@@ -5,36 +5,27 @@
 
 namespace lithium
 {
-	template <typename T=unsigned char, GLenum U=GL_UNSIGNED_BYTE, GLenum V=GL_TEXTURE_2D, GLuint W=4>
+	template <typename T=unsigned char>
 	class Texture : public Element
 	{
 	public:
-		Texture(T* buffer, int width, int height, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint filter=GL_LINEAR,
-			GLuint textureWrap=GL_CLAMP_TO_EDGE, GLuint textureUnit=GL_TEXTURE0, GLuint unpackAlignment=4, bool genMipmaps=false)
-			: _bytes{buffer}, _width{width}, _height{height}, _colorFormat{colorFormat}, _textureUnit{textureUnit}
+		Texture(T* buffer, int width, int height, GLenum type=GL_UNSIGNED_BYTE, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint unpackAlignment=4, GLenum textureMode=GL_TEXTURE_2D, GLuint samples=4)
+			: _bytes{buffer}, _width{width}, _height{height}, _colorFormat{colorFormat}, _textureMode{textureMode}
 		{
 			glGenTextures(1, &_id);
+			setUnpackAlignment(unpackAlignment);
 			bind();
-			glPixelStorei(GL_UNPACK_ALIGNMENT, unpackAlignment);
-			switch(V)
+			switch(_textureMode)
 			{
 				case GL_TEXTURE_2D:
-					glTexImage2D(V, 0, internalFormat, _width, _height, 0, colorFormat, U, _bytes);
+					glTexImage2D(_textureMode, 0, internalFormat, _width, _height, 0, colorFormat, type, _bytes);
 					break;
 				case GL_TEXTURE_2D_MULTISAMPLE:
-					glTexImage2DMultisample(V, W, internalFormat, _width, _height, GL_TRUE);
+					glTexImage2DMultisample(_textureMode, samples, internalFormat, _width, _height, GL_TRUE);
 					break;
 			}
-			if(genMipmaps)
-			{
-				glGenerateMipmap(V);
-			}
-			glTexParameteri(V, GL_TEXTURE_MIN_FILTER, filter);
-			glTexParameteri(V, GL_TEXTURE_MAG_FILTER, filter);
-			glTexParameteri(V, GL_TEXTURE_WRAP_S, textureWrap);
-			glTexParameteri(V, GL_TEXTURE_WRAP_T, textureWrap);
-
 			unbind();
+			setFilter()->setWrap();
 		}
 
 		virtual ~Texture() noexcept
@@ -42,17 +33,73 @@ namespace lithium
 			glDeleteTextures(1, &_id);
 		}
 
-		virtual void bind() override
+		Texture* setUnpackAlignment(GLuint unpackAlignment=4)
 		{
-			activate();
-			int index = _textureUnit - GL_TEXTURE0;
-			if(_bound[index] != this)
-			{
-				glBindTexture(V, _id);
-				_bound[index] = this;
-				++_bindCount;
-				//std::cout << "binding: " << _name << std::endl;
-			}
+			bind();
+			glPixelStorei(GL_UNPACK_ALIGNMENT, unpackAlignment);
+			unbind();
+			return this;
+		}
+
+		Texture* setFilter(GLenum min, GLenum mag)
+		{
+			bind();
+			glTexParameteri(_textureMode, GL_TEXTURE_MIN_FILTER, min);
+			glTexParameteri(_textureMode, GL_TEXTURE_MAG_FILTER, mag);
+			unbind();
+			return this;
+		}
+
+		Texture* setFilter(GLenum filter) { return setFilter(filter, filter); }
+
+		Texture* setFilter() { return setFilter(GL_LINEAR, GL_LINEAR); }
+
+		Texture* setWrap(GLenum wrapS, GLenum wrapT)
+		{
+			bind();
+			glTexParameteri(_textureMode, GL_TEXTURE_WRAP_S, wrapS);
+			glTexParameteri(_textureMode, GL_TEXTURE_WRAP_T, wrapT);
+			unbind();
+			return this;
+		}
+
+		Texture* setWrap(GLenum wrap) { return setWrap(wrap, wrap); }
+
+		Texture* setWrap() { return setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE); }
+
+		Texture* generateMipmap()
+		{
+			glGenerateMipmap(_textureMode);
+		}
+
+		Texture* setBorderColor(const glm::vec4& borderColor)
+		{
+			bind();
+			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(borderColor));
+			unbind();
+			return this;
+		}
+
+		GLenum textureMode() const
+		{
+			return _textureMode;
+		}
+
+		Texture* bind(GLuint textureUnit)
+		{
+			activate(textureUnit);
+			bind();
+			return this;
+		}
+
+		int width() const
+		{
+			return _width;
+		}
+
+		int height() const
+		{
+			return _height;
 		}
 
 		void subdivide(size_t x, size_t y) // not tested
@@ -69,19 +116,19 @@ namespace lithium
 			_atlas = true;
 		}
 
-		void activate()
+		static void activate(GLuint textureUnit)
 		{
-			if(_active != _textureUnit)
+			if(_active != textureUnit)
 			{
-				glActiveTexture(_textureUnit);
-				glBindTexture(V, _id);
+				glActiveTexture(textureUnit);
+				_active = textureUnit;
 			}
 		}
 
 		virtual void unbind() override
 		{
-			_bound[_textureUnit - GL_TEXTURE0] = nullptr;
-			glBindTexture(V, 0);
+			_bound[_active - GL_TEXTURE0] = nullptr;
+			glBindTexture(_textureMode, 0);
 		}
 
 		static unsigned int countBinds()
@@ -91,14 +138,35 @@ namespace lithium
 			return binds;
 		}
 
+	protected:
+		virtual void bind() override
+		{
+			if(_active == 0)
+			{
+				activate(GL_TEXTURE0);
+			}
+			int index = _active - GL_TEXTURE0;
+			if(_bound[index] != this)
+			{
+				glBindTexture(_textureMode, _id);
+				_bound[index] = this;
+				++_bindCount;
+			}
+		}
+
 	private:
 		T* _bytes;
 		int _width;
 		int _height;
-		GLuint _textureUnit;
+		GLenum _textureMode;
 		GLuint _colorFormat;
 		inline static GLuint _active{0};
-		inline static const Texture* _bound[3] = {nullptr, nullptr, nullptr};
+		inline static const Texture* _bound[32] = {};
+		/*static_assert(_bound[1] == nullptr);
+		static_assert(_bound[4] == nullptr);
+		static_assert(_bound[8] == nullptr);
+		static_assert(_bound[24] == nullptr);
+		static_assert(_bound[31] == nullptr);*/
 		glm::ivec2 _regionSize{};
 		bool _atlas{false};
 		inline static unsigned int _bindCount{0};

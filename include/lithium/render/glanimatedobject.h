@@ -8,7 +8,7 @@ namespace lithium
     class AnimatedObject : public lithium::Object, public lithium::Animation
     {
     public:
-        AnimatedObject(std::shared_ptr<std::vector<lithium::Mesh*>> meshes, lithium::ImageTexture* texture, lithium::ImageTexture* specular=nullptr);
+        AnimatedObject(std::shared_ptr<std::vector<std::shared_ptr<lithium::Mesh>>> meshes, const std::vector<lithium::Object::TexturePointer>& textures);
         AnimatedObject(const AnimatedObject& other);
         AnimatedObject(const Object& other);
         virtual ~AnimatedObject() noexcept;
@@ -26,6 +26,6 @@ namespace lithium
         }
 
     private:
-        std::shared_ptr<std::vector<lithium::Mesh*>> _meshes;
+        std::shared_ptr<std::vector<std::shared_ptr<lithium::Mesh>>> _meshes;
     };
 }

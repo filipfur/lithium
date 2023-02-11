@@ -8,10 +8,10 @@
 
 namespace lithium
 {
-    class ImageTexture : public Texture<unsigned char, GL_UNSIGNED_BYTE>
+    class ImageTexture : public Texture<unsigned char>
     {
         public:
-            static ImageTexture* load(const std::filesystem::path& path, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint filter=GL_LINEAR, GLuint textureWrap=GL_CLAMP_TO_EDGE, GLuint textureUnit=GL_TEXTURE0, GLuint unpackAlignment=4, bool flip=true)
+            static ImageTexture* load(const std::filesystem::path& path, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint unpackAlignment=4, bool flip=true)
             {
                 stbi_set_flip_vertically_on_load(flip);
                 int width, height, colorChannels;
@@ -28,8 +28,8 @@ namespace lithium
                 {
                     std::cerr << stbi_failure_reason() << std::endl;
                 }
-                ImageTexture* imageTexture = new lithium::ImageTexture(path, bytes, static_cast<GLuint>(width), static_cast<GLuint>(height), internalFormat,
-                    colorFormat, filter, textureWrap, textureUnit, unpackAlignment);
+                ImageTexture* imageTexture = new lithium::ImageTexture(path, bytes, static_cast<GLuint>(width), static_cast<GLuint>(height),
+                    internalFormat, colorFormat, unpackAlignment);
                 stbi_image_free(bytes);
                 return imageTexture;
             }
@@ -40,10 +40,8 @@ namespace lithium
             }
 
         private:
-            ImageTexture(const std::filesystem::path& path, unsigned char* buffer, int width, int height, GLenum internalFormat, GLenum colorFormat, GLuint filter,
-                GLuint textureWrap, GLuint textureUnit, GLuint unpackAlignment)
-            : Texture<unsigned char, GL_UNSIGNED_BYTE>{buffer, width, height, internalFormat, colorFormat, filter, textureWrap,
-                textureUnit, unpackAlignment}, _path{path}
+            ImageTexture(const std::filesystem::path& path, unsigned char* buffer, int width, int height, GLenum internalFormat, GLenum colorFormat, GLuint unpackAlignment=4)
+            : Texture<unsigned char>{buffer, width, height, GL_UNSIGNED_BYTE, internalFormat, colorFormat, unpackAlignment, GL_TEXTURE_2D}, _path{path}
             {
 
             }

@@ -87,20 +87,18 @@ void lithium::compute_tangents_lengyel(lithium::MeshVertex* pVertices, GLuint kV
     delete[] buffer;
 }
 
-void lithium::tinyobjloader_load_many(const char* inputfile, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes, int numFiles, std::vector<lithium::Mesh*>& meshes)
+void lithium::tinyobjloader_load_many(const char* inputfile, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes, int numFiles, std::vector<std::shared_ptr<lithium::Mesh>>& meshes)
 {
     lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading animated object " + std::string(inputfile), true)};
-    lithium::Mesh* mesh{nullptr};
     for(int i{1}; i <= numFiles; ++i)
     {
         std::stringstream ss{};
         ss << inputfile << "_" << std::setw(6) << std::setfill('0') << i << ".obj";
-        mesh = lithium::tinyobjloader_load(ss.str().c_str(), attributes);
-        meshes.push_back(mesh);
+        meshes.push_back(lithium::tinyobjloader_load(ss.str().c_str(), attributes));
     }
 }
 
-lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes, glm::vec2 uvScale,
+std::shared_ptr<lithium::Mesh> lithium::tinyobjloader_load(const char* inputfile, const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes, glm::vec2 uvScale,
     std::vector<glm::vec3>* vertexPositions)
 {
     //lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("loading object " + std::string(inputfile), true)};
@@ -191,6 +189,5 @@ lithium::Mesh* lithium::tinyobjloader_load(const char* inputfile, const std::vec
         }
     }
 
-    lithium::Mesh* mesh = new lithium::Mesh(attributes, vertices, indices);
-    return mesh;
+    return std::make_shared<lithium::Mesh>(attributes, vertices, indices);
 }

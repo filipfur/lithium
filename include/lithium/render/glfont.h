@@ -19,7 +19,7 @@ namespace lithium
             float advance;
         };
 
-        Font(lithium::ImageTexture* texture, const std::string& jsonFile) : _texture{texture}
+        Font(std::shared_ptr<lithium::Texture<unsigned char>> texture, const std::string& jsonFile) : _texture{texture}
         {
             std::ifstream ifs{jsonFile};
             ifs >> _fontMetrics;
@@ -55,13 +55,13 @@ namespace lithium
             return it->second;
         }
 
-        lithium::ImageTexture* texture() const { return _texture; }
+        std::shared_ptr<lithium::Texture<unsigned char>> texture() const { return _texture; }
         float width() const { return _width; }
         float height() const { return _height; }
         float size() const { return _size; }
 
     private:
-        lithium::ImageTexture* _texture{nullptr};
+        std::shared_ptr<lithium::Texture<unsigned char>> _texture{nullptr};
         nlohmann::json _fontMetrics;
         
         float _width{0.0f};

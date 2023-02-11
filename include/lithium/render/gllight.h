@@ -8,7 +8,7 @@ namespace lithium
     class Light : public Object
     {
     public:
-        Light(lithium::Mesh* mesh);
+        Light(std::shared_ptr<lithium::Mesh> mesh);
         Light(const Light& other);
         Light(const Object& other);
         virtual ~Light() noexcept;
