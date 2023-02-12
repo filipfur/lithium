@@ -1,9 +1,10 @@
 #pragma once
 
+#include <map>
+#include <memory>
 #include "glelement.h"
 #include "gltexture.h"
 #include "glrenderbuffer.h"
-#include <map>
 #include "gltexture.h"
 
 namespace lithium
