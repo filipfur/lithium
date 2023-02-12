@@ -37,7 +37,13 @@ namespace lithium
             return renderStage;
         }
         
-        virtual void render() = 0;
+        virtual void render()
+        {
+            for(auto it = _renderStages.begin(); it != _renderStages.end(); ++it)
+            {
+                (*it)->render();
+            }
+        }
 
         void setViewportToResolution()
         {

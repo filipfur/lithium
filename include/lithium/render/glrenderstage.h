@@ -18,6 +18,11 @@ namespace lithium
 
         virtual void render();
 
+        std::shared_ptr<lithium::FrameBuffer> frameBuffer()
+        {
+            return _frameBuffer;
+        }
+
         void setFrameBuffer(std::shared_ptr<lithium::FrameBuffer> frameBuffer)
         {
             _frameBuffer = frameBuffer;
