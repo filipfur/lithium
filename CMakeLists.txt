@@ -18,7 +18,6 @@ add_library(lithium STATIC
     src/glmenuitem.cpp
     src/globject.cpp
     src/glorthographiccamera.cpp
-    src/glperspectivecamera.cpp
     src/glrenderbuffer.cpp
     src/glshaderprogram.cpp
     src/gltext.cpp

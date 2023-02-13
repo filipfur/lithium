@@ -48,7 +48,14 @@ void lithium::Cubemap::draw(Camera* camera)
     _shaderProgram->use();
     // ... set view and projection matrix
     //glBindVertexArray(skyboxVAO);
-    glUniformMatrix4fv(glGetUniformLocation(_shaderProgram->id(), "u_camera"), 1, GL_FALSE, glm::value_ptr(camera->rotationMatrix()));
+
+    /*
+    
+        TODO: See this next line has been commented out and its not good.
+
+    */
+
+    //glUniformMatrix4fv(glGetUniformLocation(_shaderProgram->id(), "u_camera"), 1, GL_FALSE, glm::value_ptr(camera->rotationMatrix()));
 
     _mesh->bind();
     glActiveTexture(GL_TEXTURE0);

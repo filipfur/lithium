@@ -6,7 +6,7 @@ lithium::Text::Text(std::shared_ptr<Font> font, const std::string& text, float t
     setText(text);
 }
 
-lithium::Text::Text(const lithium::Text& other) : lithium::Object{other}, _font{other._font}, _alignment{other._alignment}, _textScale{other._textScale}
+lithium::Text::Text(const lithium::Text& other) : lithium::Object{other}, _font{other._font}, _textScale{other._textScale}, _width{other._width}, _height{other._height}
 {
     setText(other._text);
 }
