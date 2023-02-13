@@ -29,7 +29,7 @@ namespace lithium
 			_id = glCreateShader(T);
 			compile();
 			#ifdef _WIN32
-			_watch = std::shared_ptr<filewatch::FileWatch<std::string>>(
+			_watch = std::make_shared<filewatch::FileWatch<std::string>>(
 				"./" + _fileName, 
 				[this](const std::string& path, const filewatch::Event change_type) {
 					std::cout << "Shader updated: " << _fileName << std::endl;

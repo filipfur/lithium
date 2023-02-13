@@ -41,7 +41,7 @@ namespace lithium
         {
             for(auto it = _renderStages.begin(); it != _renderStages.end(); ++it)
             {
-                (*it)->render();
+                if((*it)->enabled()){ (*it)->render(); }
             }
         }
 

@@ -28,10 +28,21 @@ namespace lithium
             _frameBuffer = frameBuffer;
         }
 
+        void setEnabled(bool enabled)
+        {
+            _enabled = enabled;
+        }
+
+        bool enabled() const
+        {
+            return _enabled;
+        }
+
     private:
         std::shared_ptr<lithium::FrameBuffer> _frameBuffer;
         glm::ivec4 _viewport;
         CallbackType _callback;
+        bool _enabled{true};
         static glm::ivec4 latestViewport;
     };
 }
