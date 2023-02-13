@@ -14,14 +14,7 @@ namespace lithium
 {
     class Object : public Updateable, public Renderable
     {
-		enum class State
-		{
-			VISIBLE,
-			HIDDEN
-		};
-
     public:
-
 		using TexturePointer = std::shared_ptr<lithium::Texture<unsigned char>>;
 
 		Object(std::shared_ptr<lithium::Mesh> mesh, const std::vector<TexturePointer>& textures);
@@ -67,11 +60,6 @@ namespace lithium
 		const glm::vec3& position() const
 		{
 			return _position;
-		}
-
-		glm::vec3* positionPtr()
-		{
-			return &_position;
 		}
 
 		lithium::Object* setRotation(const glm::vec3& rotation)
@@ -134,22 +122,6 @@ namespace lithium
 			_color.a = opacity;
 			return this;
 		}
-		
-		void fadeOpacity(float fadeTime, float fadeFrom, float fadeTo, const std::function<void()>& callback)
-		{
-			assert(_opacityFader == nullptr);
-			_opacityFader = new lithium::Fader(fadeTime, fadeFrom, fadeTo, [this, callback](){
-				callback();
-				_opacityFader = nullptr;
-			});
-		}
-
-		void fadeOut(float fadeTime)
-		{
-			fadeOpacity(fadeTime, opacity(), 0.0f, [this](){
-				setVisible(false);
-			});
-		}
 
 		lithium::Object* setColor(const glm::vec3 color)
 		{
@@ -171,22 +143,6 @@ namespace lithium
 		glm::vec3 rgb() const
 		{
 			return glm::vec3{_color.x, _color.y, _color.z};
-		}
-
-		void setTextureRegions(const glm::vec2& textureRegions)
-		{
-			_textureRegions = textureRegions;
-		}
-
-		void setCurrentTextureRegion(const glm::vec2& currentTextureRegion)
-		{
-			_currentTextureRegion = currentTextureRegion;
-		}
-
-		void setCurrentTextureRegion(float currentTextureRegionX, float currentTextureRegionY=0.0f)
-		{
-			_currentTextureRegion.x = currentTextureRegionX;
-			_currentTextureRegion.y = currentTextureRegionY;
 		}
 
 		void copyTranslation(lithium::Object* other)
@@ -219,7 +175,6 @@ namespace lithium
 					this->_model[y][x] = other->_model[y][x];
 				}
 			}
-
 			this->_modelInvalidated = false;
 		}
 
@@ -233,29 +188,9 @@ namespace lithium
 			return _mesh;
 		}
 
-		glm::vec2 textureRegions() const
-		{
-			return _textureRegions;
-		}
-
-		glm::vec2 currentTextureRegion() const
-		{
-			return _currentTextureRegion;
-		}
-
 		float opacity() const
 		{
 			return _color.a;
-		}
-
-		float shininess() const
-		{
-			return _shininess;
-		}
-
-		void setShininess(float shininess)
-		{
-			_shininess = shininess;
 		}
 
 		void setModelInvalidated(bool modelInvalidated)
@@ -266,21 +201,6 @@ namespace lithium
 		bool modelInvalidated() const
 		{
 			return _modelInvalidated;
-		}
-
-		void setDepthTest(bool depthTest)
-		{
-			_depthTest = depthTest;
-		}
-
-		glm::vec4 fadedColor() const
-		{
-			glm::vec4 color{_color};
-			if(_opacityFader)
-			{
-				color.a = _opacityFader->value();
-			}
-			return color;
 		}
 
 		virtual lithium::Object* clone() const
@@ -297,24 +217,15 @@ namespace lithium
 
 	protected:
         std::shared_ptr<lithium::Mesh> _mesh{nullptr};
-
-		bool _depthTest{true};
 		glm::vec3 _position{0.0f};
 		glm::vec3 _rotation{0.0f};
 		glm::vec3 _scale{1.0f};
 		glm::mat4 _model{1.0f};
-		float _shininess{32.0f};
 		bool _visible{true};
 		glm::vec4 _color{1.0f};
         std::vector<TexturePointer> _textures;
-		
-	private:
 		std::shared_ptr<std::string> _objectName;
-
-		glm::vec2 _textureRegions{1.0f, 1.0f};
-		glm::vec2 _currentTextureRegion{0.0f, 0.0f};
-
-		lithium::Fader* _opacityFader{nullptr};
+	private:
 		bool _modelInvalidated{false};
     };
 }

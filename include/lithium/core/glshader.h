@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <memory>
 #include <fstream>
 #include <sstream>
 #include <glad/glad.h>
@@ -28,7 +29,7 @@ namespace lithium
 			_id = glCreateShader(T);
 			compile();
 			#ifdef _WIN32
-			_watch = new filewatch::FileWatch<std::string>(
+			_watch = std::shared_ptr<filewatch::FileWatch<std::string>>(
 				"./" + _fileName, 
 				[this](const std::string& path, const filewatch::Event change_type) {
 					std::cout << "Shader updated: " << _fileName << std::endl;
@@ -104,7 +105,7 @@ namespace lithium
 		bool _valid{true};
 		std::string _fileName;
 		#ifdef _WIN32
-		filewatch::FileWatch<std::string>* _watch{nullptr};
+		std::shared_ptr<filewatch::FileWatch<std::string>> _watch{nullptr};
 		#endif
 	};
 }

@@ -8,6 +8,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 #include <map>
+#include <memory>
 #include <functional>
 #include <sstream>
 #include <cassert>
@@ -198,7 +199,7 @@ namespace lithium
 			std::map<int, bool> _keys;
 		};
 
-		void setKeyCache(lithium::Input::KeyCache* keyCache)
+		void setKeyCache(std::shared_ptr<lithium::Input::KeyCache> keyCache)
 		{
 			assert(_context != nullptr);
 			_keyCaches[_context] = keyCache;
@@ -227,7 +228,7 @@ namespace lithium
 		Context* _context{nullptr};
 		glm::vec2 _clickedPos;
 		glm::vec2 _mousePos;
-		std::map<Context*, KeyCache*> _keyCaches;
+		std::map<Context*, std::shared_ptr<KeyCache>> _keyCaches;
 		std::map<Context*,std::map<int, std::function<bool(int, int)>>> _pressedCallbacks;
 		std::map<Context*,std::map<int, std::function<bool(int, int)>>> _releasedCallbacks;
 		std::map<Context*, std::function<bool(float, float)>> _scrollCallbacks;

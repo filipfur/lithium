@@ -2,6 +2,7 @@
 #include <string>
 #include "glelement.h"
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace lithium
 {
@@ -75,7 +76,7 @@ namespace lithium
 		Texture* setBorderColor(const glm::vec4& borderColor)
 		{
 			bind();
-			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(borderColor));
+			glTexParameterfv(_textureMode, GL_TEXTURE_BORDER_COLOR, glm::value_ptr(borderColor));
 			unbind();
 			return this;
 		}
@@ -110,7 +111,7 @@ namespace lithium
 			{
 				for(int i=0; i < x; ++i)
 				{
-					glTexSubImage2D(V, 0, i * _regionSize.x, j * _regionSize.y, _regionSize.x, _regionSize.y, _colorFormat, GL_UNSIGNED_BYTE, _bytes );
+					glTexSubImage2D(_textureMode, 0, i * _regionSize.x, j * _regionSize.y, _regionSize.x, _regionSize.y, _colorFormat, GL_UNSIGNED_BYTE, _bytes );
 				}
 			}
 			_atlas = true;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <memory>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -71,7 +72,7 @@ namespace lithium
             GLint fbWidth = dims[2];
             GLint fbHeight = dims[3];
             std::cout << "fb: " << fbWidth << ", " << fbHeight << std::endl;
-            _input = new lithium::Input(_window);
+            _input = std::make_shared<lithium::Input>(_window);
             _defaultFrameBufferResolution.x = fbWidth;
             _defaultFrameBufferResolution.y = fbHeight;
             input()->setContext(this);
@@ -170,7 +171,7 @@ namespace lithium
             _audioEnabled = audioEnabled;
         }
 
-        lithium::Input* input() const
+        std::shared_ptr<lithium::Input> input() const
         {
             return _input;
         }
@@ -186,7 +187,7 @@ namespace lithium
         }
 
     private:
-        lithium::Input* _input{nullptr};
+        std::shared_ptr<lithium::Input> _input{nullptr};
         glm::ivec2 _windowResolution;
         Mode _mode;
         GLFWwindow* _window{nullptr};

@@ -18,7 +18,7 @@ namespace lithium
         InstancedObject(const InstancedObject& other)
             : lithium::Object{other}, _instancedArray{GL_ARRAY_BUFFER}
         {
-            setMesh(new Mesh(*other._mesh));    
+            setMesh(std::make_shared<Mesh>(*other._mesh));    
         }
 
         InstancedObject(const Object& other) : lithium::Object{other}, _instancedArray{GL_ARRAY_BUFFER}

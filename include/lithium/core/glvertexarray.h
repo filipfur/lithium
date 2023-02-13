@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <glad/glad.h>
 #include "glbuffer.h"
 #include "glvertexarraybuffer.h"
@@ -55,9 +56,9 @@ namespace lithium
 			_drawMode = other._drawMode;
 			for(auto vao : other._vertexArrayBuffers)
 			{
-				_vertexArrayBuffers.push_back(vao->clone());
+				_vertexArrayBuffers.push_back(std::shared_ptr<VertexArrayBuffer>(vao->clone()));
 			}
-			if(other._elementArrayBuffer) _elementArrayBuffer = other._elementArrayBuffer->clone();
+			if(other._elementArrayBuffer) _elementArrayBuffer = std::shared_ptr<Buffer>(other._elementArrayBuffer->clone());
 			//if(_elementArrayBuffer) _elementArrayBuffer->bind();
 			//if(_elementArrayBuffer16) _elementArrayBuffer16->bind();
 
@@ -68,17 +69,13 @@ namespace lithium
 
 		~VertexArray() noexcept
 		{
-			for(auto it = _vertexArrayBuffers.begin(); it != _vertexArrayBuffers.end(); ++it)
-			{
-				delete *it;
-			}
 			_vertexArrayBuffers.clear();
-			delete _elementArrayBuffer;
+			_elementArrayBuffer = nullptr;
 			glDeleteVertexArrays(1, &_id);
 		}
 
 		template <typename T=GLfloat>
-		VertexArrayBuffer* createArrayBuffer(const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes,
+		std::shared_ptr<VertexArrayBuffer> createArrayBuffer(const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes,
 			const std::vector<T>& vertices, GLuint componentType=GL_FLOAT)
 		{
 			int attribDivisor = 0;
@@ -88,36 +85,21 @@ namespace lithium
 			{
 				layoutOffset += vao->numLayouts();
 			}
-			auto vertexArrayBuffer = new VertexArrayBuffer(attributes, vertices, GL_STATIC_DRAW, layoutOffset, attribDivisor, componentType);
+			auto vertexArrayBuffer = std::make_shared<VertexArrayBuffer>(attributes, vertices, GL_STATIC_DRAW, layoutOffset, attribDivisor, componentType);
 			_vertexArrayBuffers.push_back(vertexArrayBuffer);
 			return vertexArrayBuffer;
 		}
 
-		/*VertexArrayBuffer* createArrayBuffer(const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes,
-			const std::vector<GLuint>& vertices, GLuint componentType=GL_UNSIGNED_BYTE)
+		std::shared_ptr<lithium::Buffer> createElementArrayBuffer(const std::vector<GLuint>& indices)
 		{
-			int attribDivisor = 0;
-			int layoutOffset = 0;
-			int size = vertices.size();
-			for(auto vao : _vertexArrayBuffers)
-			{
-				layoutOffset += vao->numLayouts();
-			}
-			auto vertexArrayBuffer = new VertexArrayBuffer(attributes, vertices, GL_STATIC_DRAW, layoutOffset, attribDivisor, componentType);
-			_vertexArrayBuffers.push_back(vertexArrayBuffer);
-			return vertexArrayBuffer;
-		}*/
-
-		lithium::Buffer* createElementArrayBuffer(const std::vector<GLuint>& indices)
-		{
-			_elementArrayBuffer = new lithium::Buffer(GL_ELEMENT_ARRAY_BUFFER);
+			_elementArrayBuffer = std::make_shared<lithium::Buffer>(GL_ELEMENT_ARRAY_BUFFER);
 			_elementArrayBuffer->allocate(indices);
 			return _elementArrayBuffer;
 		}
 
-		lithium::Buffer* createElementArrayBuffer(const std::vector<GLushort>& indices)
+		std::shared_ptr<lithium::Buffer> createElementArrayBuffer(const std::vector<GLushort>& indices)
 		{
-			_elementArrayBuffer = new lithium::Buffer(GL_ELEMENT_ARRAY_BUFFER);
+			_elementArrayBuffer = std::make_shared<lithium::Buffer>(GL_ELEMENT_ARRAY_BUFFER);
 			_elementArrayBuffer->allocate(indices);
 			return _elementArrayBuffer;
 		}
@@ -132,12 +114,12 @@ namespace lithium
 			glBindVertexArray(0);
 		}
 
-		lithium::VertexArrayBuffer* vertexArrayBuffer(size_t index) const
+		std::shared_ptr<lithium::VertexArrayBuffer> vertexArrayBuffer(size_t index) const
 		{
 			return _vertexArrayBuffers[index];
 		}
 
-		lithium::Buffer* elementArrayBuffer() const
+		std::shared_ptr<lithium::Buffer> elementArrayBuffer() const
 		{
 			return _elementArrayBuffer;
 		}
@@ -181,8 +163,8 @@ namespace lithium
 		GLuint _id;
 		DrawFunction _drawFunction;
 		GLenum _drawMode{GL_TRIANGLES};
-		std::vector<lithium::VertexArrayBuffer*> _vertexArrayBuffers;
-		lithium::Buffer* _elementArrayBuffer{nullptr};
+		std::vector<std::shared_ptr<lithium::VertexArrayBuffer>> _vertexArrayBuffers;
+		std::shared_ptr<lithium::Buffer> _elementArrayBuffer{nullptr};
 		GLuint _instanceCount;
 	};
 }

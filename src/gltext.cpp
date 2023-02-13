@@ -35,7 +35,7 @@ void lithium::Text::shade(lithium::ShaderProgram* shaderProgram)
     shaderProgram->use();
     //TODO: Optimize, remove all shader dynamic shader and fix everything in initBuffer thread (vertex attributes).
     shaderProgram->setUniform("u_texture", 0);
-    shaderProgram->setUniform("u_color", fadedColor());
+    shaderProgram->setUniform("u_color", color());
     shaderProgram->setUniform("u_model", _model);
     if(modelInvalidated())
     {

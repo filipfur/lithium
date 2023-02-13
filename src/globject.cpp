@@ -15,9 +15,6 @@ lithium::Object::Object(const lithium::Object& other) : Object{other._mesh, othe
     _rotation = other._rotation;
     _scale = other._scale;
     _visible = other._visible;
-    _textureRegions = other._textureRegions;
-    _currentTextureRegion = other._currentTextureRegion;
-    _shininess = other._shininess;
     updateModel();
 }
 
@@ -25,11 +22,6 @@ lithium::Object::~Object() noexcept
 {
     _mesh = nullptr;
     _objectName = nullptr;
-    if(_opacityFader)
-    {
-        delete _opacityFader;
-        _opacityFader = nullptr;
-    }
     _textures.clear();
 }
 
@@ -45,7 +37,7 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
     }
 
     shaderProgram->use();
-    shaderProgram->setUniform("u_color", fadedColor());
+    shaderProgram->setUniform("u_color", color());
     //shaderProgram->setUniform("u_shininess", _shininess);
     //shaderProgram->setUniform("u_regions", _textureRegions);
     //shaderProgram->setUniform("u_current_region", _currentTextureRegion);
