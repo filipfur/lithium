@@ -28,14 +28,19 @@ namespace lithium
             initBuffers();
         }
 
-        std::string text() const
-        {
-            return _text;
-        }
-
         void setTextScale(float textScale)
         {
             _textScale = textScale;
+        }
+
+        float textScale() const
+        {
+            return _textScale;
+        }
+
+        std::string text() const
+        {
+            return _text;
         }
 
         glm::vec2 letterXPosition(size_t index)
