@@ -85,7 +85,7 @@ void lithium::FrameBuffer::createTexture(GLuint colorAttachment, GLuint internal
     std::shared_ptr<Texture<unsigned char>> tex = std::make_shared<Texture<unsigned char>>(nullptr, _resolution.x, _resolution.y,
         type, internalFormat, format, unpackAlignment, texTarget, samples);
 
-    tex->setFilter(GL_NEAREST);
+    //tex->setFilter(GL_NEAREST);
 
     /*glGenTextures(1, &texId);
     switch(_mode)

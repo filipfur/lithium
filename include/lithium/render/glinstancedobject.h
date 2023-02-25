@@ -9,8 +9,8 @@ namespace lithium
     class InstancedObject : public Object
     {
     public:
-        InstancedObject(lithium::Mesh* mesh, lithium::ImageTexture* diffuse=nullptr, lithium::ImageTexture* normal=nullptr)
-            : lithium::Object{mesh, diffuse, normal}, _instancedArray{GL_ARRAY_BUFFER}
+        InstancedObject(std::shared_ptr<lithium::Mesh> mesh, const std::vector<lithium::Object::TexturePointer>& textures)
+            : lithium::Object{mesh, textures}, _instancedArray{GL_ARRAY_BUFFER}
         {
             mesh->setDrawFunction(lithium::VertexArray::DrawFunction::ELEMENTS_INSTANCED);
         }
@@ -29,7 +29,6 @@ namespace lithium
         virtual ~InstancedObject() noexcept
         {
             _instances.clear();
-            delete _mesh;
         }
 
         void addInstance(T instanceMatrix)

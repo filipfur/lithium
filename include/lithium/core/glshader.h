@@ -89,7 +89,7 @@ namespace lithium
 		{
 			glDeleteShader(_id);
 			#ifdef _WIN32
-			delete _watch;
+			_watch = nullptr;
 			#endif
 		}
 

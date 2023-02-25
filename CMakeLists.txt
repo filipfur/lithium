@@ -29,6 +29,7 @@ add_library(lithium STATIC
     src/glnode.cpp
     src/glskinnedobject.cpp
     src/glrenderstage.cpp
+    src/ecs.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
@@ -40,6 +41,8 @@ target_include_directories(lithium PUBLIC
     include/lithium/core
     include/lithium/render
     include/lithium/utility
+    include/lithium/collision
+    include/lithium/ecs
     include/lithium
     dep/glad/include
     dep/glm
