@@ -1,6 +1,5 @@
 #pragma once
 
-#include <any>
 #include <algorithm>
 #include <vector>
 #include "ecsentity.h"
@@ -13,6 +12,8 @@ namespace ecs
     class Component
     {
     public:
+        using value_type = T;
+
         Component()
         {
 
@@ -40,44 +41,10 @@ namespace ecs
         static uint32_t _id;
     };
 
-    template <typename T>
+    template <typename... T>
     void attach(Entity& entity)
     {
-        T::attach(entity);
-    }
-
-    template <typename T, typename U>
-    void attach(Entity& entity)
-    {
-        T::attach(entity);
-        U::attach(entity);
-    }
-
-    template <typename T, typename U, typename V>
-    void attach(Entity& entity)
-    {
-        T::attach(entity);
-        U::attach(entity);
-        V::attach(entity);
-    }
-
-    template <typename T, typename U, typename V, typename W>
-    void attach(Entity& entity)
-    {
-        T::attach(entity);
-        U::attach(entity);
-        V::attach(entity);
-        W::attach(entity);
-    }
-
-    template <typename T, typename U, typename V, typename W, typename X>
-    void attach(Entity& entity)
-    {
-        T::attach(entity);
-        U::attach(entity);
-        V::attach(entity);
-        W::attach(entity);
-        X::attach(entity);
+        (T::attach(entity), ...); // fold expression
     }
 
     template <class T, uint32_t U>
