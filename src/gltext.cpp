@@ -21,11 +21,6 @@ lithium::Text::~Text() noexcept
 
 }
 
-void lithium::Text::update(float dt)
-{
-    
-}
-
 void lithium::Text::shade(lithium::ShaderProgram* shaderProgram)
 {
     if(!visible())

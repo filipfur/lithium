@@ -24,7 +24,7 @@ namespace lithium
 
 		}
 
-		Shader(std::string&& fileName) : _id{}, _fileName { std::move(fileName) }
+		Shader(const std::string& source, const std::string& fileName) : _id{}, _source { source }, _fileName{fileName}
 		{
 			_id = glCreateShader(T);
 			compile();
@@ -39,10 +39,25 @@ namespace lithium
 			#endif
 		}
 
+		static lithium::Shader<T>* fromFile(const std::string& fileName)
+		{
+			return new Shader("", fileName);
+
+		}
+
+		static lithium::Shader<T>* fromSource(const std::string& source)
+		{
+			return new Shader(source, "");
+
+		}
+
 		void compile()
 		{
-			std::string source = readFile(_fileName);
-			const char* src = source.c_str();
+			if(_fileName.size() > 0)
+			{
+				_source = readFile(_fileName);
+			}
+			const char* src = _source.c_str();
 			glShaderSource(_id, 1, &src, nullptr);
 			glCompileShader(_id);
 			GLint status = 0;
@@ -62,6 +77,7 @@ namespace lithium
 				//std::cout << "'" << _fileName << "' compiled sucessfully." << std::endl;
 			}
 			_valid = true;
+			_source = "";
 		}
 
 		GLuint id() const
@@ -88,6 +104,7 @@ namespace lithium
 		}
 
 	private:
+
 		std::string readFile(const std::string& fileName)
 		{
 			std::ifstream ifs{ fileName };
@@ -103,6 +120,7 @@ namespace lithium
 
 		GLuint _id;
 		bool _valid{true};
+		std::string _source;
 		std::string _fileName;
 		#ifdef _WIN32
 		std::shared_ptr<filewatch::FileWatch<std::string>> _watch{nullptr};

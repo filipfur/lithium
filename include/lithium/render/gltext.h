@@ -1,6 +1,5 @@
 #pragma once
 
-#include "glupdateable.h"
 #include "globject.h"
 #include "glfont.h"
 
@@ -15,8 +14,6 @@ namespace lithium
         Text(const Text& other);
         Text(const Object& other);
         virtual ~Text() noexcept;
-
-        virtual void update(float dt) override;
 
         virtual void shade(lithium::ShaderProgram* shaderProgram) override;
 

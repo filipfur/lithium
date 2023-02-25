@@ -3,22 +3,32 @@
 lithium::ShaderProgram* lithium::ShaderProgram::_inUse{nullptr};
 unsigned int lithium::ShaderProgram::_bindCount{0};
 
-lithium::ShaderProgram::ShaderProgram(const lithium::ShaderProgram& other) : _vertexShader{other._vertexShader}, _fragmentShader{other._fragmentShader}
+lithium::ShaderProgram::ShaderProgram(const lithium::ShaderProgram& other) 
+    : ShaderProgram{other._vertexShader, other._fragmentShader, other._geometryShader}
 {
-    _id = glCreateProgram();
-    link();
 }
 
-lithium::ShaderProgram::ShaderProgram(std::string &&vertexShaderFile, std::string &&fragmentShaderFile)
-    : _vertexShader{new Shader<GL_VERTEX_SHADER>(std::move(vertexShaderFile))}, _fragmentShader{new Shader<GL_FRAGMENT_SHADER>(std::move(fragmentShaderFile))}
+lithium::ShaderProgram::ShaderProgram(const std::string& vertexShaderFile, const std::string& fragmentShaderFile)
+    : ShaderProgram{
+        std::shared_ptr<lithium::Shader<GL_VERTEX_SHADER>>(lithium::Shader<GL_VERTEX_SHADER>::fromFile(vertexShaderFile)),
+        std::shared_ptr<lithium::Shader<GL_FRAGMENT_SHADER>>(lithium::Shader<GL_FRAGMENT_SHADER>::fromFile(fragmentShaderFile)),
+        nullptr}
 {
-    _id = glCreateProgram();
-    link();
 }
 
-lithium::ShaderProgram::ShaderProgram(std::string &&vertexShaderFile, std::string &&fragmentShaderFile, std::string &&geometryShaderFile)
-    : _vertexShader{new Shader<GL_VERTEX_SHADER>(std::move(vertexShaderFile))}, _fragmentShader{new Shader<GL_FRAGMENT_SHADER>(std::move(fragmentShaderFile))},
-    _geometryShader{new Shader<GL_GEOMETRY_SHADER>(std::move(geometryShaderFile))}
+lithium::ShaderProgram::ShaderProgram(const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::string& geometryShaderFile)
+    : ShaderProgram{
+        std::shared_ptr<lithium::Shader<GL_VERTEX_SHADER>>(lithium::Shader<GL_VERTEX_SHADER>::fromFile(vertexShaderFile)),
+        std::shared_ptr<lithium::Shader<GL_FRAGMENT_SHADER>>(lithium::Shader<GL_FRAGMENT_SHADER>::fromFile(fragmentShaderFile)),
+        std::shared_ptr<lithium::Shader<GL_GEOMETRY_SHADER>>(lithium::Shader<GL_GEOMETRY_SHADER>::fromFile(geometryShaderFile))}
+{
+
+}
+
+lithium::ShaderProgram::ShaderProgram(std::shared_ptr<lithium::Shader<GL_VERTEX_SHADER>> vertexShader,
+            std::shared_ptr<lithium::Shader<GL_FRAGMENT_SHADER>> fragmentShader,
+            std::shared_ptr<lithium::Shader<GL_GEOMETRY_SHADER>> geometryShader)
+            : _vertexShader{vertexShader}, _fragmentShader{fragmentShader}, _geometryShader{geometryShader}
 {
     _id = glCreateProgram();
     link();

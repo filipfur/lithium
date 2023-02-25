@@ -1,6 +1,7 @@
 #pragma once
 #include "glshader.h"
 #include <map>
+#include <memory>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "glelement.h"
@@ -12,9 +13,13 @@ namespace lithium
 	public:
 		ShaderProgram(const ShaderProgram& other);
 
-		ShaderProgram(std::string&& vertexShaderFile, std::string&& fragmentShaderFile);
+		ShaderProgram(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
 
-		ShaderProgram(std::string&& vertexShaderFile, std::string&& fragmentShaderFile, std::string&& geometryShaderFile);
+		ShaderProgram(const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::string& geometryShaderFile);
+
+		ShaderProgram(std::shared_ptr<Shader<GL_VERTEX_SHADER>> vertexShader,
+			std::shared_ptr<Shader<GL_FRAGMENT_SHADER>> fragmentShader,
+			std::shared_ptr<Shader<GL_GEOMETRY_SHADER>> geometryShader=nullptr);
 
 		void use();
 
@@ -120,9 +125,9 @@ namespace lithium
 		std::map<std::string,glm::vec4> _vec4Cache;
 		std::map<std::string,glm::vec3> _vec3Cache;
 		std::map<std::string,glm::vec2> _vec2Cache;
-		Shader<GL_VERTEX_SHADER>* _vertexShader{nullptr};
-		Shader<GL_FRAGMENT_SHADER>* _fragmentShader{nullptr};
-		Shader<GL_GEOMETRY_SHADER>* _geometryShader{nullptr};
+		std::shared_ptr<Shader<GL_VERTEX_SHADER>> _vertexShader{nullptr};
+		std::shared_ptr<Shader<GL_FRAGMENT_SHADER>> _fragmentShader{nullptr};
+		std::shared_ptr<Shader<GL_GEOMETRY_SHADER>> _geometryShader{nullptr};
 		std::map<std::string, GLuint> _uniforms;
 		static unsigned int _bindCount;
 		static lithium::ShaderProgram* _inUse;
