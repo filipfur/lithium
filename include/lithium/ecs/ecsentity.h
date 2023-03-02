@@ -5,26 +5,46 @@ namespace ecs
     class Entity
     {
     public:
-        Entity()
+        Entity() : _id{nextId++}, _componentMask{0}
         {
-            _id = nextId++;
         }
 
         virtual ~Entity() noexcept
         {
-
         }
 
-        void addComponent(uint32_t component)
+        Entity(const Entity& other) : _id{other._id}, _componentMask{other._componentMask}
         {
-            _componentMask |= component;
         }
 
-        void removeComponent(uint32_t component)
+        Entity(Entity&& other) : _id{other._id}, _componentMask{other._componentMask}
         {
-            _componentMask &= ~component;
         }
 
+        Entity& operator=(const Entity& other)
+        {
+            _id = other._id;
+            _componentMask = other._componentMask;
+            return *this;
+        }
+
+        Entity& operator=(Entity&& other)
+        {
+            _id = other._id;
+            _componentMask = other._componentMask;
+            return *this;
+        }
+
+        void addComponent(uint32_t componentId)
+        {
+            _componentMask |= componentId;
+        }
+
+        void removeComponent(uint32_t componentId)
+        {
+            _componentMask &= ~componentId;
+        }
+        
         bool hasComponents(uint32_t component) const
         {
             return (_componentMask & component) == component;
@@ -36,8 +56,8 @@ namespace ecs
         }
 
     private:
-        uint32_t _componentMask{0};
         uint32_t _id;
+        uint32_t _componentMask{0};
         static uint32_t nextId;
     };
 }
