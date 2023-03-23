@@ -66,6 +66,16 @@ namespace lithium
             }
         }
 
+        size_t renderableCount()
+        {
+            size_t count = 0;
+            for(auto renderGroup : _renderGroups)
+            {
+                count += renderGroup->count();
+            }
+            return count;
+        }
+
     protected:
         glm::ivec2 _resolution;
         std::vector<std::shared_ptr<lithium::RenderGroup>> _renderGroups;

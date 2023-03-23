@@ -30,6 +30,8 @@ add_library(lithium STATIC
     src/glskinnedobject.cpp
     src/glrenderstage.cpp
     src/ecs.cpp
+    src/utility.cpp
+    src/glrenderable.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})

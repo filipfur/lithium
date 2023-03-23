@@ -220,13 +220,31 @@ namespace lithium
 			return _mousePos;
 		}
 
+		glm::vec3 up() const
+		{
+			return _up;
+		}
+
+		void setFpsControl(bool fpsControl)
+		{
+			_fpsControl = fpsControl;
+			_firstClick = true;
+		}
+
+		bool fpsControl() const
+		{
+			return _fpsControl;
+		}
+
 	private:
 		GLFWwindow* _window;
 		Controller _controller;
 		int _width;
 		int _height;
+		bool _fpsControl{false};
 		Context* _context{nullptr};
 		glm::vec2 _clickedPos;
+		bool _firstClick{true};
 		glm::vec2 _mousePos;
 		std::map<Context*, std::shared_ptr<KeyCache>> _keyCaches;
 		std::map<Context*,std::map<int, std::function<bool(int, int)>>> _pressedCallbacks;
@@ -234,7 +252,7 @@ namespace lithium
 		std::map<Context*, std::function<bool(float, float)>> _scrollCallbacks;
 		std::map<Context*, std::function<bool(float, float)>> _cursorCallbacks;
 		std::function<bool(int, int)> _anyKeyPressedCallback{nullptr};
-		glm::vec3 _up;
+		glm::vec3 _up{0.0f, 1.0f, 0.0f};
 		std::map<Context*, std::function<bool(char c)>> _typewriteCallbacks;
 	};
 

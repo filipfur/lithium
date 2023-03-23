@@ -20,19 +20,25 @@ namespace ecs
                 _mask = (T::_bitSignature + ...);
             }
 
-            void update(std::vector<Entity>& entities,
+            void update(std::set<Entity*>& entities,
                 std::function<void(ecs::Entity&, typename T::value_type&...)> callback)
             {
-                for(auto it = entities.begin(); it != entities.end(); ++it)
+                for(auto ptr : entities)
                 {
-                    const uint32_t entityId = it->id();
-                    if(it->hasComponents(_mask))
+                    const uint32_t entityId = ptr->id();
+                    if(ptr->hasComponents(_mask))
                     {
                         //bool test = ((_versions[entityId][T::_number] != T::version(entityId)) && ...);
-                        Entity& entity = *it;
+                        Entity& entity = *ptr;
                         bool test = (T::compare(entity, _versions[entityId][T::_number]) && ...);
+#ifdef ECS_TRACE
+                        //std::cout << "ecs::System: Testing mask=" << _mask << ", entity=" << entityId << ": " << (test ? "[ ]" : "[X]") << std::endl;
+#endif
                         if(!test) // Check if NOT all versions match
                         {
+#ifdef ECS_TRACE
+                            std::cout << "ecs::System: Updating mask=" << _mask << ", entity=" << entityId << std::endl;
+#endif
                             (callback(entity,
                                 T::get(entityId)...
                             ));

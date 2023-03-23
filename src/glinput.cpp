@@ -160,25 +160,38 @@ void lithium::Input::onScroll(GLFWwindow *window, double xoffset, double yoffset
 
 void lithium::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
 {
-		/*if (firstClick)
-		{
-			glfwSetCursorPos(window, _width / 2, _height / 2);
-			firstClick = false;
-		}*/
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	_mousePos.x = mouseX;
-	_mousePos.y = mouseY;
-	float rotX = 100.0f * (float)(mouseY - (_height / 2)) / _height;
-	float rotY = 100.0f * (float)(mouseX - (_width / 2)) / _width;
-	glm::vec3 newOrienation = glm::rotate(_controller.orientation(), glm::radians(-rotX),
-			glm::normalize(glm::cross(_controller.orientation(), _up)));
-	if (true || abs(glm::angle(newOrienation, _up) - glm::radians(90.0f)) <= glm::radians(85.0f))
+	if (_fpsControl)
 	{
-		_controller.setOrientation(newOrienation);
+		if(_firstClick)
+		{
+			centerCursor();
+			_firstClick = false;
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		}
+	
+		_mousePos.x = mouseX;
+		_mousePos.y = mouseY;
+		float rotX = 64.0f * (float)(mouseY - (_height / 2)) / _height;
+		float rotY = 64.0f * (float)(mouseX - (_width / 2)) / _width;
+
+		// compute orientation from rotX and rotY
+		_controller.setOrientation(glm::rotate(_controller.orientation(), glm::radians(-rotX), glm::normalize(glm::cross(_controller.orientation(), _up))));
+		_controller.setOrientation(glm::rotate(_controller.orientation(), glm::radians(-rotY), _up));
+
+
+		/*glm::vec3 newOrienation = glm::rotate(_controller.orientation(), glm::radians(-rotX),
+				glm::normalize(glm::cross(_controller.orientation(), _up)));
+		if (true || abs(glm::angle(newOrienation, _up) - glm::radians(90.0f)) <= glm::radians(85.0f))
+		{
+			_controller.setOrientation(newOrienation);
+		}
+		_controller.setOrientation(glm::rotate(_controller.orientation(), glm::radians(-rotY), _up));*/
+		centerCursor();
 	}
-
-	_controller.setOrientation(glm::rotate(_controller.orientation(), glm::radians(-rotY), _up));
-
+	else
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL );
+	}
 	if(_context)
 	{
 		auto it = _cursorCallbacks.find(_context);
@@ -187,9 +200,6 @@ void lithium::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
 			it->second(static_cast<float>(mouseX), static_cast<float>(mouseY));
 		}
 	}
-
-
-	//glfwSetCursorPos(window, _width / 2, _height / 2);
 }
 
 void lithium::Input::onText(GLFWwindow *window, unsigned int codepoint)

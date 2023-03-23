@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <set>
+#include <unordered_set>
 #include "glshaderprogram.h"
 #include "glirenderable.h"
 
@@ -13,6 +13,12 @@ namespace lithium
         virtual void shade(lithium::ShaderProgram* shaderProgram) = 0;
 
         virtual void draw() const = 0;
+
+        // Constructor that counts number of Renderables created
+        Renderable() noexcept
+        {
+            ++_countRenderables;
+        }
 
         virtual ~Renderable() noexcept
         {
@@ -28,12 +34,29 @@ namespace lithium
             _iRenderables.emplace(iRenderable);
         }
         
-        void unregisterRenderGroup(lithium::IRenderable* iRenderable)
+        std::unordered_set<lithium::IRenderable*>::iterator unregisterRenderGroup(lithium::IRenderable* iRenderable)
         {
-            _iRenderables.erase(iRenderable);
+            iRenderable->onRenderableRemoved(this);
+            auto it = _iRenderables.find(iRenderable);
+            return _iRenderables.erase(it);
+        }
+
+        void unregisterRenderGroups()
+        {
+            auto it = _iRenderables.begin();
+            while(it != _iRenderables.end())
+            {
+                it = unregisterRenderGroup(*it);
+            }
+        }
+
+        static int countRenderables()
+        {
+            return _countRenderables;
         }
 
     private:
-        std::set<lithium::IRenderable*> _iRenderables;
+        std::unordered_set<lithium::IRenderable*> _iRenderables;
+        static int _countRenderables;
     };
 }

@@ -50,6 +50,22 @@ namespace ecs
             return (_componentMask & component) == component;
         }
 
+        template <typename T>
+        typename T::value_type* get() const
+        {
+            if(!hasComponents(T::_bitSignature))
+            {
+                return nullptr;
+            }
+            return &T::get(_id);
+        }
+
+        template <typename T>
+        void set(typename T::value_type t)
+        {
+            T::set(t, _id);
+        }
+
         uint32_t id() const
         {
             return _id;

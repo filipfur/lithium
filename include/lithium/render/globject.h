@@ -183,6 +183,11 @@ namespace lithium
 			return _textures[textureUnit];
 		}
 
+		bool hasTexture() const
+		{
+			return _textures.size() > 0;
+		}
+
 		std::shared_ptr<lithium::Mesh> mesh() const
 		{
 			return _mesh;
@@ -196,6 +201,12 @@ namespace lithium
 		void setModelInvalidated(bool modelInvalidated)
 		{
 			_modelInvalidated = modelInvalidated;
+		}
+
+		void setModel(const glm::mat4& model)
+		{
+			_model = model;
+			_modelInvalidated = false;
 		}
 
 		bool modelInvalidated() const

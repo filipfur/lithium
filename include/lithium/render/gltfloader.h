@@ -120,7 +120,28 @@ namespace gltf
 
 
 
-        bool loadNodeProperties(const std::filesystem::path& filePath, std::vector<lithium::Node*>& nodeProperties)
+        bool loadNodesWithProperties(const std::filesystem::path& filePath, std::vector<lithium::Node*>& nodes)
+        {
+            if(!loadJson(filePath))
+            {
+                return false;
+            }
+
+            loadNodes();
+
+            for(auto entry : _nodeMap)
+            {
+                lithium::Node* node = entry.second;
+                if(node->hasProperties())
+                {
+                    nodes.push_back(node);
+                }
+            }
+
+            return true;
+        }
+
+        bool loadNodes(const std::filesystem::path& filePath, std::vector<lithium::Node*>& nodes)
         {
             if(!loadJson(filePath))
             {
@@ -134,10 +155,7 @@ namespace gltf
             for(auto entry : _nodeMap)
             {
                 lithium::Node* node = entry.second;
-                if(node->hasProperties())
-                {
-                    nodeProperties.push_back(node);
-                }
+                nodes.push_back(node);
             }
 
             return true;

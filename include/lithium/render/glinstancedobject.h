@@ -41,6 +41,7 @@ namespace lithium
             _mesh->bind();
             _instancedArray.allocate(_instances);
             _mesh->setInstanceCount(_instances.size());
+            _mesh->unbind();
         }
 
         template <GLenum U=GL_FLOAT>
@@ -49,14 +50,6 @@ namespace lithium
             _mesh->bind();
             //_instancedArray.bind();
             int n = _mesh->vertexArrayBuffer(0)->numLayouts();
-            /*vao->linkAttribPointer(n, 4, GL_FLOAT, sizeof(glm::mat4), (void*)0);
-            vao->linkAttribPointer(n+1, 4, GL_FLOAT, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-            vao->linkAttribPointer(n+2, 4, GL_FLOAT, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-            vao->linkAttribPointer(n+3, 4, GL_FLOAT, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-            glVertexAttribDivisor(n, 1);
-            glVertexAttribDivisor(n+1, 1);
-            glVertexAttribDivisor(n+2, 1);
-            glVertexAttribDivisor(n+3, 1);*/
 
             for(auto && attribPtr : attribPtrs)
             {
@@ -64,6 +57,7 @@ namespace lithium
                 glVertexAttribDivisor(n + attribPtr.layout(), 1);
             }
 
+            //_instancedArray.unbind();
             _mesh->unbind();
         }
 

@@ -5,6 +5,8 @@
 #include "ecsentity.h"
 #include "ecsconstants.h"
 
+//#define ECS_TRACE TRUE
+
 namespace ecs
 {
     extern uint32_t _nextComponentNumber;
@@ -14,7 +16,6 @@ namespace ecs
     {
     public:
         using value_type = T;
-        inline static constexpr int MAX_ENTITIES{Static ? 1 : ecs::GLOBAL_MAX_ENTITIES};
 
         Component()
         {
@@ -33,7 +34,9 @@ namespace ecs
                     exit(1);
                 }
             }
+#ifdef ECS_TRACE
             std::cout << "attaching: " << _number << ", " << _bitSignature << std::endl;
+#endif
             entity.addComponent(_bitSignature);
             //_ts.push_back(T{});
         }
@@ -57,8 +60,9 @@ namespace ecs
             if(dirty)
             {
                 ++_versions[entity.id()];
-                std::cout << "component#" << _number << " version=" << (int)_versions[entity.id()] << std::endl;
-                std::cout << "typeid()" << typeid(T).name() << std::endl;
+#ifdef ECS_TRACE
+                std::cout << "component#" << _number << " version=" << (int)_versions[entity.id()] <<  " " << typeid(T).name() << std::endl;
+#endif
             }
         }
 
@@ -67,9 +71,23 @@ namespace ecs
             return Static ? _ts[0] : _ts[index];
         }
 
+        static void set(T& t, size_t index=0)
+        {
+            if(Static)
+            {
+                _ts[0] = t;
+                refreshAll();
+            }
+            else
+            {
+                _ts[index] = t;
+                ++_versions[index];
+            }
+        }
+
         static uint8_t version(size_t index=0)
         {
-            return Static ? _versions[0] : _versions[index];
+            return _versions[index];
         }
 
         static bool compare(Entity& entity, const uint8_t& version)
@@ -79,7 +97,7 @@ namespace ecs
 
         static void refreshAll()
         {
-            for(auto i{0}; i < MAX_ENTITIES; ++i)
+            for(auto i{0}; i < ecs::GLOBAL_MAX_ENTITIES; ++i)
             {
                 refresh(i);
             }
@@ -88,7 +106,7 @@ namespace ecs
         static void refresh(size_t index=0)
         {
             ++_versions[index];
-            std::cout << "component#" << _number << " version=" << (int)_versions[index] << std::endl;
+            //std::cout << "component#" << _number << " version=" << (int)_versions[index] << std::endl;
         }
 
 
@@ -107,10 +125,10 @@ namespace ecs
     /*template <class T, uint32_t U>
     std::vector<T> Component<T,U>::_ts{};*/
     template <class T, uint32_t Variant, bool Static>
-    T Component<T,Variant,Static>::_ts[MAX_ENTITIES] = {};
+    T Component<T,Variant,Static>::_ts[Static ? 1 : ecs::GLOBAL_MAX_ENTITIES] = {};
 
     template <class T, uint32_t Variant, bool Static>
-    uint8_t Component<T,Variant,Static>::_versions[MAX_ENTITIES] = {};
+    uint8_t Component<T,Variant,Static>::_versions[ecs::GLOBAL_MAX_ENTITIES] = {};
 
     template <class T, uint32_t Variant, bool Static>
     uint32_t Component<T,Variant,Static>::_number{_nextComponentNumber++};

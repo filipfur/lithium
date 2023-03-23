@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_set>
 #include "glrenderable.h"
 
 namespace lithium
@@ -9,7 +10,7 @@ namespace lithium
     {
     public:
         using FilterType = std::function<bool(lithium::Renderable*)>;
-        using ContainerType = std::vector<lithium::Renderable*>;
+        using ContainerType = std::set<lithium::Renderable*>;
 
         RenderGroup(const FilterType& filter) : _filter{filter}
         {
@@ -28,9 +29,11 @@ namespace lithium
 
         virtual ~RenderGroup() noexcept
         {
-            for(auto renderable : _renderables)
+            auto it = _renderables.begin();
+            while(it != _renderables.end())
             {
-                renderable->unregisterRenderGroup(this);
+                (*it)->unregisterRenderGroup(this);
+                it = _renderables.begin();
             }
             _renderables.clear();
         }
@@ -45,14 +48,14 @@ namespace lithium
 
         void pushBack(lithium::Renderable* renderable)
         {
-            _renderables.push_back(renderable);
+            _renderables.emplace(renderable);
             renderable->registerRenderGroup(this);
         }
 
-        void insertMany(const ContainerType& list)
+        /*void insertMany(const ContainerType& list)
         {
-            _renderables.insert(_renderables.end(), list.begin(), list.end());
-        }
+            _renderables.emplace(_renderables.end(), list.begin(), list.end());
+        }*/
 
         bool filteredPushBack(lithium::Renderable* renderable)
         {
@@ -89,7 +92,13 @@ namespace lithium
         
         virtual void onRenderableRemoved(Renderable* renderable)
         {
-            _renderables.erase(std::find(_renderables.begin(), _renderables.end(), renderable));
+            //_renderables.erase(std::find_if(_renderables.begin(), _renderables.end(), renderable));
+            _renderables.erase(renderable);
+        }
+
+        size_t count() const
+        {
+            return _renderables.size();
         }
 
     private:
