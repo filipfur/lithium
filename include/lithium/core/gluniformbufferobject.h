@@ -33,9 +33,14 @@ namespace lithium
             glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::vec3), glm::value_ptr(vec));
         }
 
-        void bufferSubData(GLuint offset, GLfloat f)
+        void bufferSubData(GLuint offset, const glm::vec4& vec)
         {
-            glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(GLfloat), &f);
+            glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::vec4), glm::value_ptr(vec));
+        }
+
+        void bufferSubData(GLuint offset, float f)
+        {
+            glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float), &f);
         }
 
         virtual ~UniformBufferObject() noexcept
