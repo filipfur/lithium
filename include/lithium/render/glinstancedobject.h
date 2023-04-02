@@ -36,6 +36,11 @@ namespace lithium
             _instances.push_back(instanceMatrix);
         }
 
+        void setInstances(const std::vector<T>& instances)
+        {
+            _instances = instances;
+        }
+
         void allocateBufferData()
         {
             _mesh->bind();
