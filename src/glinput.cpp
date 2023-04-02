@@ -32,38 +32,26 @@ void lithium::Input::onKey(GLFWwindow *window, int key, int scanCode, int action
 	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
 		delta.z = -1.0f;
-		//orientation = _orientation;
-		//speed = _speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
 		delta.x = -1.0f;
-		//orientation = -glm::normalize(glm::cross(_orientation, _up));
-		//speed = _speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
 		delta.z = 1.0f;
-		//orientation = -_orientation;
-		//speed = _speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		delta.x = 1.0f;
-		//orientation = glm::normalize(glm::cross(_orientation, _up));
-		//speed = _speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
 		delta.y = 1.0f;
-		//orientation = _up;
-		//speed = _speed;
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 	{
 		delta.y = -1.0f;
-		//orientation = -_up;
-		//speed = _speed;
 	}
 	_controller.setDelta(delta);
 	if(_context != nullptr)
@@ -109,7 +97,6 @@ void lithium::Input::onKey(GLFWwindow *window, int key, int scanCode, int action
 			}
 		}
 	}
-	//_position += speed * orientation;
 }
 
 void lithium::Input::onMouse(GLFWwindow *window, int button, int action, int mods)
@@ -174,18 +161,9 @@ void lithium::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
 		float rotX = 64.0f * (float)(mouseY - (_height / 2)) / _height;
 		float rotY = 64.0f * (float)(mouseX - (_width / 2)) / _width;
 
-		// compute orientation from rotX and rotY
 		_controller.setOrientation(glm::rotate(_controller.orientation(), glm::radians(-rotX), glm::normalize(glm::cross(_controller.orientation(), _up))));
 		_controller.setOrientation(glm::rotate(_controller.orientation(), glm::radians(-rotY), _up));
 
-
-		/*glm::vec3 newOrienation = glm::rotate(_controller.orientation(), glm::radians(-rotX),
-				glm::normalize(glm::cross(_controller.orientation(), _up)));
-		if (true || abs(glm::angle(newOrienation, _up) - glm::radians(90.0f)) <= glm::radians(85.0f))
-		{
-			_controller.setOrientation(newOrienation);
-		}
-		_controller.setOrientation(glm::rotate(_controller.orientation(), glm::radians(-rotY), _up));*/
 		centerCursor();
 	}
 	else

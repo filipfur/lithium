@@ -157,8 +157,8 @@ namespace lithium
 			}
 
 		private:
-			glm::vec3 _delta;
-			glm::vec3 _orientation;
+			glm::vec3 _delta{0.0f};
+			glm::vec3 _orientation{1.0f, 0.0f, 0.0f};
 		};
 
 		class KeyCache

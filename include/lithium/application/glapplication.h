@@ -8,8 +8,10 @@
 #include "glupdateable.h"
 #include "glinput.h"
 
+#ifdef LITHIUM_USE_AUDIO
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
+#endif
 
 namespace lithium
 {
@@ -38,11 +40,13 @@ namespace lithium
                     break;
             }
 
+#ifdef LITHIUM_USE_AUDIO
             ma_result result = ma_engine_init(NULL, &_engine);
             if (result != MA_SUCCESS) {
                 printf("Failed to initialize audio engine.");
                 exit(-1);
             }
+#endif
 
             GLFWmonitor *monitor = nullptr;
             if(_fullscreen)
@@ -82,9 +86,12 @@ namespace lithium
         {
             glfwDestroyWindow(_window);
             glfwTerminate();
+#ifdef LITHIUM_USE_AUDIO
             ma_engine_uninit(&_engine);	
+#endif
         }
 
+#ifdef LITHIUM_USE_AUDIO
         void playAudio(const std::string& path)
         {
             if(_audioEnabled)
@@ -93,6 +100,7 @@ namespace lithium
                 ma_engine_play_sound(&_engine, path.c_str(), NULL);
             }
         }
+#endif
 
         void run()
         {
@@ -196,7 +204,9 @@ namespace lithium
         double _startTime{0};
         bool _fullscreen{false};
         glm::ivec2 _defaultFrameBufferResolution;
+#ifdef LITHIUM_USE_AUDIO
         ma_engine _engine;
+#endif
         int _fps{0};
         int _numFrames{0};
         double _lastFpsCount;
