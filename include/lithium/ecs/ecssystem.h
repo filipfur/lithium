@@ -17,7 +17,7 @@ namespace ecs
         public:
             System() : _versions{}
             {
-                _mask = (T::_bitSignature + ...);
+                _mask = (T::bitSignature() + ...);
             }
 
             void update(std::set<Entity*>& entities,

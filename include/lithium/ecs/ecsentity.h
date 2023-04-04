@@ -53,7 +53,7 @@ namespace ecs
         template <typename T>
         typename T::value_type* get() const
         {
-            if(!hasComponents(T::_bitSignature))
+            if(!hasComponents(T::bitSignature()))
             {
                 return nullptr;
             }

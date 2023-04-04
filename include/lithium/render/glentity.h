@@ -53,6 +53,7 @@ namespace lithium
                 shaderProgram->use();
                 shaderProgram->setUniform("u_color", _color);
                 glm::mat4& modelMatrix = *get<lithium::Entity::ModelMatrix>();
+                //std::cout << "modelMatrix: " << modelMatrix[3][0] << ", " << modelMatrix[3][1] << ", " << modelMatrix[3][2] << std::endl;
                 shaderProgram->setUniform("u_model", modelMatrix);
             }
         }

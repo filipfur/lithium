@@ -126,6 +126,15 @@ namespace lithium
             return glm::length2(collisionVector) < sphere.radii2();
         }
 
+        static bool test3D(const glm::vec3& point, const AABB &aabb)
+        {
+            glm::vec3 aabbMin = aabb.center() - aabb.halfExtents();
+            glm::vec3 aabbMax = aabb.center() + aabb.halfExtents();
+            return point.x >= aabbMin.x && point.x <= aabbMax.x &&
+                   point.y >= aabbMin.y && point.y <= aabbMax.y &&
+                   point.z >= aabbMin.z && point.z <= aabbMax.z;
+        }
+
         void insertSphereBB(const SphereBB &sphereBB)
         {
             _sphereBBs.push_back(sphereBB);
@@ -135,6 +144,18 @@ namespace lithium
         {
             _aabbs.push_back(aabb);
         }
+
+        void insertAABBs(const std::vector<AABB> &aabbs)
+        {
+            _aabbs.insert(_aabbs.end(), aabbs.begin(), aabbs.end());
+        }
+
+        void clear()
+        {
+            _sphereBBs.clear();
+            _aabbs.clear();
+        }
+        
 
     private:
         std::vector<SphereBB> _sphereBBs;
