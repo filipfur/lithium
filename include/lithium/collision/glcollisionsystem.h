@@ -77,7 +77,7 @@ namespace lithium
             // get center point circle first
             glm::vec2 center(c0.position().x, c0.position().z);
             // calculate AABB info (center, half-extents)
-            glm::vec2 aabb_half_extents(r1.dimX() * 0.5f, r1.dimZ() * 0.5f);
+            glm::vec2 aabb_half_extents(r1.halfExtents().x, r1.halfExtents().z);
             glm::vec2 aabb_center(r1.center().x, r1.center().z);
             // get difference vector between both centers
             glm::vec2 difference = center - aabb_center;
@@ -99,11 +99,11 @@ namespace lithium
         static bool test2D(const AABB &r0, const AABB &r1, glm::vec2 &n)
         {
             // collision x-axis?
-            bool collisionX = r0.center().x + r0.dimX() >= r1.center().x &&
-                              r1.center().x + r1.dimX() >= r0.center().x;
+            bool collisionX = r0.center().x + r0.dimensionX() >= r1.center().x &&
+                              r1.center().x + r1.dimensionX() >= r0.center().x;
             // collision y-axis?
-            bool collisionZ = r0.center().z + r0.dimZ() >= r1.center().z &&
-                              r1.center().z + r1.dimZ() >= r0.center().z;
+            bool collisionZ = r0.center().z + r0.dimensionZ() >= r1.center().z &&
+                              r1.center().z + r1.dimensionZ() >= r0.center().z;
             // collision only if on both axes
             return collisionX && collisionZ;
         }
@@ -113,38 +113,17 @@ namespace lithium
             return glm::distance(c0.position(), c1.position()) <= (c0.radii() + c1.radii());
         }
 
-        static bool test3D(const SphereBB &c0, const AABB &r1, glm::vec3& n)
+        static bool test3D(const SphereBB &sphere, const AABB &aabb, glm::vec3& collisionVector)
         {
-            /*glm::vec3 test{0.0f};
-            for (int i{0}; i < 3; ++i)
-            {
-                if (c0.position()[i] < (r1.position()[i] + r1.a()[i]))
-                {
-                    test[i] = r1.position()[i] + r1.a()[i];
-                }
-                else if (c0.position()[i] > (r1.position()[i] + r1.b()[i]))
-                {
-                    test[i] = r1.position()[i] + r1.b()[i];
-                }
-            }
-
-            return glm::distance2(c0.position(), test) <= c0.radii2();*/
-
-            // get center point circle first
-            glm::vec3 center(c0.position().x, c0.position().y, c0.position().z);
-            // calculate AABB info (center, half-extents)
-            glm::vec3 aabb_half_extents(r1.dimX() * 0.5f, r1.dimY() * 0.5f, r1.dimZ() * 0.5f);
-            glm::vec3 aabb_center(r1.center().x, r1.center().y, r1.center().z);
             // get difference vector between both centers
-            glm::vec3 difference = center - aabb_center;
-            glm::vec3 clamped = glm::clamp(difference, -aabb_half_extents, aabb_half_extents);
+            glm::vec3 difference = sphere.position() - aabb.center();
+            glm::vec3 clamped = glm::clamp(difference, -aabb.halfExtents(), aabb.halfExtents());
             // add clamped value to AABB_center and we get the value of box closest to circle
-            glm::vec3 closest = aabb_center + clamped;
+            glm::vec3 closest = aabb.center() + clamped;
             // retrieve vector between center circle and closest point AABB and check if length <= radius
-            difference = center - closest;
+            collisionVector = sphere.position() - closest;
             // n = glm::normalize(difference);
-            n = difference;
-            return glm::length2(difference) < c0.radii2();
+            return glm::length2(collisionVector) < sphere.radii2();
         }
 
         void insertSphereBB(const SphereBB &sphereBB)
