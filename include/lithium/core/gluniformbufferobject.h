@@ -12,35 +12,46 @@ namespace lithium
         {
             bind();
             glBufferData(type(), size, 0, GL_STATIC_DRAW);
+            unbind();
         }
 
-        void bindBufferBase(const std::vector<lithium::ShaderProgram*>& shaders) const
+        void bindBufferBase(const std::vector<lithium::ShaderProgram*>& shaders)
         {
+            bind();
             for(auto && sp : shaders)
             {
 	            sp->bindUniformBlock(_label.c_str(), _layout);
             }
             glBindBufferBase(GL_UNIFORM_BUFFER, _layout, id());
+            unbind();
         }
 
         void bufferSubData(GLuint offset, const glm::mat4& matrix)
         {
+            bind();
             glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::mat4), glm::value_ptr(matrix));
+            unbind();
         }
 
         void bufferSubData(GLuint offset, const glm::vec3& vec)
         {
+            bind();
             glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::vec3), glm::value_ptr(vec));
+            unbind();
         }
 
         void bufferSubData(GLuint offset, const glm::vec4& vec)
         {
+            bind();
             glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(glm::vec4), glm::value_ptr(vec));
+            unbind();
         }
 
         void bufferSubData(GLuint offset, float f)
         {
+            bind();
             glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(float), &f);
+            unbind();
         }
 
         virtual ~UniformBufferObject() noexcept
