@@ -106,13 +106,15 @@ namespace lithium
 			return _height;
 		}
 
-		static void activate(GLuint textureUnit)
+		static bool activate(GLuint textureUnit)
 		{
 			if(_active != textureUnit)
 			{
 				glActiveTexture(textureUnit);
 				_active = textureUnit;
+				return true;
 			}
+			return false;
 		}
 
 		virtual void unbind() override
