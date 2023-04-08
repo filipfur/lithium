@@ -4,8 +4,8 @@
 
 #include "gltexture.h"
 
-lithium::FrameBuffer::FrameBuffer(const glm::ivec2& resolution, lithium::FrameBuffer::Mode mode) 
-    : _resolution{resolution}, _mode{mode}
+lithium::FrameBuffer::FrameBuffer(const glm::ivec2& resolution) 
+    : _resolution{resolution}
 {
     glGenFramebuffers(1, &_id);
 }
@@ -20,19 +20,12 @@ LITHIUM_GLELEMENT_DEF(lithium::FrameBuffer, glBindFramebuffer, GL_FRAMEBUFFER)
 void lithium::FrameBuffer::attach(RenderBuffer* renderBuffer, GLenum attachment)
 {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderBuffer->id());
-    auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if(fboStatus != GL_FRAMEBUFFER_COMPLETE)
-    {
-        std::cerr << "Failed to bind framebuffer!" << std::endl;
-        if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-            std::cout << "Framebuffer not complete: " << fboStatus << std::endl;
-    }
-    
+    checkStatus();
 }
 
-void lithium::FrameBuffer::createRenderBuffer(lithium::RenderBuffer::Mode mode, GLenum internalFormat, GLenum attachment)
+void lithium::FrameBuffer::createRenderBuffer(GLenum internalFormat, GLenum attachment, bool multisampled)
 {
-    attach(new lithium::RenderBuffer(_resolution, mode, internalFormat), attachment);
+    attach(new lithium::RenderBuffer(_resolution, multisampled, internalFormat), attachment);
 }
 
 void lithium::FrameBuffer::bindAsReadBuffer()
@@ -77,38 +70,15 @@ void lithium::FrameBuffer::bindTexture(GLuint colorAttachment, GLuint textureUni
     }
 }
 
-void lithium::FrameBuffer::createTexture(GLuint colorAttachment, GLuint internalFormat, GLuint format, GLuint type)
+void lithium::FrameBuffer::createTexture(GLuint colorAttachment, GLuint internalFormat, GLuint format, GLuint type, GLenum texTarget)
 {
-    GLenum texTarget = _mode == lithium::FrameBuffer::Mode::MULTISAMPLED ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
     GLuint unpackAlignment{4};
     GLuint samples{4};
     std::shared_ptr<Texture<unsigned char>> tex = std::make_shared<Texture<unsigned char>>(nullptr, _resolution.x, _resolution.y,
         type, internalFormat, format, unpackAlignment, texTarget, samples);
 
-    //tex->setFilter(GL_NEAREST);
-
-    /*glGenTextures(1, &texId);
-    switch(_mode)
-    {
-    case lithium::FrameBuffer::Mode::DEFAULT:
-        _glTextureMode = GL_TEXTURE_2D;
-        glBindTexture(_glTextureMode, texId);
-        glTexImage2D(_glTextureMode, 0, internalFormat, _resolution.x, _resolution.y, 0, format, type, NULL);
-        break;
-    case lithium::FrameBuffer::Mode::MULTISAMPLED:
-        _glTextureMode = GL_TEXTURE_2D_MULTISAMPLE;
-        glBindTexture(_glTextureMode, texId);
-        glTexImage2DMultisample(_glTextureMode, 4, internalFormat, _resolution.x, _resolution.y, GL_TRUE);
-        break;
-    }
-    glTexParameteri(_glTextureMode, GL_TEXTURE_MIN_FILTER, filter);
-    glTexParameteri(_glTextureMode, GL_TEXTURE_MAG_FILTER, filter);
-    glTexParameteri(_glTextureMode, GL_TEXTURE_WRAP_S, wrap);
-    glTexParameteri(_glTextureMode, GL_TEXTURE_WRAP_T, wrap);
-
-    glBindTexture(_glTextureMode, 0);*/
-
     glFramebufferTexture2D(GL_FRAMEBUFFER, colorAttachment, texTarget, tex->id(), 0);
+    checkStatus();
     _textures[colorAttachment] = tex;
 }
 
@@ -121,4 +91,38 @@ void lithium::FrameBuffer::declareBuffers()
         attachments.push_back(it->first);
     }
     glDrawBuffers(attachments.size(), attachments.data());
+    checkStatus();
+}
+
+
+const char* getFramebufferStatusString(GLenum status) {
+    switch (status) {
+        case GL_FRAMEBUFFER_UNDEFINED:
+            return "GL_FRAMEBUFFER_UNDEFINED: The framebuffer object is not complete because it has no defined buffers.";
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+            return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: The framebuffer object is not complete because at least one of its buffer attachments is incomplete.";
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+            return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: The framebuffer object is not complete because it has no attached buffers.";
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+            return "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: The framebuffer object is not complete because the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for the color attachment point named by GL_DRAW_BUFFERi.";
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+            return "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: The framebuffer object is not complete because the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for the color attachment point named by GL_READ_BUFFER.";
+        case GL_FRAMEBUFFER_UNSUPPORTED:
+            return "GL_FRAMEBUFFER_UNSUPPORTED: The combination of internal formats of the attached images violates an implementation-dependent set of restrictions.";
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+            return "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: The value of GL_RENDERBUFFER_SAMPLES is not the same for all attached renderbuffers; the value of GL_TEXTURE_SAMPLES is the not same for all attached textures; or the attached images are a mix of renderbuffers and textures, the value of GL_RENDERBUFFER_SAMPLES does not match the value of GL_TEXTURE_SAMPLES, and at least one of the attachments is a texture.";
+        default:
+            return "Unknown framebuffer status";
+    }
+}
+
+void lithium::FrameBuffer::checkStatus()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, _id);
+
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cerr << "Error: FBO " << getFramebufferStatusString(status) << std::endl;
+    }
 }
