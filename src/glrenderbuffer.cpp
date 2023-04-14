@@ -1,15 +1,16 @@
 #include "glrenderbuffer.h"
 
-lithium::RenderBuffer::RenderBuffer(glm::ivec2 resolution, lithium::RenderBuffer::Mode mode, GLenum internalFormat) : _mode{mode}
+lithium::RenderBuffer::RenderBuffer(glm::ivec2 resolution, bool multisampled, GLenum internalFormat)
 {
     glGenRenderbuffers(1, &_id);
     bind();
-    switch(mode)
+    if(multisampled)
     {
-    case lithium::RenderBuffer::Mode::DEFAULT:
-        glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, resolution.x, resolution.y);
-    case lithium::RenderBuffer::Mode::MULTISAMPLED:
         glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, internalFormat, resolution.x, resolution.y);
+    }
+    else
+    {
+        glRenderbufferStorage(GL_RENDERBUFFER, internalFormat, resolution.x, resolution.y);
     }
     unbind();
 }

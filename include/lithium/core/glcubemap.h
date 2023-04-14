@@ -1,26 +1,20 @@
 #pragma once
 
-#include "glelement.h"
-#include "glmesh.h"
-#include "glcamera.h"
-#include "glshaderprogram.h"
+#include <memory>
+#include <vector>
+
+#include "gltexture.h"
 
 namespace lithium
 {
-    class Cubemap : public Element
+    class Cubemap : public lithium::Texture<unsigned char>
     {
         public:
-            Cubemap(lithium::ShaderProgram* shaderProgram, lithium::Mesh* mesh, const std::string& fileName, const std::string& fileExt="png");
+            using TexturePointer = std::shared_ptr<lithium::Texture<unsigned char>>;
             virtual ~Cubemap() noexcept;
 
-            virtual void bind() override;
-
-            virtual void unbind() override;
-
-            void draw(Camera* camera);
-
+            static std::shared_ptr<Cubemap> load(const std::vector<std::string>& faces);
         private:
-            lithium::Mesh* _mesh;
-            lithium::ShaderProgram* _shaderProgram;
+            Cubemap();
     };
 }

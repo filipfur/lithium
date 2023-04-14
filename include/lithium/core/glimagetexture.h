@@ -41,7 +41,7 @@ namespace lithium
 
         private:
             ImageTexture(const std::filesystem::path& path, unsigned char* buffer, int width, int height, GLenum internalFormat, GLenum colorFormat, GLuint unpackAlignment=4)
-            : Texture<unsigned char>{buffer, width, height, GL_UNSIGNED_BYTE, internalFormat, colorFormat, unpackAlignment, GL_TEXTURE_2D}, _path{path}
+            : Texture<unsigned char>{buffer, width, height, GL_UNSIGNED_BYTE, internalFormat, colorFormat, GL_TEXTURE_2D}, _path{path}
             {
 
             }

@@ -1,59 +1,48 @@
 #include "glcubemap.h"
 
 #include "stb_image.h"
-#include <sstream>
 
-lithium::Cubemap::Cubemap(lithium::ShaderProgram* shaderProgram, lithium::Mesh* mesh, const std::string& fileName, const std::string& fileExt) : _shaderProgram{shaderProgram}, _mesh{mesh}
+lithium::Cubemap::Cubemap()
+    : lithium::Texture<unsigned char>{nullptr, 0, 0, GL_UNSIGNED_BYTE, GL_RGB, GL_RGB, GL_TEXTURE_CUBE_MAP}
 {
-    glGenTextures(1, &_id);
-    bind();
-    int width, height, nrChannels;
-    unsigned char *data;
-    std::vector<std::string> faces{
-		"right." + fileExt,
-		"left." + fileExt,
-		"top." + fileExt,
-		"bottom." + fileExt,
-		"front." + fileExt,
-		"back." + fileExt
-	};
+}
+
+std::shared_ptr<lithium::Cubemap> lithium::Cubemap::load(const std::vector<std::string>& faces)
+{
+    auto cubemap = std::shared_ptr<lithium::Cubemap>(new lithium::Cubemap());
+    cubemap->bind();
     stbi_set_flip_vertically_on_load(false);
-    for(unsigned int i = 0; i < 6; i++)
+    for(int i = 0; i < faces.size(); i++)
     {
-        std::stringstream ss{};
-        ss << fileName << "/" << faces[i];
-        data = stbi_load(ss.str().c_str(), &width, &height, &nrChannels, 0);
+        int width, height, nrChannels;
+        unsigned char* buffer = stbi_load(faces.at(i).c_str(), &width, &height, &nrChannels, 0);
         glTexImage2D(
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
-            0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+            0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer
         );
-        stbi_image_free(data);
+        stbi_image_free(buffer);
     }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    unbind();
+    cubemap->setFilter(GL_LINEAR);
+    cubemap->setWrap(GL_CLAMP_TO_EDGE);
+    cubemap->unbind();
+    return cubemap;
 }
 
-lithium::Cubemap::~Cubemap()
+lithium::Cubemap::~Cubemap() noexcept
 {
 
 }
 
+/*
 void lithium::Cubemap::draw(Camera* camera)
 {
     glDepthFunc(GL_LEQUAL);
     _shaderProgram->use();
     // ... set view and projection matrix
     //glBindVertexArray(skyboxVAO);
-
-    /*
     
-        TODO: See this next line has been commented out and its not good.
+    //    TODO: See this next line has been commented out and its not good.
 
-    */
 
     //glUniformMatrix4fv(glGetUniformLocation(_shaderProgram->id(), "u_camera"), 1, GL_FALSE, glm::value_ptr(camera->rotationMatrix()));
 
@@ -65,13 +54,4 @@ void lithium::Cubemap::draw(Camera* camera)
     glDepthFunc(GL_LESS);
     unbind();
 }
-
-void lithium::Cubemap::bind()
-{
-    glBindTexture(GL_TEXTURE_CUBE_MAP, _id);
-}
-
-void lithium::Cubemap::unbind()
-{
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-}
+*/

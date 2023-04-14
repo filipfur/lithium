@@ -167,6 +167,12 @@ namespace lithium
             return this;
         }
 
+        RenderPipeline* enableMultisampling()
+        {
+            glEnable(GL_MULTISAMPLE);
+            return this;
+        }
+
         RenderPipeline* stencilFunc(GLenum func, GLint ref, GLuint mask=0xFF)
         {
             glStencilFunc(func, ref, mask);
@@ -257,6 +263,14 @@ namespace lithium
         RenderPipeline* enableColorWriting()
         {
             return colorMask(true);
+        }
+
+        void activeTexture(GLuint textureUnit)
+        {
+            if(!lithium::Texture<unsigned char>::activate(textureUnit)) // Lets not trust this so if it fail we set it anyway.
+            {
+                glActiveTexture(textureUnit);
+            }
         }
 
         glm::ivec2 _resolution;

@@ -12,24 +12,19 @@ namespace lithium
     class FrameBuffer : public Element
     {
     public:
-        enum class Mode
-        {
-            DEFAULT,
-            MULTISAMPLED
-        };
 
-        FrameBuffer(const glm::ivec2& resolution, Mode mode=Mode::DEFAULT);
+        FrameBuffer(const glm::ivec2& resolution);
         virtual ~FrameBuffer() noexcept;
 
         virtual void bind() override;
 
         virtual void unbind() override;
 
-        void createRenderBuffer(lithium::RenderBuffer::Mode mode, GLenum internalFormat=GL_DEPTH24_STENCIL8, GLenum attachment=GL_DEPTH_STENCIL_ATTACHMENT);
+        void createRenderBuffer(GLenum internalFormat=GL_DEPTH24_STENCIL8, GLenum attachment=GL_DEPTH_STENCIL_ATTACHMENT, bool multisampled=false);
 
         void attach(RenderBuffer* renderBuffer, GLenum attachment);
 
-        void createTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0, GLuint internalFormat=GL_RGB, GLuint format=GL_RGB, GLuint type=GL_UNSIGNED_BYTE);
+        void createTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0, GLuint internalFormat=GL_RGB, GLuint format=GL_RGB, GLuint type=GL_UNSIGNED_BYTE, GLenum texTarget=GL_TEXTURE_2D);
 
         void bindTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0, GLuint textureUnit=GL_TEXTURE0);
 
@@ -38,6 +33,8 @@ namespace lithium
         void bindAsReadBuffer();
 
         void bindAsDrawBuffer();
+
+        void checkStatus();
 
         std::shared_ptr<lithium::Texture<unsigned char>> texture(GLuint colorAttachment)
         {
@@ -53,7 +50,6 @@ namespace lithium
     private:
         static FrameBuffer* _bound;
         glm::ivec2 _resolution;
-        Mode _mode;
         GLuint _colorAttachment;
         std::map<GLuint, std::shared_ptr<lithium::Texture<unsigned char>>> _textures;
     };

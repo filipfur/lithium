@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include "glelement.h"
 #include <glm/glm.hpp>
@@ -10,23 +11,28 @@ namespace lithium
 	class Texture : public Element
 	{
 	public:
-		Texture(T* buffer, int width, int height, GLenum type=GL_UNSIGNED_BYTE, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint unpackAlignment=4, GLenum textureMode=GL_TEXTURE_2D, GLuint samples=4)
-			: _bytes{buffer}, _width{width}, _height{height}, _colorFormat{colorFormat}, _textureMode{textureMode}
+		Texture(T* buffer, int width, int height, GLenum type=GL_UNSIGNED_BYTE,
+			GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA,
+			GLenum textureMode=GL_TEXTURE_2D, GLuint samples=4)
+			: _bytes{buffer}, _width{width}, _height{height}, _textureMode{textureMode}
 		{
 			glGenTextures(1, &_id);
-			setUnpackAlignment(unpackAlignment);
 			bind();
 			switch(_textureMode)
 			{
+				default:
 				case GL_TEXTURE_2D:
 					glTexImage2D(_textureMode, 0, internalFormat, _width, _height, 0, colorFormat, type, _bytes);
 					break;
 				case GL_TEXTURE_2D_MULTISAMPLE:
 					glTexImage2DMultisample(_textureMode, samples, internalFormat, _width, _height, GL_TRUE);
 					break;
+				case GL_TEXTURE_CUBE_MAP:
+					break;
 			}
-			unbind();
+			setUnpackAlignment();
 			setFilter()->setWrap();
+			unbind();
 		}
 
 		virtual ~Texture() noexcept
@@ -51,22 +57,19 @@ namespace lithium
 			return this;
 		}
 
-		Texture* setFilter(GLenum filter) { return setFilter(filter, filter); }
+		Texture* setFilter(GLenum filter=GL_LINEAR) { return setFilter(filter, filter); }
 
-		Texture* setFilter() { return setFilter(GL_LINEAR, GL_LINEAR); }
-
-		Texture* setWrap(GLenum wrapS, GLenum wrapT)
+		Texture* setWrap(GLenum wrapS, GLenum wrapT, GLenum wrapR)
 		{
 			bind();
 			glTexParameteri(_textureMode, GL_TEXTURE_WRAP_S, wrapS);
 			glTexParameteri(_textureMode, GL_TEXTURE_WRAP_T, wrapT);
+			glTexParameteri(_textureMode, GL_TEXTURE_WRAP_R, wrapR);
 			unbind();
 			return this;
 		}
 
-		Texture* setWrap(GLenum wrap) { return setWrap(wrap, wrap); }
-
-		Texture* setWrap() { return setWrap(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE); }
+		Texture* setWrap(GLenum wrap=GL_CLAMP_TO_EDGE) { return setWrap(wrap, wrap, wrap); }
 
 		Texture* generateMipmap()
 		{
@@ -103,27 +106,15 @@ namespace lithium
 			return _height;
 		}
 
-		void subdivide(size_t x, size_t y) // not tested
-		{
-			_regionSize.x = _width / x;
-			_regionSize.y = _height / y;
-			for(int j=0; j < y; ++j)
-			{
-				for(int i=0; i < x; ++i)
-				{
-					glTexSubImage2D(_textureMode, 0, i * _regionSize.x, j * _regionSize.y, _regionSize.x, _regionSize.y, _colorFormat, GL_UNSIGNED_BYTE, _bytes );
-				}
-			}
-			_atlas = true;
-		}
-
-		static void activate(GLuint textureUnit)
+		static bool activate(GLuint textureUnit)
 		{
 			if(_active != textureUnit)
 			{
 				glActiveTexture(textureUnit);
 				_active = textureUnit;
+				return true;
 			}
+			return false;
 		}
 
 		virtual void unbind() override
@@ -160,7 +151,6 @@ namespace lithium
 		int _width;
 		int _height;
 		GLenum _textureMode;
-		GLuint _colorFormat;
 		inline static GLuint _active{0};
 		inline static const Texture* _bound[32] = {};
 		/*static_assert(_bound[1] == nullptr);
