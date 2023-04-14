@@ -14,6 +14,12 @@ namespace lithium
 
         virtual void draw() const = 0;
 
+        void render(lithium::ShaderProgram* shaderProgram)
+        {
+            shade(shaderProgram);
+            draw();
+        }
+
         // Constructor that counts number of Renderables created
         Renderable() noexcept
         {
