@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(lithium VERSION 1.0.0 DESCRIPTION "Lightweight C++/OpenGL game engine.")
 
 add_library(lithium STATIC 
-    dep/glad/src/glad.c 
+    dep/glad_opengl_4_6/src/glad.c 
     src/gldebugostream.cpp
     src/glanimatedobject.cpp
     src/glcamera.cpp
@@ -46,7 +46,7 @@ target_include_directories(lithium PUBLIC
     include/lithium/collision
     include/lithium/ecs
     include/lithium
-    dep/glad/include
+    dep/glad_opengl_4_6/include
     dep/glm
     dep/json/include
     dep/tinyobjloader

@@ -35,7 +35,7 @@ namespace lithium
         std::shared_ptr<lithium::ShaderProgram> _textShader;
 
         inline static const std::string vertexSource{
-"#version 330 core\n"
+"#version 460 core\n"
 "layout (location = 0) in vec4 aVertex;\n"
 "uniform mat4 u_camera;\n"
 "uniform mat4 u_model;\n"
@@ -50,7 +50,7 @@ namespace lithium
         };
 
         inline static const std::string fragmentSource{
-"#version 330 core\n"
+"#version 460 core\n"
 "out vec4 FragColor;\n"
 "uniform vec4 u_color;\n"
 "uniform sampler2D u_texture;\n"
