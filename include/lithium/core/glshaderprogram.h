@@ -13,6 +13,8 @@ namespace lithium
 	public:
 		ShaderProgram(const ShaderProgram& other);
 
+		ShaderProgram(const std::string& computeShaderFile);
+
 		ShaderProgram(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
 
 		ShaderProgram(const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::string& geometryShaderFile);
@@ -20,6 +22,8 @@ namespace lithium
 		ShaderProgram(std::shared_ptr<Shader<GL_VERTEX_SHADER>> vertexShader,
 			std::shared_ptr<Shader<GL_FRAGMENT_SHADER>> fragmentShader,
 			std::shared_ptr<Shader<GL_GEOMETRY_SHADER>> geometryShader=nullptr);
+
+		ShaderProgram(std::shared_ptr<Shader<GL_COMPUTE_SHADER>> computeShader);
 
 		void use();
 
@@ -34,6 +38,20 @@ namespace lithium
 		{
 
 		}
+
+		template <GLuint T>
+		bool recompile(std::shared_ptr<lithium::Shader<T>> shader)
+		{
+			bool compiledShader = false;
+			if(shader && !shader->valid())
+			{
+				shader->compile();
+				compiledShader = true;
+			}
+			return compiledShader;
+		}
+
+		void dispatchCompute(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
 
 		GLuint loadUniform(const std::string& name);
 
@@ -117,6 +135,8 @@ namespace lithium
 			glDeleteProgram(_id);
 		}
 
+		bool checkStatus();
+
 		static const GLuint INVALID_LOCATION{0xffffffff};
 
 	private:
@@ -128,6 +148,7 @@ namespace lithium
 		std::shared_ptr<Shader<GL_VERTEX_SHADER>> _vertexShader{nullptr};
 		std::shared_ptr<Shader<GL_FRAGMENT_SHADER>> _fragmentShader{nullptr};
 		std::shared_ptr<Shader<GL_GEOMETRY_SHADER>> _geometryShader{nullptr};
+		std::shared_ptr<Shader<GL_COMPUTE_SHADER>> _computeShader{nullptr};
 		std::map<std::string, GLuint> _uniforms;
 		static unsigned int _bindCount;
 		static lithium::ShaderProgram* _inUse;

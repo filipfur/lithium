@@ -130,7 +130,11 @@ namespace lithium
 			return binds;
 		}
 
-	protected:
+		void bindImageTexture(GLuint unit, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format)
+		{
+			glBindImageTexture(unit, _id, level, layered, layer, access, format);
+		}
+
 		virtual void bind() override
 		{
 			if(_active == 0)
@@ -145,6 +149,7 @@ namespace lithium
 				++_bindCount;
 			}
 		}
+	protected:
 
 	private:
 		T* _bytes;

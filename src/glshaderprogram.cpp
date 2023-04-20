@@ -16,6 +16,11 @@ lithium::ShaderProgram::ShaderProgram(const std::string& vertexShaderFile, const
 {
 }
 
+lithium::ShaderProgram::ShaderProgram(const std::string& computeShaderFile)
+    : ShaderProgram{std::shared_ptr<lithium::Shader<GL_COMPUTE_SHADER>>(lithium::Shader<GL_COMPUTE_SHADER>::fromFile(computeShaderFile))}
+{
+}
+
 lithium::ShaderProgram::ShaderProgram(const std::string& vertexShaderFile, const std::string& fragmentShaderFile, const std::string& geometryShaderFile)
     : ShaderProgram{
         std::shared_ptr<lithium::Shader<GL_VERTEX_SHADER>>(lithium::Shader<GL_VERTEX_SHADER>::fromFile(vertexShaderFile)),
@@ -34,15 +39,15 @@ lithium::ShaderProgram::ShaderProgram(std::shared_ptr<lithium::Shader<GL_VERTEX_
     link();
 }
 
-void lithium::ShaderProgram::link()
+lithium::ShaderProgram::ShaderProgram(std::shared_ptr<lithium::Shader<GL_COMPUTE_SHADER>> computeShader)
+    : _computeShader{computeShader}
 {
-    glAttachShader(_id, _vertexShader->id());
-    glAttachShader(_id, _fragmentShader->id());
-    if(_geometryShader)
-    {
-        glAttachShader(_id, _geometryShader->id());
-    }
-    glLinkProgram(_id);
+    _id = glCreateProgram();
+    link();
+}
+
+bool lithium::ShaderProgram::checkStatus()
+{
     GLint result = GL_FALSE;
     glGetProgramiv(_id, GL_LINK_STATUS, &result);
     int info_log_length = 1024;
@@ -51,9 +56,41 @@ void lithium::ShaderProgram::link()
     {
         glGetProgramInfoLog(_id, info_log_length, NULL, infoLog);
         std::cerr << "ERROR::During link of ShaderProgram\n" << infoLog << "\n ******************************** " << std::endl;
-        std::cerr << "File: " << _vertexShader->fileName() << std::endl;
-        std::cerr << "File: " << _fragmentShader->fileName() << std::endl;
-        exit(1);
+    }
+    return result;
+}
+
+void lithium::ShaderProgram::dispatchCompute(unsigned int num_groups_x, unsigned int num_groups_y, unsigned int num_groups_z)
+{
+    use();
+    glDispatchCompute(num_groups_x, num_groups_y, num_groups_z);
+}
+
+void lithium::ShaderProgram::link()
+{
+    if(_computeShader)
+    {
+        glAttachShader(_id, _computeShader->id());
+        glLinkProgram(_id);
+        if(!checkStatus())
+        {
+            std::cerr << "File: " << _computeShader->fileName() << std::endl;
+        }
+    }
+    else
+    {
+        glAttachShader(_id, _vertexShader->id());
+        glAttachShader(_id, _fragmentShader->id());
+        if(_geometryShader)
+        {
+            glAttachShader(_id, _geometryShader->id());
+        }
+        glLinkProgram(_id);
+        if(!checkStatus())
+        {
+            std::cerr << "File: " << _vertexShader->fileName() << std::endl;
+            std::cerr << "File: " << _fragmentShader->fileName() << std::endl;
+        }
     }
     for(auto&& pair : _intCache)
     {
@@ -101,21 +138,10 @@ GLuint lithium::ShaderProgram::loadUniform(const std::string &name)
 void lithium::ShaderProgram::use()
 {
     bool compiledShader{false};
-    if(!_fragmentShader->valid())
-    {
-        _fragmentShader->compile();
-        compiledShader = true;
-    }
-    if(!_vertexShader->valid())
-    {
-        _vertexShader->compile();
-        compiledShader = true;
-    }
-    if(_geometryShader && !_geometryShader->valid())
-    {
-        _geometryShader->compile();
-        compiledShader = true;
-    }
+    compiledShader |= recompile(_vertexShader);
+    compiledShader |= recompile(_fragmentShader);
+    compiledShader |= recompile(_geometryShader);
+    compiledShader |= recompile(_computeShader);
     if(compiledShader)
     {
         link();
