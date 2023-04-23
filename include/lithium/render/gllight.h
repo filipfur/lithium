@@ -8,31 +8,33 @@ namespace lithium
     class Light : public Object
     {
     public:
-        Light(std::shared_ptr<lithium::Mesh> mesh);
+        Light(std::shared_ptr<lithium::Mesh> mesh=nullptr, const std::vector<Object::TexturePointer>& textures={});
         Light(const Light& other);
         Light(const Object& other);
         virtual ~Light() noexcept;
 
-        
-
-        void attachShader(lithium::ShaderProgram* shaderProgram)
+        void setLightColor(const glm::vec3& lightColor)
         {
-            _attachedShaders.push_back(shaderProgram);
+            _lightColor = lightColor;
+        }
+
+        void setIntensity(float intensity)
+        {
+            _intensity = intensity;
+        }
+
+        const glm::vec3& lightColor() const
+        {
+            return _lightColor;
+        }
+
+        float intensity() const
+        {
+            return _intensity;
         }
 
     protected:
-        virtual void updateModel() override
-        {
-            lithium::Object::updateModel();
-            for(auto shader : _attachedShaders)
-            {
-                shader->use();
-                shader->setUniform("u_light_position", position());
-                shader->setUniform("u_light_color", color());
-            }    
-        }
-
-    private:
-        std::vector<lithium::ShaderProgram*> _attachedShaders;
+        glm::vec3 _lightColor{1.0f, 1.0f, 1.0f};
+        float _intensity{1.0f};
     };
 }

@@ -7,10 +7,7 @@
 #include <glad/glad.h>
 #include <vector>
 
-#ifdef _WIN32
-#include <filesystem>
-#include "FileWatch.hpp"
-#endif
+#include "glfilewatch.h"
 
 namespace lithium
 {
@@ -28,15 +25,13 @@ namespace lithium
 		{
 			_id = glCreateShader(T);
 			compile();
-			#ifdef _WIN32
-			_watch = std::make_shared<filewatch::FileWatch<std::string>>(
-				"./" + _fileName, 
-				[this](const std::string& path, const filewatch::Event change_type) {
+			_watch = lithium::FileWatch::start(
+				_fileName, 
+				[this](const std::filesystem::path& path) {
 					std::cout << "Shader updated: " << _fileName << std::endl;
 					_valid = false;		
 				}
 			);
-			#endif
 		}
 
 		static lithium::Shader<T>* fromFile(const std::string& fileName)
@@ -88,9 +83,7 @@ namespace lithium
 		~Shader() noexcept
 		{
 			glDeleteShader(_id);
-			#ifdef _WIN32
 			_watch = nullptr;
-			#endif
 		}
 
 		bool valid() const
@@ -122,8 +115,6 @@ namespace lithium
 		bool _valid{true};
 		std::string _source;
 		std::string _fileName;
-		#ifdef _WIN32
-		std::shared_ptr<filewatch::FileWatch<std::string>> _watch{nullptr};
-		#endif
+		std::shared_ptr<lithium::FileWatch> _watch{nullptr};
 	};
 }

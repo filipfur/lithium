@@ -194,6 +194,11 @@ namespace lithium
             return _window;
         }
 
+        void close()
+        {            
+            glfwSetWindowShouldClose(_window, true);
+        }
+
     private:
         std::shared_ptr<lithium::Input> _input{nullptr};
         glm::ivec2 _windowResolution;

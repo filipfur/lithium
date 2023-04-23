@@ -32,6 +32,7 @@ add_library(lithium STATIC
     src/ecs.cpp
     src/utility.cpp
     src/glrenderable.cpp
+    src/glfilewatch.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
@@ -50,7 +51,6 @@ target_include_directories(lithium PUBLIC
     dep/glm
     dep/json/include
     dep/tinyobjloader
-    dep/filewatch
     dep/miniaudio
 )
 

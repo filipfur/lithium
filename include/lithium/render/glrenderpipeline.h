@@ -17,13 +17,6 @@ namespace lithium
 
         }
 
-        std::shared_ptr<lithium::RenderGroup> createRenderGroup(const lithium::RenderGroup::ContainerType& renderables)
-        {
-            std::shared_ptr<lithium::RenderGroup> renderGroup = std::make_shared<RenderGroup>([](lithium::Renderable* renderable){return false;}, renderables);
-            _renderGroups.push_back(renderGroup);
-            return renderGroup;
-        }
-
         std::shared_ptr<lithium::RenderGroup> createRenderGroup(const lithium::RenderGroup::FilterType& filter)
         {
             std::shared_ptr<lithium::RenderGroup> renderGroup = std::make_shared<RenderGroup>(filter);
@@ -50,19 +43,22 @@ namespace lithium
             glViewport(0, 0, _resolution.x, _resolution.y);
         }
 
-        void addRenderable(lithium::Renderable* renderable)
+        void attach(lithium::Renderable* renderable)
         {
             for(auto renderGroup : _renderGroups)
             {
-                renderGroup->filteredPushBack(renderable);
+                if(renderGroup->filter(renderable))
+                {
+                    renderable->attach(renderGroup.get());
+                }
             }
         }
 
-        void addRenderables(const std::initializer_list<lithium::Renderable*>& renderables)
+        void attach(const std::initializer_list<lithium::Renderable*>& renderables)
         {
             for(auto renderable : renderables)
             {
-                addRenderable(renderable);
+                attach(renderable);
             }
         }
 

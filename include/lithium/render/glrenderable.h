@@ -3,7 +3,7 @@
 #include <memory>
 #include <unordered_set>
 #include "glshaderprogram.h"
-#include "glirenderable.h"
+#include "glirendergroup.h"
 
 namespace lithium
 {
@@ -21,7 +21,7 @@ namespace lithium
         }
 
         // Constructor that counts number of Renderables created
-        Renderable() noexcept
+        Renderable()
         {
             ++_countRenderables;
         }
@@ -30,29 +30,65 @@ namespace lithium
         {
             for(auto iRenderable : _iRenderables)
             {
-                iRenderable->onRenderableRemoved(this);
+                iRenderable->remove(this);
             }
             _iRenderables.clear();
         }
 
-        void registerRenderGroup(lithium::IRenderable* iRenderable)
+        void attach(lithium::IRenderGroup* iRenderable)
         {
             _iRenderables.emplace(iRenderable);
         }
         
-        std::unordered_set<lithium::IRenderable*>::iterator unregisterRenderGroup(lithium::IRenderable* iRenderable)
+        std::unordered_set<lithium::IRenderGroup*>::iterator detach(lithium::IRenderGroup* iRenderable)
         {
-            iRenderable->onRenderableRemoved(this);
+            iRenderable->remove(this);
             auto it = _iRenderables.find(iRenderable);
             return _iRenderables.erase(it);
         }
 
-        void unregisterRenderGroups()
+        bool isAttached(lithium::IRenderGroup* iRenderable)
+        {
+            return _iRenderables.find(iRenderable) != _iRenderables.end();
+        }
+
+        bool isAttached(std::shared_ptr<lithium::IRenderGroup> iRenderable)
+        {
+            return isAttached(iRenderable.get());
+        }
+
+        bool hasAttachments()
+        {
+            return !_iRenderables.empty();
+        }
+
+        int numAttachments()
+        {
+            return _iRenderables.size();
+        }
+
+        void detachAll()
         {
             auto it = _iRenderables.begin();
             while(it != _iRenderables.end())
             {
-                it = unregisterRenderGroup(*it);
+                it = detach(*it);
+            }
+        }
+
+        void stage()
+        {
+            for(auto iRenderable : _iRenderables)
+            {
+                iRenderable->add(this);
+            }
+        }
+
+        void unstage()
+        {
+            for(auto iRenderable : _iRenderables)
+            {
+                iRenderable->remove(this);
             }
         }
 
@@ -61,8 +97,19 @@ namespace lithium
             return _countRenderables;
         }
 
+        void setGroupId(int groupId)
+        {
+            _groupId = groupId;
+        }
+
+        int groupId() const
+        {
+            return _groupId;
+        }
+
     private:
-        std::unordered_set<lithium::IRenderable*> _iRenderables;
+        int _groupId{0};
+        std::unordered_set<lithium::IRenderGroup*> _iRenderables;
         static int _countRenderables;
     };
 }

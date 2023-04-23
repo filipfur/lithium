@@ -6,7 +6,7 @@
 
 namespace lithium
 {
-    class RenderGroup : public lithium::IRenderable
+    class RenderGroup : public lithium::IRenderGroup
     {
     public:
         using FilterType = std::function<bool(lithium::Renderable*)>;
@@ -14,17 +14,8 @@ namespace lithium
 
         RenderGroup(const FilterType& filter) : _filter{filter}
         {
-
-        }
-
-        RenderGroup(const FilterType& filter, 
-            const ContainerType& renderables)
-            : RenderGroup{filter}
-        {
-            for(auto renderable : renderables)
-            {
-                filteredPushBack(renderable);
-            }
+            static int nextId{0};
+            _id = nextId++;
         }
 
         virtual ~RenderGroup() noexcept
@@ -32,7 +23,7 @@ namespace lithium
             auto it = _renderables.begin();
             while(it != _renderables.end())
             {
-                (*it)->unregisterRenderGroup(this);
+                (*it)->detach(this);
                 it = _renderables.begin();
             }
             _renderables.clear();
@@ -46,39 +37,14 @@ namespace lithium
             }
         }
 
-        void pushBack(lithium::Renderable* renderable)
+        virtual void add(lithium::Renderable* renderable) override
         {
             _renderables.emplace(renderable);
-            renderable->registerRenderGroup(this);
         }
 
-        /*void insertMany(const ContainerType& list)
+        bool filter(lithium::Renderable* renderable)
         {
-            _renderables.emplace(_renderables.end(), list.begin(), list.end());
-        }*/
-
-        bool filteredPushBack(lithium::Renderable* renderable)
-        {
-            if(_filter(renderable))
-            {
-                pushBack(renderable);
-                return true;
-            }
-            return false;
-        }
-
-        bool filteredInsertMany(const ContainerType& renderables)
-        {
-            bool insertedAny{false};
-            for(auto renderable : renderables)
-            {
-                if(_filter(renderable))
-                {
-                    pushBack(renderable);
-                    insertedAny = true;
-                }
-            }
-            return insertedAny;
+            return _filter(renderable);
         }
 
         void render(lithium::ShaderProgram* shaderProgram)
@@ -89,8 +55,13 @@ namespace lithium
                 renderable->draw();
             }
         }
+
+        void render(std::shared_ptr<lithium::ShaderProgram> shaderProgram)
+        {
+            render(shaderProgram.get());
+        }
         
-        virtual void onRenderableRemoved(Renderable* renderable)
+        virtual void remove(Renderable* renderable) override
         {
             //_renderables.erase(std::find_if(_renderables.begin(), _renderables.end(), renderable));
             _renderables.erase(renderable);
@@ -101,7 +72,23 @@ namespace lithium
             return _renderables.size();
         }
 
+        int id() const
+        {
+            return _id;
+        }
+
+        ContainerType::iterator begin()
+        {
+            return _renderables.begin();
+        }
+
+        ContainerType::iterator end()
+        {
+            return _renderables.end();
+        }
+
     private:
+        int _id;
         FilterType _filter;
         ContainerType _renderables;
     };

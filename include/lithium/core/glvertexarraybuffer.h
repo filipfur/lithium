@@ -138,14 +138,14 @@ namespace lithium
 		void linkAttributes(const std::vector<AttributePointer2>& attribPtrs)
 		{
 			GLuint stride = 0;
-			int offset = 0;
+			GLsizei offset = 0;
 			std::for_each(attribPtrs.begin(), attribPtrs.end(), [&stride](AttributePointer2 attribPtr){
 				stride += attribPtr.size();
 			});
 			for(int i{0}; i < attribPtrs.size(); ++i)
             {
 				const AttributePointer2& attribPtr = attribPtrs.at(i);
-                linkAttribPointer(i, attribPtr.components(), attribPtr.type(), stride, (void*) offset);
+                linkAttribPointer(i, attribPtr.components(), attribPtr.type(), stride, (void*)(intptr_t) offset);
 				offset += attribPtr.size();
 				_componentCount += attribPtr.components();
             }

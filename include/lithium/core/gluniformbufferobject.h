@@ -8,10 +8,10 @@ namespace lithium
     class UniformBufferObject : public Buffer
     {
     public:
-        UniformBufferObject(GLuint size, const std::string& label, GLuint layout) : Buffer{GL_UNIFORM_BUFFER}, _label{label}, _layout{layout}
+        UniformBufferObject(size_t size, const std::string& label, GLuint layout) : Buffer{GL_UNIFORM_BUFFER}, _label{label}, _layout{layout}
         {
             bind();
-            glBufferData(type(), size, 0, GL_STATIC_DRAW);
+            glBufferData(type(), static_cast<GLsizeiptr>(size), 0, GL_STATIC_DRAW);
             unbind();
         }
 
