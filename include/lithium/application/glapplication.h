@@ -27,8 +27,13 @@ namespace lithium
             bool fullscreen=false) : _windowResolution{windowResolution}, _mode(mode), _fullscreen{fullscreen}
         {
             glfwInit();
+#ifdef __APPLE__
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+#else
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+#endif
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             //glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
             switch(mode)

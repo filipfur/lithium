@@ -5,8 +5,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(lithium VERSION 1.0.0 DESCRIPTION "Lightweight C++/OpenGL game engine.")
 
+set(GLAD_DIR dep/glad_opengl_4_6)
+
+if (apple)
+    set(GLAD_DIR dep/glad_opengl_3_3)
+endif()
+
 add_library(lithium STATIC 
-    dep/glad_opengl_4_6/src/glad.c 
+    ${GLAD_DIR}/src/glad.c
     src/gldebugostream.cpp
     src/glanimatedobject.cpp
     src/glcamera.cpp
@@ -36,7 +42,6 @@ add_library(lithium STATIC
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
-
 set_target_properties(lithium PROPERTIES SOVERSION 1)
 
 target_include_directories(lithium PUBLIC
@@ -47,7 +52,7 @@ target_include_directories(lithium PUBLIC
     include/lithium/collision
     include/lithium/ecs
     include/lithium
-    dep/glad_opengl_4_6/include
+    ${GLAD_DIR}/include
     dep/glm
     dep/json/include
     dep/tinyobjloader
