@@ -1,5 +1,7 @@
 #include "glfilewatch.h"
 
+#include <iostream>
+
 namespace
 {
     static std::thread thread;
@@ -7,6 +9,7 @@ namespace
     static bool running = false;
     static int watchIndex{0};
     static std::vector<std::shared_ptr<lithium::FileWatch>> watches;
+    static std::atomic<int> _numWatches{0};
 }
 
 void watchThread()
@@ -14,6 +17,10 @@ void watchThread()
     while (running)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if(!running)
+        {
+            break;
+        }
         std::lock_guard<std::mutex> lock(mutex);
         std::shared_ptr<lithium::FileWatch> watch = watches[watchIndex];
         watch->update();
@@ -25,6 +32,7 @@ void addWatch(std::shared_ptr<lithium::FileWatch> watch)
 {
     std::lock_guard<std::mutex> lock(mutex);
     watches.push_back(watch);
+    ++_numWatches;
 }
 
 lithium::FileWatch::FileWatch(fs::path path, std::function<void(const fs::path&)> callback) : _path{path}, _callback{callback}
@@ -40,10 +48,22 @@ lithium::FileWatch::FileWatch(fs::path path, std::function<void(const fs::path&)
 
 lithium::FileWatch::~FileWatch() noexcept
 {
-    std::lock_guard<std::mutex> lock(mutex);
-    
-    watches.erase(std::remove_if(watches.begin(), watches.end(), [this](std::shared_ptr<lithium::FileWatch> watch) { return watch->_id == _id; }), watches.end());
+    if(!_stopped)
+    {
+        running = false;
+        --_numWatches;
+        if(_numWatches == 0)
+        {
+            thread.join();
+        }
+    }
+}
 
+void lithium::FileWatch::stop()
+{
+    _stopped = true;
+    std::lock_guard<std::mutex> lock(mutex);
+    watches.erase(std::remove_if(watches.begin(), watches.end(), [this](std::shared_ptr<lithium::FileWatch> watch) { return watch->_id == _id; }), watches.end());
     if(watches.size() == 0)
     {
         running = false;

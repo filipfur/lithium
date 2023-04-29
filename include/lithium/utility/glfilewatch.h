@@ -34,6 +34,8 @@ namespace lithium
         static std::shared_ptr<FileWatch> start(fs::path path, std::function<void(const fs::path&)> callback);
 
         FileWatch(fs::path path, std::function<void(const fs::path&)> callback);
+
+        void stop();
     
     private:        
         FileWatch() = default;
@@ -46,5 +48,6 @@ namespace lithium
         fs::path _path;
         std::function<void(const fs::path&)> _callback;
         fs::file_time_type _lastWriteTime;
+        bool _stopped{false};
     };
 }
