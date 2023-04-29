@@ -1,14 +1,14 @@
 #pragma once
 
-#include "glabstractbb.h"
+#include "glgeometry.h"
 
 namespace lithium
 {
-    class AABB : public AbstractBB
+    class AABB : public Geometry
     {
     public:
         AABB(const glm::vec3 &position, const glm::vec3 &a, const glm::vec3 &b)
-            : AbstractBB{position}, _a{a}, _b{b},
+            : Geometry{position}, _a{a}, _b{b},
               _dimensions{abs(b - a)},
               _halfExtents{_dimensions * 0.5f},
               _center{position + a + _dimensions * 0.5f}
@@ -16,7 +16,7 @@ namespace lithium
         }
 
         AABB(const AABB &other)
-            : AbstractBB{other}, _a{other._a}, _b{other._b},
+            : Geometry{other}, _a{other._a}, _b{other._b},
               _dimensions{other._dimensions}, _halfExtents{other._halfExtents},
               _center{other._center}
         {
@@ -74,6 +74,17 @@ namespace lithium
         glm::vec3 dimensions() const
         {
             return _dimensions;
+        }
+
+        virtual bool intersect(const glm::vec3& point) const override;
+
+        virtual bool intersect(const class AABB& aabb, Collision& collision) const override;
+
+        virtual bool intersect(const class Sphere& sphere, Collision& collision) const override;
+
+        virtual bool test(const Geometry& other, Collision& collision) const override
+        {
+            return other.intersect(*this, collision);
         }
 
     private:

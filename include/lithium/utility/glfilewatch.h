@@ -16,6 +16,7 @@ namespace fs = boost::filesystem;
 #endif
 
 #include <vector>
+#include <algorithm>
 #include <memory>
 #include <functional>
 #include <thread>

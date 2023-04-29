@@ -6,6 +6,7 @@
 #include "ecscomponent.h"
 #include "ecsentity.h"
 #include "glmesh.h"
+#include "gltexture.h"
 
 namespace lithium
 {

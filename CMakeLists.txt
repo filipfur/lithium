@@ -39,6 +39,9 @@ add_library(lithium STATIC
     src/utility.cpp
     src/glrenderable.cpp
     src/glfilewatch.cpp
+    src/glaabb.cpp
+    src/glsphere.cpp
+    src/glscene.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
