@@ -10,6 +10,12 @@ namespace lithium
     class Renderable
     {
     public:
+        Renderable(const Renderable& other)
+        {
+            _visible = other._visible;
+            _groupId = other._groupId;
+        }
+
         virtual void shade(lithium::ShaderProgram* shaderProgram) = 0;
 
         virtual void draw() const = 0;
@@ -34,6 +40,17 @@ namespace lithium
             }
             _iRenderables.clear();
         }
+
+        virtual lithium::Renderable* setVisible(bool visible)
+		{
+			_visible = visible;
+			return this;
+		}
+
+		bool visible() const
+		{
+			return _visible;
+		}
 
         void attach(lithium::IRenderGroup* iRenderable)
         {
@@ -111,5 +128,6 @@ namespace lithium
         int _groupId{0};
         std::unordered_set<lithium::IRenderGroup*> _iRenderables;
         static int _countRenderables;
+        bool _visible{true};
     };
 }

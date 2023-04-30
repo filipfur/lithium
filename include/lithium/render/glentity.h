@@ -29,6 +29,11 @@ namespace lithium
             set<lithium::Entity::ModelMatrix>(glm::mat4{1.0f});
         }
 
+        Entity(const Entity& other) : ecs::Entity{other}, lithium::Renderable{other}, _mesh{other._mesh}, _textures{other._textures}, _color{other._color}
+        {
+
+        }
+
         virtual ~Entity() noexcept
         {
 
@@ -36,7 +41,7 @@ namespace lithium
 
         virtual void draw() const override
         {
-            if(_visible)
+            if(visible())
             {
                 for(int i{0}; i < _textures.size(); ++i)
                 {
@@ -49,7 +54,7 @@ namespace lithium
 
 		virtual void shade(lithium::ShaderProgram* shaderProgram) override
         {
-            if(_visible)
+            if(visible())
             {
                 shaderProgram->use();
                 shaderProgram->setUniform("u_color", _color);
@@ -104,16 +109,6 @@ namespace lithium
             return *get<lithium::Entity::Scale>();
         }
 
-        void setVisible(bool visible)
-        {
-            _visible = visible;
-        }
-
-        bool visible() const
-        {
-            return _visible;
-        }
-
         void setColor(const glm::vec4& color)
         {
             _color = color;
@@ -133,8 +128,7 @@ namespace lithium
 
     private:
         std::shared_ptr<lithium::Mesh> _mesh{nullptr};
-		bool _visible{true};
-		glm::vec4 _color{1.0f};
         std::vector<TexturePointer> _textures;
+		glm::vec4 _color{1.0f};
     };
 }

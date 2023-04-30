@@ -106,17 +106,6 @@ namespace lithium
 			_mesh = mesh;
 		}
 
-		virtual lithium::Object* setVisible(bool visible)
-		{
-			_visible = visible;
-			return this;
-		}
-
-		bool visible() const
-		{
-			return _visible;
-		}
-
 		lithium::Object* setOpacity(float opacity)
 		{
 			_color.a = opacity;
@@ -232,7 +221,6 @@ namespace lithium
 		glm::vec3 _rotation{0.0f};
 		glm::vec3 _scale{1.0f};
 		glm::mat4 _model{1.0f};
-		bool _visible{true};
 		glm::vec4 _color{1.0f};
         std::vector<TexturePointer> _textures;
 		std::shared_ptr<std::string> _objectName;

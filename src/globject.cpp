@@ -7,14 +7,15 @@ lithium::Object::Object(std::shared_ptr<lithium::Mesh> mesh, const std::vector<l
     updateModel();
 }
 
-lithium::Object::Object(const lithium::Object& other) : Object{other._mesh, other._textures}
+lithium::Object::Object(const lithium::Object& other) : Renderable{other}
 {
+    _mesh = other._mesh;
+    _textures = other._textures;
     _objectName = other._objectName;
     _color = other._color;
     _position = other._position;
     _rotation = other._rotation;
     _scale = other._scale;
-    _visible = other._visible;
     updateModel();
 }
 
@@ -27,7 +28,7 @@ lithium::Object::~Object() noexcept
 
 void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
 {
-    if(!_visible)
+    if(!visible())
     {
         return;
     }
@@ -49,7 +50,7 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
 
 void lithium::Object::draw() const
 {
-    if(!_visible)
+    if(!visible())
     {
         return;
     }
