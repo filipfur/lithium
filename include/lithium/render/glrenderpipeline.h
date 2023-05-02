@@ -127,7 +127,7 @@ namespace lithium
             return this;
         }
 
-        RenderPipeline* disableCulling()
+        RenderPipeline* disableFaceCulling()
         {
             glDisable(GL_CULL_FACE);
             return this;
