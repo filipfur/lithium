@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 
 #define printVar(x) std::cout << #x << " = " << x << std::endl
 

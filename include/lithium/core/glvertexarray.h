@@ -93,14 +93,20 @@ namespace lithium
 		std::shared_ptr<lithium::Buffer> createElementArrayBuffer(const std::vector<GLuint>& indices)
 		{
 			_elementArrayBuffer = std::make_shared<lithium::Buffer>(GL_ELEMENT_ARRAY_BUFFER);
-			_elementArrayBuffer->allocate(indices);
+			if(indices.size() > 0)
+			{
+				_elementArrayBuffer->allocate(indices);
+			}
 			return _elementArrayBuffer;
 		}
 
 		std::shared_ptr<lithium::Buffer> createElementArrayBuffer(const std::vector<GLushort>& indices)
 		{
 			_elementArrayBuffer = std::make_shared<lithium::Buffer>(GL_ELEMENT_ARRAY_BUFFER);
-			_elementArrayBuffer->allocate(indices);
+			if(indices.size() > 0)
+			{
+				_elementArrayBuffer->allocate(indices);
+			}
 			return _elementArrayBuffer;
 		}
 

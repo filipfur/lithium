@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
 #include "dlneuron.h"
 
 namespace lithium

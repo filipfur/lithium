@@ -43,8 +43,33 @@ namespace lithium
 			_byteLength = data.size() * sizeof(T);
 			_count = data.size();
 			_usage = usage;
+			_allocatedByteLength = _byteLength;
 			bind();
 			glBufferData(_type, _byteLength, data.data(), usage);
+		}
+
+		void allocate(GLuint size, GLenum usage=GL_STATIC_DRAW)
+		{
+			_byteLength = 0;
+			_allocatedByteLength = size;
+			_usage = usage;
+			bind();
+			glBufferData(_type, size, nullptr, usage);
+		}
+
+		template <typename T>
+		void appendSubData(const std::vector<T>& data)
+		{
+			bind();
+			auto byteLen = data.size() * sizeof(T);
+			glBufferSubData(_type, _byteLength, byteLen, data.data());
+			if(_byteLength + byteLen > _allocatedByteLength)
+			{
+				std::cerr << "Buffer overflow: " + std::to_string(_byteLength + byteLen) + " > " + std::to_string(_allocatedByteLength);
+				exit(1);
+			}
+			_byteLength += byteLen;
+			_count += data.size();
 		}
 
 		virtual void bind() override
@@ -70,6 +95,7 @@ namespace lithium
 	private:
 		GLenum _type{};
 		GLuint _byteLength{0};
+		GLuint _allocatedByteLength{0};
 		GLuint _count{0};
 		GLenum _usage{};
 	};

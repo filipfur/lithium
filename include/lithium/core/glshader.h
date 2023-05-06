@@ -25,13 +25,16 @@ namespace lithium
 		{
 			_id = glCreateShader(T);
 			compile();
-			_watch = lithium::FileWatch::start(
-				_fileName, 
-				[this](const std::filesystem::path& path) {
-					std::cout << "Shader updated: " << _fileName << std::endl;
-					_valid = false;		
-				}
-			);
+			if(fileName.size() > 0)
+			{
+				_watch = lithium::FileWatch::start(
+					_fileName, 
+					[this](const std::filesystem::path& path) {
+						std::cout << "Shader updated: " << _fileName << std::endl;
+						_valid = false;		
+					}
+				);
+			}
 		}
 
 		static lithium::Shader<T>* fromFile(const std::string& fileName)
@@ -117,4 +120,9 @@ namespace lithium
 		std::string _fileName;
 		std::shared_ptr<lithium::FileWatch> _watch{nullptr};
 	};
+
+	using VertexShader = lithium::Shader<GL_VERTEX_SHADER>;
+	using FragmentShader = lithium::Shader<GL_FRAGMENT_SHADER>;
+	using GeometryShader = lithium::Shader<GL_GEOMETRY_SHADER>;
+	using ComputeShader = lithium::Shader<GL_COMPUTE_SHADER>;
 }

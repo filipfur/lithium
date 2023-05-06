@@ -44,6 +44,7 @@ add_library(lithium STATIC
     src/glscene.cpp
     src/dlmatrix.cpp
     src/dlvector.cpp
+    src/glplot.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})

@@ -1,5 +1,6 @@
 #include "dlvector.h"
 
+#include <functional>
 #include <algorithm>
 #include <numeric>
 

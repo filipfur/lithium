@@ -70,7 +70,10 @@ namespace lithium
         VertexArrayBuffer(const std::vector<AttributeType>& attributes, const std::vector<GLfloat>& vertices, GLenum usage=GL_STATIC_DRAW, GLuint layoutOffset=0, GLuint attribDivisor=0, GLuint componentType=GL_FLOAT)
             : Buffer{GL_ARRAY_BUFFER, usage}, _attributes{attributes}, _layoutOffset{layoutOffset}, _attribDivisor{attribDivisor}, _componentType{componentType}
         {
-			allocate(vertices);
+			if(vertices.size() > 0)
+			{
+				allocate(vertices);
+			}
             bind();
             linkAttributes();
 			glEnableVertexAttribArray(0);
@@ -79,7 +82,10 @@ namespace lithium
 		VertexArrayBuffer(const std::vector<AttributeType>& attributes, const std::vector<GLuint>& vertices, GLenum usage=GL_STATIC_DRAW, GLuint layoutOffset=0, GLuint attribDivisor=0, GLuint componentType=GL_UNSIGNED_INT)
             : Buffer{GL_ARRAY_BUFFER, usage}, _attributes{attributes}, _layoutOffset{layoutOffset}, _attribDivisor{attribDivisor}, _componentType{componentType}
         {
-			allocate(vertices);
+			if(vertices.size() > 0)
+			{
+				allocate(vertices);
+			}
             bind();
             linkAttributes();
 			glEnableVertexAttribArray(0);
@@ -88,7 +94,10 @@ namespace lithium
 		VertexArrayBuffer(const std::vector<AttributeType>& attributes, const std::vector<GLushort>& vertices, GLenum usage=GL_STATIC_DRAW, GLuint layoutOffset=0, GLuint attribDivisor=0, GLuint componentType=GL_UNSIGNED_SHORT)
             : Buffer{GL_ARRAY_BUFFER, usage}, _attributes{attributes}, _layoutOffset{layoutOffset}, _attribDivisor{attribDivisor}, _componentType{componentType}
         {
-			allocate(vertices);
+			if(vertices.size() > 0)
+			{
+				allocate(vertices);
+			}
             bind();
             linkAttributes();
 			glEnableVertexAttribArray(0);
@@ -97,7 +106,10 @@ namespace lithium
 		VertexArrayBuffer(const std::vector<AttributeType>& attributes, const std::vector<GLubyte>& vertices, GLenum usage=GL_STATIC_DRAW, GLuint layoutOffset=0, GLuint attribDivisor=0, GLuint componentType=GL_UNSIGNED_BYTE)
             : Buffer{GL_ARRAY_BUFFER, usage}, _attributes{attributes}, _layoutOffset{layoutOffset}, _attribDivisor{attribDivisor}, _componentType{componentType}
         {
-			allocate(vertices);
+			if(vertices.size() > 0)
+			{
+				allocate(vertices);
+			}
             bind();
             linkAttributes();
 			glEnableVertexAttribArray(0);
