@@ -6,11 +6,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(testdeeplearning)
 
 include_directories(
-    ../../include
+    ../../include/lithium/deeplearning
 )
 
 file(GLOB SOURCES
     testdeeplearning.cpp
+    ../../src/dlvector.cpp
+    ../../src/dlmatrix.cpp
 )
 
 add_executable(testdeeplearning ${SOURCES})

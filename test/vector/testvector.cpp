@@ -6,6 +6,9 @@
 #include "dlvector.h"
 #include "dlmatrix.h"
 
+using vec = lithium::Vector;
+using mat = lithium::Matrix;
+
 int main(int argc, const char* argv[])
 {
     std::cout << "hello world" << std::endl;
@@ -53,6 +56,20 @@ int main(int argc, const char* argv[])
     printVar(I);
     auto I2 = lithium::Matrix::identity(5, 2.3f);
     printVar(I2);
+
+    mat A{
+        vec{1.0f, 2.0f},
+        vec{3.0f, 4.0f},
+        vec{5.0f, 6.0f},
+        vec{7.0f, 8.0f}
+    };
+    mat B{
+        vec{9.0f, 10.0f, 11.0f},
+        vec{12.0f, 13.0f, 14.0f}
+    };
+    mat C = A.dot(B);
+
+    printVar(C);
 
     return 0;
 }

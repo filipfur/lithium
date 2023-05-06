@@ -11,14 +11,10 @@ namespace lithium
     {
     public:
         Vector(size_t dim, Real val=0.0);
-
-        template <typename... Args>
-        Vector(Real real, Args...args)
-        {
-            _data.insert(_data.end(), {real, args...});
-        }
-
         Vector(const std::vector<Real>& data);
+        template <typename... Args>
+        explicit Vector(Real real, Args...args) : Vector{std::vector<Real>{real, args...}} {}
+
         virtual ~Vector() noexcept;
 
         Vector(const Vector& other);
