@@ -42,6 +42,8 @@ add_library(lithium STATIC
     src/glaabb.cpp
     src/glsphere.cpp
     src/glscene.cpp
+    src/dlmatrix.cpp
+    src/dlvector.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
@@ -53,6 +55,7 @@ target_include_directories(lithium PUBLIC
     include/lithium/render
     include/lithium/utility
     include/lithium/collision
+    include/lithium/deeplearning
     include/lithium/ecs
     include/lithium
     ${GLAD_DIR}/include
@@ -75,6 +78,9 @@ endif ()
 
 add_subdirectory(dep/glfw)
 add_subdirectory(dep/json)
+
+add_subdirectory(test/deeplearning)
+add_subdirectory(test/vector)
 
 install(TARGETS lithium
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
