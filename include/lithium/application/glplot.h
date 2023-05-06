@@ -23,8 +23,6 @@ public:
     }
 
 private:
-    Plot() = default;
-
     glm::vec2 _resoultion;
     lithium::OrthographicCamera _orthoCamera;
     std::shared_ptr<lithium::ShaderProgram> _shaderProgram;

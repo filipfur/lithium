@@ -2,6 +2,8 @@
 #include <initializer_list>
 #include <glad/glad.h>
 #include <vector>
+#include <iostream>
+#include <string>
 #include "glelement.h"
 
 namespace lithium
