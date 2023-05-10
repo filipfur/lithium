@@ -11,14 +11,13 @@ using mat = lithium::Matrix;
 int main(int argc, const char* argv[])
 {
     lithium::Layer inputLayer{
-        mat{},
-        std::make_pair(lithium::passthru, lithium::passthru),
         mat{
             vec{0.0f, 0.0f},
             vec{0.0f, 1.0f},
             vec{1.0f, 0.0f},
             vec{1.0f, 1.0f}
-        }
+        },
+        std::make_pair(lithium::passthru, lithium::passthru)
     };
 
     lithium::Layer hiddenLayer{
@@ -40,28 +39,33 @@ int main(int argc, const char* argv[])
 
     float LR = 0.1f;
 
-    printVar(inputLayer.activations);
+    printVar(inputLayer.weights);
     printVar(hiddenLayer.weights);
     printVar(outputLayer.weights);
 
-    lithium::NeuralNetwork net{inputLayer, hiddenLayer, outputLayer};
-
     for(int epoch{0}; epoch < 3000; ++epoch)
     {
-        net.forward();
-        mat error = truth - net.outputLayer()->activations;
+        hiddenLayer.activations = hiddenLayer.activationFunction.first(inputLayer.weights.dot(hiddenLayer.weights));
+        outputLayer.activations = outputLayer.activationFunction.first(hiddenLayer.activations.dot(outputLayer.weights));
+        mat error = truth - outputLayer.activations;
+        
         if(epoch % 250 == 0)
         {
             printVar(error.sum());
         }
+
         mat dZ = error * LR;
-        net.backward(dZ);
+        outputLayer.weights += hiddenLayer.activations.transpose().dot(dZ);
+        mat dH = dZ.dot(outputLayer.weights.transpose()) * hiddenLayer.activationFunction.second(hiddenLayer.activations);
+        hiddenLayer.weights += inputLayer.weights.transpose().dot(dH);
     }
 
     auto test = [&](const mat& X_test)
     {
+        mat act_hidden = lithium::sigmoid(X_test.dot(hiddenLayer.weights));
+        mat res = act_hidden.dot(outputLayer.weights);
         printVar(X_test);
-        printVar(net.test(X_test));
+        printVar(res);
     };
 
     test(mat{vec{0.0f, 0.0f}});

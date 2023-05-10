@@ -9,38 +9,64 @@ namespace lithium
     class NeuralNetwork
     {
     public:
-        NeuralNetwork(const std::vector<Layer>& layers) : _layers{layers}
+        NeuralNetwork(const std::initializer_list<Layer>& layers)
+            : _layers{layers}, _inputLayer{_layers.begin()}, _outputLayer{_layers.end() - 1}
         {
-            /*for(auto it = _layers.begin() + 1; it != _layers.end(); ++it)
+        }
+
+        void forward()
+        {
+            for(auto it = _inputLayer + 1; it != _layers.end(); ++it)
             {
-                auto prev = it - 1;
-                for(int i{0}; i < prev->size(); ++i)
-                {
-                    prev->at(i)->connect(i >= it->size() ? it->back() : it->at(i));
-                }
+                it->activations = it->activationFunction.first((it - 1)->activations.dot(it->weights));
             }
-            _inputLayer = _layers.begin();
-            _outputLayer = _layers.end() - 1;*/
-            _inputLayer = _layers.begin();
-            _outputLayer = _layers.end() - 1;
         }
 
-        void forward(const std::initializer_list<Real>& vals)
+        void backward(const Matrix& dZ)
         {
-            /*assert(vals.size() == _inputLayer->size());
-            for(int i{0}; i < vals.size(); ++i)
+            lithium::Matrix d = dZ;
+            for(auto it = _outputLayer; it != _inputLayer; --it)
             {
-                _inputLayer->at(i)->forward(vals.begin()[i]);
-            }*/
+                it->weights += (it - 1)->activations.transpose().dot(d);
+                if((it - 1) == _inputLayer)
+                {
+                    break;
+                }
+                d = d.dot(it->weights.transpose()) * (it - 1)->activationFunction.second((it - 1)->activations);
+            }
         }
 
-        Real output(size_t index=0)
+        Matrix test(const Matrix& X_test)
         {
-            //return _outputLayer->at(index)->value();
+            _inputLayer->activations = X_test;
+            forward();
+            return _outputLayer->activations;
         }
 
+        void setLearningRate(float learningRate)
+        {
+            _learningRate = learningRate;
+        }
+
+        float learningRate() const
+        {
+            return _learningRate;
+        }
+
+        std::vector<Layer>::iterator inputLayer()
+        {
+            return _inputLayer;
+        }
+
+        std::vector<Layer>::iterator outputLayer()
+        {
+            return _outputLayer;
+        }
+
+    private:
         std::vector<Layer> _layers;
         std::vector<Layer>::iterator _inputLayer;
         std::vector<Layer>::iterator _outputLayer;
+        float _learningRate = 0.1f;
     };
 }

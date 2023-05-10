@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include "glelement.h"
 #include <glm/glm.hpp>
@@ -30,6 +31,36 @@ namespace lithium
 				case GL_TEXTURE_CUBE_MAP:
 					break;
 			}
+
+			// Check for errors.
+			GLuint error{glGetError()};
+			if(error != GL_NO_ERROR)
+			{
+				std::string errorString;
+				switch(error)
+				{
+					case GL_INVALID_ENUM:
+						errorString = "GL_INVALID_ENUM";
+						break;
+					case GL_INVALID_VALUE:
+						errorString = "GL_INVALID_VALUE";
+						break;
+					case GL_INVALID_OPERATION:
+						errorString = "GL_INVALID_OPERATION";
+						break;
+					case GL_INVALID_FRAMEBUFFER_OPERATION:
+						errorString = "GL_INVALID_FRAMEBUFFER_OPERATION";
+						break;
+					case GL_OUT_OF_MEMORY:
+						errorString = "GL_OUT_OF_MEMORY";
+						break;
+					default:
+						errorString = "UNKNOWN";
+						break;
+				}
+				std::cerr << "Error creating texture: " << errorString << std::endl;
+			}
+
 			setUnpackAlignment();
 			setFilter()->setWrap();
 			unbind();

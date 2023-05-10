@@ -37,35 +37,53 @@ namespace lithium
         return m;
     }
 
-    void relu(std::vector<float>& v)
+    Matrix passthru_d(const Matrix& m)
     {
-        TRANSFORM(v, [](float x) {return std::max(0.0f, x);});
+        return Matrix(m.rows(), m.columns(), 1.0f);
+    }
+    
+    Matrix relu(const Matrix& m)
+    {
+        Matrix result(m);
+        for(auto it = result.begin(); it != result.end(); ++it)
+        {
+            Vector& vec = *it;
+            TRANSFORM(vec, [](Real x) {return std::max(0.0f, x);});
+        }
+        return result;
     }
 
-    void softmax(std::vector<float>& v)
+    Matrix relu_d(const Matrix& m)
     {
-        TRANSFORM(v, [](float x) {return std::exp(x);});
-        float sum = std::accumulate(v.begin(), v.end(), 0.0f);
-        TRANSFORM(v, [sum](float x) {return x / sum;});
+        Matrix result(m);
+        for(auto it = result.begin(); it != result.end(); ++it)
+        {
+            Vector& vec = *it;
+            TRANSFORM(vec, [](Real x) {return x > 0.0f ? 1.0f : 0.0f;});
+        }
+        return result;
     }
 
-    /*
-    def softmax(Z):
-    e_x = np.exp(Z)
-    A= e_x / np.sum(np.exp(Z))  
-    cache=Z
-    return A,cache  
-    */
-
-    float relu_d(const std::vector<float>& v0, std::vector<float>& v1)
+    Matrix softmax(const Matrix& m)
     {
-        std::transform(v0.begin(), v0.end(), v1.begin(), [](float x) {return x > 0.0f ? 1.0f : 0.0f;});
-        return 0.0f;
+        Matrix result(m);
+        for(auto it = result.begin(); it != result.end(); ++it)
+        {
+            Vector& vec = *it;
+            Real sum = std::accumulate(vec.begin(), vec.end(), 0.0f);
+            TRANSFORM(vec, [sum](Real x) {return std::exp(x) / sum;});
+        }
+        return result;
     }
 
-    /*float sigmoid_d(float x, float y)
+    Matrix softmax_d(const Matrix& m)
     {
-        float s = sigmoid(x);
-        return y * s * (1.0f - s);
-    }*/
+        Matrix result(m);
+        for(auto it = result.begin(); it != result.end(); ++it)
+        {
+            Vector& vec = *it;
+            TRANSFORM(vec, [](Real x) {return x * (1.0f - x);});
+        }
+        return result;
+    }
 }

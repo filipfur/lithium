@@ -100,6 +100,11 @@ namespace lithium
                 {
                     os << std::endl;
                 }
+                if(i == 32)
+                {
+                    os << "...";
+                    break;
+                }
             }
             os << "]";
             return os;

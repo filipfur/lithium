@@ -95,7 +95,16 @@ namespace lithium
         friend std::ostream& operator<<(std::ostream& os, const lithium::Vector& vector)
         {
             os << "vec" << vector.size() << "[ ";
-            std::copy(vector.begin(), vector.end(), std::ostream_iterator<Real>(os, " "));
+            auto end = vector.end();
+            if(vector.size() > 32)
+            {
+                end = vector.begin() + 32;
+            }
+            std::copy(vector.begin(), end, std::ostream_iterator<Real>(os, " "));
+            if(vector.size() > 32)
+            {
+                os << "... ";
+            }
             os << ']';
             return os;
         }
