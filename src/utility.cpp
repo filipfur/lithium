@@ -85,6 +85,11 @@ glm::vec3 utility::lerp(const glm::vec3& a, const glm::vec3& b, float t)
     return a * (1.f - t) + b * t;
 }
 
+float utility::cross2d(const glm::vec3& a, const glm::vec3& b)
+{
+    return a.x * b.z - a.z * b.x;
+}
+
 //static const float utility::pi{3.14159265359f};
 //static const float utility::pi2{pi * 2.0f};
 //static const float utility::pih{pi * 0.5f};

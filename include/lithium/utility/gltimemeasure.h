@@ -67,7 +67,7 @@ namespace lithium
             auto it = inst._timePoints.find(label);
             if(it != inst._timePoints.end())
             {
-                std::cout << "Measured '" << label << "': " << std::fixed << std::setprecision(1) << std::chrono::duration_cast<T>(now - it->second).count() / 1000.0f << "[ms]" << std::endl;
+                std::cout << "Measured '" << label << "': " << std::fixed << std::setprecision(3) << std::chrono::duration_cast<T>(now - it->second).count() / 1000.0f << "[ms]" << std::endl;
                 inst._timePoints.erase(it);
             }
         }

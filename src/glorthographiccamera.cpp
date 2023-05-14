@@ -4,9 +4,8 @@ lithium::OrthographicCamera::OrthographicCamera(float left, float right, float b
 : lithium::Camera{glm::ortho(left, right, bottom, top, nearPlane, farPlane),
 	glm::vec3{0.0f},
 	glm::vec3{0.0f},
-	glm::vec3{0.0, 0.0, 1.0}}
+	glm::vec3{0.0, 1.0, 0.0}}
 {
-
 	_matrix = _projection * _view;
 }
 

@@ -46,9 +46,22 @@ namespace lithium
 			return _projection;
 		}
 
+		void setTarget(const glm::vec3& target)
+		{
+			_orientation = glm::normalize(target - _position);
+			_target = target;
+			_view = glm::lookAt(_position, _target, _up);
+		}
+
+		const glm::vec3& target() const
+		{
+			return _target;
+		}
+
 	protected:
 		glm::vec3 _position{0.0f};
 		glm::vec3 _orientation;
+		glm::vec3 _target;
 		glm::vec3 _up;
 		glm::mat4 _projection;
 		glm::mat4 _view;

@@ -59,6 +59,8 @@ namespace utility
 
     float angle(const glm::vec3 &p0, const glm::vec3 &p1);
 
+    float cross2d(const glm::vec3& a, const glm::vec3& b);
+
     static const float pi{3.14159265359f};
     static const float pi2{pi * 2.0f};
     static const float pih{pi * 0.5f};
