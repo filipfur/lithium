@@ -20,6 +20,8 @@ namespace utility
 
     float clamp(float f, float a, float b);
 
+    float randn(float min, float max);
+
     void printMatrix(const glm::mat4 &matrix);
 
     template <typename T>

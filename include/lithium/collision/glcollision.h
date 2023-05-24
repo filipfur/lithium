@@ -7,5 +7,6 @@ namespace lithium
     struct Collision
     {
         glm::vec3 normal;
+        float penetrationDepth;
     };
 }

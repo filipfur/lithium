@@ -10,15 +10,13 @@ namespace lithium
         AABB(const glm::vec3 &position, const glm::vec3 &a, const glm::vec3 &b)
             : Geometry{position}, _a{a}, _b{b},
               _dimensions{abs(b - a)},
-              _halfExtents{_dimensions * 0.5f},
-              _center{position + a + _dimensions * 0.5f}
+              _halfExtents{_dimensions * 0.5f}
         {
         }
 
         AABB(const AABB &other)
             : Geometry{other}, _a{other._a}, _b{other._b},
-              _dimensions{other._dimensions}, _halfExtents{other._halfExtents},
-              _center{other._center}
+              _dimensions{other._dimensions}, _halfExtents{other._halfExtents}
         {
         }
 
@@ -48,7 +46,7 @@ namespace lithium
 
         glm::vec3 center() const
         {
-            return _center;
+            return _position + _a + _halfExtents;
         }
 
         float dimensionX() const
@@ -92,6 +90,5 @@ namespace lithium
         glm::vec3 _b;
         glm::vec3 _dimensions;
         glm::vec3 _halfExtents;
-        glm::vec3 _center;
     };
 }

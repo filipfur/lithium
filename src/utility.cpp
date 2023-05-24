@@ -28,6 +28,11 @@ float utility::clamp(float f, float a, float b)
     return utility::minf(b, utility::maxf(a, f));
 }
 
+float utility::randn(float min, float max)
+{
+    return min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
+}
+
 void utility::printMatrix(const glm::mat4& matrix)
 {
     std::cout << "mat4 [ ";
