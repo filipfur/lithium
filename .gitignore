@@ -3,10 +3,3 @@ build/
 cmake-build/
 ~*
 .swp
-dep/assimp
-dep/filewatch
-dep/json
-dep/miniaudio
-dep/tinyobjloader
-dep/glfw
-dep/glm

@@ -1,0 +1,15 @@
+[submodule "dep/json"]
+	path = dep/json
+	url = https://github.com/nlohmann/json.git
+[submodule "dep/miniaudio"]
+	path = dep/miniaudio
+	url = https://github.com/mackron/miniaudio.git
+[submodule "dep/tinyobjloader"]
+	path = dep/tinyobjloader
+	url = https://github.com/tinyobjloader/tinyobjloader.git
+[submodule "dep/glfw"]
+	path = dep/glfw
+	url = https://github.com/glfw/glfw
+[submodule "dep/glm"]
+	path = dep/glm
+	url = https://github.com/g-truc/glm.git
