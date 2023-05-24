@@ -21,7 +21,7 @@ namespace ecs
             }
 
             void update(std::set<Entity*>& entities,
-                std::function<bool(ecs::Entity&, typename T::value_type&...)> callback)
+                std::function<void(ecs::Entity&, typename T::value_type&...)> callback)
             {
                 for(auto ptr : entities)
                 {
@@ -39,15 +39,11 @@ namespace ecs
 #ifdef ECS_TRACE
                             std::cout << "ecs::System: Updating mask=" << _mask << ", entity=" << entityId << std::endl;
 #endif
-                            bool res = (callback(entity,
+                            (callback(entity,
                                 T::get(entityId)...
                             ));
                             (T::increment(entity, std::is_const_v<T> == false),...); // Increment version of NON-const components
                             (setVersion(entity, T::_number, T::version(entityId)), ...); // Update own version to match latest-greatest.
-                            if(!res)
-                            {
-                                break;
-                            }
                         }
                     }
                 }
