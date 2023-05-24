@@ -53,7 +53,7 @@ namespace lithium
             }
         }
 
-        void exit()
+        void exit(const GameState& nextState)
         {
             if(_onExit)
             {
@@ -61,7 +61,14 @@ namespace lithium
             }
             for(auto scene : _scenes)
             {
-                scene->deactivate();
+                if(!nextState.contains(scene))
+                {
+                    scene->deactivate();
+                }
+                else
+                {
+                    std::cout << "Scene already in next state\n";
+                }
             }
         }
 
@@ -95,6 +102,11 @@ namespace lithium
         std::set<ecs::Entity*>& entities()
         {
             return _entities;
+        }
+        
+        bool contains(std::shared_ptr<Scene> scene) const
+        {
+            return std::find(_scenes.begin(), _scenes.end(), scene) != _scenes.end();
         }
 
     private:

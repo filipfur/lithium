@@ -1,6 +1,7 @@
 #include "glfilewatch.h"
 
 #include <iostream>
+#include <atomic>
 
 namespace
 {

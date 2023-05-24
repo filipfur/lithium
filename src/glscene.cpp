@@ -22,6 +22,11 @@ void lithium::Scene::addEntity(std::shared_ptr<lithium::Entity> entity)
 
 void lithium::Scene::activate()
 {
+    if(_active)
+    {
+        std::cout << "Scene already active\n";
+        return;
+    }
     for(auto obj : _objects)
     {
         obj->stage();

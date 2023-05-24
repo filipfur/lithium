@@ -87,6 +87,11 @@ namespace lithium
             return _renderables.end();
         }
 
+        size_t size()
+        {
+            return _renderables.size();
+        }
+
     private:
         int _id;
         FilterType _filter;

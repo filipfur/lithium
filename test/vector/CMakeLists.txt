@@ -7,6 +7,7 @@ project(testvector)
 
 include_directories(
     ../../include/lithium/deeplearning
+    ../../dep/glm
 )
 
 file(GLOB SOURCES
