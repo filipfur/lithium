@@ -4,6 +4,7 @@
 #include <memory>
 #include <fstream>
 #include <sstream>
+#include <iterator>
 #include <glad/glad.h>
 #include <vector>
 

@@ -72,9 +72,11 @@ include(GNUInstallDirs)
 
 if (WIN32) 
     target_link_libraries(lithium glfw opengl32)
-else ()
+elseif (apple)
     target_link_libraries(lithium glfw
         "-framework OpenGL")
+else ()
+    target_link_libraries(lithium glfw)
 endif ()
 
 add_subdirectory(dep/glfw)

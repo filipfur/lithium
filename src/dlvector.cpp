@@ -3,6 +3,7 @@
 #include <functional>
 #include <algorithm>
 #include <numeric>
+#include <cmath>
 
 lithium::Vector::Vector(size_t dim, Real val) : _data(dim, val)
 {
@@ -122,7 +123,7 @@ Real lithium::Vector::min() const
 
 Real lithium::Vector::length() const
 {
-    return std::sqrt(length2());
+    return sqrt(length2());
 }
 
 Real lithium::Vector::length2() const
