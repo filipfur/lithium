@@ -39,6 +39,7 @@ bool lithium::AABB::intersect(const class AABB& aabb, Collision& collision) cons
         }
         collision.normal = glm::vec3{0.0f};
         collision.normal[n] = d[n] > 0 ? 1.0f : -1.0f;
+        collision.penetrationDepth = minOverlap;
     }
     return collided;
 }
