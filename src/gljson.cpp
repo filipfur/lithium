@@ -25,6 +25,8 @@ void lithium::json::Object::parse(std::istream& is, lithium::json::Object& obj)
     char endchar{0};
     bool parseString{false};
     std::string stringValue{""};
+    std::string key{""};
+    bool parseValue{false};
 
     auto handleStart = [&](char start, char end) {
         if(startchar == 0)
@@ -35,9 +37,8 @@ void lithium::json::Object::parse(std::istream& is, lithium::json::Object& obj)
         else
         {
             lithium::json::Object anotherOne;
-            anotherOne._parent = &obj;
             obj.parse(is, anotherOne);
-            obj._children.push_back(anotherOne);
+            obj.add(key, anotherOne);
         }
     };
 
@@ -50,6 +51,16 @@ void lithium::json::Object::parse(std::istream& is, lithium::json::Object& obj)
             {
                 parseString = false;
                 std::cout << "String: " << stringValue << std::endl;
+                if(key.length() > 0)
+                {
+                    obj.add(key, stringValue);
+                    key = "";
+                }
+                else
+                {
+                    key = stringValue;
+                }
+                stringValue = "";
             }
             else
             {
@@ -70,13 +81,31 @@ void lithium::json::Object::parse(std::istream& is, lithium::json::Object& obj)
                     parseString = true;
                     break;
                 case ':':
-                    assertKey(stringValue);
+                    assertKey(key);
+                    parseValue = true;
                     break;
+                case ',':
+                    if(parseValue)
+                    {
+                        assertKey(key);
+                        obj.add(key, stringValue);
+                        std::cout << "Value: " << stringValue << std::endl;
+                        stringValue = "";
+                        parseValue = false;
+                    }
                 case '}':
                 case ']':
                     if(endchar != c)
                     {
                         throw std::runtime_error("Unexpected endchar.");
+                    }
+                    if(parseValue)
+                    {
+                        assertKey(key);
+                        obj.add(key, stringValue);
+                        std::cout << "Value: " << stringValue << std::endl;
+                        stringValue = "";
+                        parseValue = false;
                     }
                     is.get();
                     return;
@@ -87,7 +116,14 @@ void lithium::json::Object::parse(std::istream& is, lithium::json::Object& obj)
                 case ' ':
                     break;
                 default:
-                    throw std::runtime_error("Unexpected character.");
+                    if(parseValue)
+                    {
+                        stringValue += c;
+                    }
+                    else
+                    {
+                        throw std::runtime_error("Unexpected character.");
+                    }
                     break;
             }
         }
