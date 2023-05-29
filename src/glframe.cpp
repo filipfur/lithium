@@ -1,0 +1,94 @@
+#include "glframe.h"
+
+#include "glplane.h"
+
+namespace
+{
+    const char* vertexSrc = R"(#version 330 core
+        layout(location = 0) in vec2 aPos;
+        layout(location = 1) in vec2 aTexCoords;
+
+        layout (std140) uniform CanvasUBO
+        {
+            mat4 u_projection;
+            mat4 u_view;
+        };
+
+        out vec2 TexCoords;
+
+        uniform mat4 u_model;
+
+        void main()
+        {
+            TexCoords = aTexCoords;
+            gl_Position = u_projection * u_view * u_model * vec4(aPos, 0.0, 1.0);
+        }
+    )";
+    
+    const char* fragmentSrc = R"(#version 330 core
+        out vec4 fragColor;
+
+        uniform sampler2D u_texture_0;
+        uniform vec4 u_color;
+
+        in vec2 TexCoords;
+
+        void main()
+        {
+            vec4 texColor = texture(u_texture_0, TexCoords);
+            fragColor = texColor * u_color;
+        }
+    )";
+}
+
+std::shared_ptr<lithium::Mesh> mySharedMesh() {
+    static const std::shared_ptr<lithium::Mesh> mesh{lithium::Plane2D(glm::vec2{0.5f})};
+    return mesh;
+};
+
+lithium::Object::TexturePointer mySharedTexture() {
+    static unsigned char data[] = {0xFF, 0xFF, 0xFF};
+    static const lithium::Object::TexturePointer texture = std::make_shared<lithium::Texture<unsigned char>>(data, 1, 1, GL_UNSIGNED_BYTE, GL_RGB, GL_RGB);
+    texture->setFilter(GL_NEAREST);
+    return texture;
+};
+
+lithium::Frame::Frame(Frame* parent, const glm::vec2& dimension) : Object{mySharedMesh(), {mySharedTexture()}},  FrameRenderer{dimension}, _parent{parent}
+{
+    setScale(glm::vec3{dimension, 1.0f});
+}
+
+lithium::Frame::~Frame() noexcept
+{
+}
+
+std::shared_ptr<lithium::ShaderProgram> lithium::Frame::shaderProgram()
+{
+    static const std::shared_ptr<lithium::ShaderProgram> shaderProgram = std::make_shared<lithium::ShaderProgram>(
+        std::shared_ptr<lithium::VertexShader>(lithium::VertexShader::fromSource(vertexSrc)),
+        std::shared_ptr<lithium::FragmentShader>(lithium::FragmentShader::fromSource(fragmentSrc)));
+    return shaderProgram;
+}
+
+bool lithium::Frame::renderFrames()
+{
+    bool childRendered{false};
+    forEachChild([&childRendered](Frame* frame)
+    {
+        if(frame->hasChildren())
+        {
+            childRendered |= frame->renderFrames();
+        }
+    });
+    bool rendered = _changed;
+    bool reRender = rendered || childRendered;
+    //_renderStages[0]->setEnabled(reRender);
+    //_renderStages[1]->setEnabled(reRender);
+    if(reRender)
+    {
+        FrameRenderer::render();
+    }
+    //glFinish();
+    _changed = false;
+    return reRender;
+}

@@ -70,7 +70,7 @@ void lithium::FrameBuffer::bindTexture(GLuint colorAttachment, GLuint textureUni
     }
 }
 
-void lithium::FrameBuffer::createTexture(GLuint colorAttachment, GLuint internalFormat, GLuint format, GLuint type, GLenum texTarget)
+std::shared_ptr<lithium::Texture<unsigned char>> lithium::FrameBuffer::createTexture(GLuint colorAttachment, GLuint internalFormat, GLuint format, GLuint type, GLenum texTarget)
 {
     GLuint samples{4};
     std::shared_ptr<Texture<unsigned char>> tex = std::make_shared<Texture<unsigned char>>(nullptr, _resolution.x, _resolution.y,
@@ -78,6 +78,7 @@ void lithium::FrameBuffer::createTexture(GLuint colorAttachment, GLuint internal
     glFramebufferTexture2D(GL_FRAMEBUFFER, colorAttachment, texTarget, tex->id(), 0);
     checkStatus();
     _textures[colorAttachment] = tex;
+    return tex;
 }
 
 void lithium::FrameBuffer::declareBuffers()

@@ -7,7 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <functional>
 #include <sstream>
@@ -27,36 +27,6 @@ namespace lithium
 		Input(GLFWwindow* window);
 		virtual ~Input() noexcept;
 		void update();
-
-		static void onKeyStatic(GLFWwindow *window, int key, int scanCode, int action, int mods)
-		{
-			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
-			self->onKey(window, key, scanCode, action, mods);
-		}
-
-		static void onMouseStatic(GLFWwindow *window, int button ,int action, int mods)
-		{
-			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
-			self->onMouse(window, button, action, mods);
-		}
-
-		static void onScrollStatic(GLFWwindow *window, double xoffset, double yoffset)
-		{
-			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
-			self->onScroll(window, xoffset, yoffset);
-		}
-
-		static void onCursorStatic(GLFWwindow *window, double xpos, double ypos)
-		{
-			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
-			self->onCursor(window, xpos, ypos);
-		}
-
-		static void onTextStatic(GLFWwindow* window, unsigned int codepoint)
-		{
-			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
-			self->onText(window, codepoint);
-		}
 
 		void onKey(GLFWwindow *window, int key, int scanCode, int action, int mods);
 
@@ -78,6 +48,15 @@ namespace lithium
 		{
 			assert(_context != nullptr);
 			_releasedCallbacks[_context][key] = func;
+		}
+
+		/*
+			button, modifiers, start, current, delta, completed
+		*/
+		void setDragCallback(const std::function<void(int, int, const glm::vec2&, const glm::vec2&, const glm::vec2&, bool)>& func)
+		{
+			assert(_context != nullptr);
+			_dragCallbacks[_context] = func;
 		}
 
 		void setAnyKeyPressedListener(const std::function<bool(int, int)>& func)
@@ -196,7 +175,7 @@ namespace lithium
 			}
 
 		private:
-			std::map<int, bool> _keys;
+			std::unordered_map<int, bool> _keys;
 		};
 
 		void setKeyCache(std::shared_ptr<lithium::Input::KeyCache> keyCache)
@@ -237,6 +216,36 @@ namespace lithium
 		}
 
 	private:
+		static void onKeyStatic(GLFWwindow *window, int key, int scanCode, int action, int mods)
+		{
+			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
+			self->onKey(window, key, scanCode, action, mods);
+		}
+
+		static void onMouseStatic(GLFWwindow *window, int button ,int action, int mods)
+		{
+			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
+			self->onMouse(window, button, action, mods);
+		}
+
+		static void onScrollStatic(GLFWwindow *window, double xoffset, double yoffset)
+		{
+			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
+			self->onScroll(window, xoffset, yoffset);
+		}
+
+		static void onCursorStatic(GLFWwindow *window, double xpos, double ypos)
+		{
+			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
+			self->onCursor(window, xpos, ypos);
+		}
+
+		static void onTextStatic(GLFWwindow* window, unsigned int codepoint)
+		{
+			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
+			self->onText(window, codepoint);
+		}
+
 		GLFWwindow* _window;
 		Controller _controller;
 		int _width;
@@ -246,14 +255,19 @@ namespace lithium
 		glm::vec2 _clickedPos;
 		bool _firstClick{true};
 		glm::vec2 _mousePos;
-		std::map<Context*, std::shared_ptr<KeyCache>> _keyCaches;
-		std::map<Context*,std::map<int, std::function<bool(int, int)>>> _pressedCallbacks;
-		std::map<Context*,std::map<int, std::function<bool(int, int)>>> _releasedCallbacks;
-		std::map<Context*, std::function<bool(float, float)>> _scrollCallbacks;
-		std::map<Context*, std::function<bool(float, float)>> _cursorCallbacks;
+		glm::vec2 _lastDragPos;
+		bool _dragging{false};
+		int _dragButton;
+		int _dragModifiers;
+		std::unordered_map<Context*, std::shared_ptr<KeyCache>> _keyCaches;
+		std::unordered_map<Context*,std::unordered_map<int, std::function<bool(int, int)>>> _pressedCallbacks;
+		std::unordered_map<Context*,std::unordered_map<int, std::function<bool(int, int)>>> _releasedCallbacks;
+		std::unordered_map<Context*, std::function<bool(float, float)>> _scrollCallbacks;
+		std::unordered_map<Context*, std::function<bool(float, float)>> _cursorCallbacks;
+		std::unordered_map<Context*, std::function<void(int, int, const glm::vec2&, const glm::vec2&, const glm::vec2&, bool)>> _dragCallbacks;
 		std::function<bool(int, int)> _anyKeyPressedCallback{nullptr};
 		glm::vec3 _up{0.0f, 1.0f, 0.0f};
-		std::map<Context*, std::function<bool(char c)>> _typewriteCallbacks;
+		std::unordered_map<Context*, std::function<bool(char c)>> _typewriteCallbacks;
 	};
 
 }

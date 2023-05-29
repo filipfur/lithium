@@ -24,7 +24,7 @@ namespace lithium
 
         void attach(RenderBuffer* renderBuffer, GLenum attachment);
 
-        void createTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0, GLuint internalFormat=GL_RGB, GLuint format=GL_RGB, GLuint type=GL_UNSIGNED_BYTE, GLenum texTarget=GL_TEXTURE_2D);
+        std::shared_ptr<lithium::Texture<unsigned char>> createTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0, GLuint internalFormat=GL_RGB, GLuint format=GL_RGB, GLuint type=GL_UNSIGNED_BYTE, GLenum texTarget=GL_TEXTURE_2D);
 
         void bindTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0, GLuint textureUnit=GL_TEXTURE0);
 

@@ -1,16 +1,19 @@
 #pragma once
 
+#include <set>
 #include "gltext.h"
 #include "glshaderprogram.h"
 #include "glorthographiccamera.h"
+#include "glrendergroup.h"
 
 namespace
 {
-    const char* vertexSrc = R"(#version 330 core
+    const char* vertexSrcSdfText = R"(#version 330 core
 
     layout (location = 0) in vec4 aVertex;
 
-    uniform mat4 u_camera;
+    uniform mat4 u_projection;
+    uniform mat4 u_view;
     uniform mat4 u_model;
 
     out vec2 texCoord;
@@ -20,11 +23,11 @@ namespace
     texCoord = aVertex.zw;
     position = vec2(aVertex.x, -aVertex.y);
     vec3 p0 = vec3(u_model * vec4(position, 0.0, 1.0));
-    gl_Position = u_camera * vec4(p0, 1.0);
+    gl_Position = u_projection * u_view * vec4(p0, 1.0);
     }
     )";
 
-    const char* fragmentSrc = R"( #version 330 core
+    const char* fragmentSrcSdfText = R"( #version 330 core
     //precision mediump float;
 
     out vec4 FragColor;
@@ -54,13 +57,17 @@ namespace lithium
     {        
     public:
         ExTextRenderer(const glm::vec2& resolution)
-            : _resoultion{resolution}, _orthoCamera{0, resolution.x, 0, resolution.y, -1.0f, 1.0f}
+            : _resoultion{resolution},
+            _camera{glm::ortho(-resolution.x * 0.5f, resolution.x * 0.5f, -resolution.y * 0.5f, resolution.y * 0.5f, -10.0f, 10.0f)}
         {
             _textShader = std::make_shared<lithium::ShaderProgram>(
-                std::shared_ptr<lithium::VertexShader>(lithium::VertexShader::fromSource(vertexSrc)),
-                std::shared_ptr<lithium::FragmentShader>(lithium::FragmentShader::fromSource(fragmentSrc))
+                std::shared_ptr<lithium::VertexShader>(lithium::VertexShader::fromSource(vertexSrcSdfText)),
+                std::shared_ptr<lithium::FragmentShader>(lithium::FragmentShader::fromSource(fragmentSrcSdfText))
             );
-            _textShader->setUniform("u_camera", _orthoCamera.matrix());
+            _camera.setPosition(glm::vec3{0.0f, 0.0f, 1.0f});
+            _camera.setTarget(glm::vec3{0.0f, 0.0f, 0.0f});
+            _textShader->setUniform("u_projection", _camera.projection());
+            _textShader->setUniform("u_view", _camera.view());
         }
 
         virtual ~ExTextRenderer() noexcept
@@ -104,7 +111,7 @@ namespace lithium
 
     private:
         glm::vec2 _resoultion;
-        lithium::OrthographicCamera _orthoCamera;
+        lithium::SimpleCamera _camera;
         std::shared_ptr<lithium::ShaderProgram> _textShader;
 
         std::set<std::shared_ptr<lithium::Text>> _texts;

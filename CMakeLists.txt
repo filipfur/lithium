@@ -44,7 +44,11 @@ add_library(lithium STATIC
     src/glscene.cpp
     src/dlmatrix.cpp
     src/dlvector.cpp
+    src/glplane.cpp
     src/glplot.cpp
+    src/glframe.cpp
+    src/glcanvas.cpp
+    src/glframerenderer.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
@@ -58,6 +62,8 @@ target_include_directories(lithium PUBLIC
     include/lithium/collision
     include/lithium/deeplearning
     include/lithium/ecs
+    include/lithium/ui
+    include/lithium/shape
     include/lithium
     ${GLAD_DIR}/include
     dep/glm

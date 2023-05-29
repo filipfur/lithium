@@ -116,6 +116,14 @@ void lithium::Input::onMouse(GLFWwindow *window, int button, int action, int mod
 				}
 			}
 			_clickedPos = _mousePos;
+			auto dragCB = _dragCallbacks.find(_context);
+			if(dragCB != _dragCallbacks.end())
+			{
+				_dragging = true;
+				_dragButton = button;
+				_dragModifiers = mods;
+				_lastDragPos = _mousePos;
+			}
 		}
 		else if(action == GLFW_RELEASE)
 		{
@@ -127,6 +135,12 @@ void lithium::Input::onMouse(GLFWwindow *window, int button, int action, int mod
 				{
 					itRelease->second(button, mods);
 				}
+			}
+			auto dragCB = _dragCallbacks.find(_context);
+			if(dragCB != _dragCallbacks.end())
+			{
+				dragCB->second(_dragButton, _dragModifiers, _clickedPos, _mousePos, glm::vec2{0.0f}, true); // Drag success!
+				_dragging = false;
 			}
 			//std::cout << "Dragged from: " << _clickedPos.x << "," << _clickedPos.y << " to " << _mousePos.x << "," << _mousePos.y << " (" << glm::distance(_clickedPos, _mousePos) << ")" << std::endl;
 		}
@@ -147,6 +161,9 @@ void lithium::Input::onScroll(GLFWwindow *window, double xoffset, double yoffset
 
 void lithium::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
 {
+	_mousePos.x = mouseX;
+	_mousePos.y = mouseY;
+
 	if (_fpsControl)
 	{
 		if(_firstClick)
@@ -156,8 +173,6 @@ void lithium::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		}
 	
-		_mousePos.x = mouseX;
-		_mousePos.y = mouseY;
 		float rotX = 64.0f * (float)(mouseY - (_height / 2)) / _height;
 		float rotY = 64.0f * (float)(mouseX - (_width / 2)) / _width;
 
@@ -176,6 +191,15 @@ void lithium::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
 		if(it != _cursorCallbacks.end())
 		{
 			it->second(static_cast<float>(mouseX), static_cast<float>(mouseY));
+		}
+		if(_dragging)
+		{
+			auto dragCB = _dragCallbacks.find(_context);
+			if(dragCB != _dragCallbacks.end())
+			{
+				dragCB->second(_dragButton, _dragModifiers, _clickedPos, _mousePos, _mousePos - _lastDragPos, false); // Drag success!
+				_lastDragPos = _mousePos;
+			}
 		}
 	}
 }

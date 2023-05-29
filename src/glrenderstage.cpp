@@ -15,11 +15,7 @@ lithium::RenderStage::~RenderStage() noexcept
 void lithium::RenderStage::render()
 {
     if(_frameBuffer) { _frameBuffer->bind(); }
-    if(_viewport != latestViewport)
-    {
-        glViewport(_viewport.x, _viewport.y, _viewport.z, _viewport.w);
-        latestViewport = _viewport;
-    }
+    glViewport(_viewport.x, _viewport.y, _viewport.z, _viewport.w);
     _callback();
     if(_frameBuffer) { _frameBuffer->unbind(); }
 }
