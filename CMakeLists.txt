@@ -85,6 +85,7 @@ add_subdirectory(dep/json)
 add_subdirectory(test/deeplearning)
 add_subdirectory(test/vector)
 add_subdirectory(test/geometry)
+add_subdirectory(test/json)
 
 install(TARGETS lithium
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
