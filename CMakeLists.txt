@@ -49,6 +49,7 @@ add_library(lithium STATIC
     src/glframe.cpp
     src/glcanvas.cpp
     src/glframerenderer.cpp
+    src/gljson.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
@@ -67,7 +68,6 @@ target_include_directories(lithium PUBLIC
     include/lithium
     ${GLAD_DIR}/include
     dep/glm
-    dep/json/include
     dep/tinyobjloader
     dep/miniaudio
 )
@@ -86,7 +86,6 @@ else ()
 endif ()
 
 add_subdirectory(dep/glfw)
-add_subdirectory(dep/json)
 
 add_subdirectory(test/deeplearning)
 add_subdirectory(test/vector)

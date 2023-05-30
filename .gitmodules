@@ -1,6 +1,3 @@
-[submodule "dep/json"]
-	path = dep/json
-	url = https://github.com/nlohmann/json.git
 [submodule "dep/miniaudio"]
 	path = dep/miniaudio
 	url = https://github.com/mackron/miniaudio.git

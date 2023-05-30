@@ -24,10 +24,10 @@ namespace lithium
             return _camera;
         }
 
-        /*lithium::ExTextRenderer& textRenderer()
+        lithium::ExTextRenderer& textRenderer()
         {
             return _textRenderer;
-        }*/
+        }
 
         lithium::Object::TexturePointer cachedTexture()
         {
@@ -46,7 +46,7 @@ namespace lithium
         std::shared_ptr<lithium::RenderStage> _mainStage;
         std::shared_ptr<lithium::RenderStage> _downSampleStage;
         std::shared_ptr<RenderStage> _finalStage;
-        //lithium::ExTextRenderer _textRenderer;
+        lithium::ExTextRenderer _textRenderer;
         bool _synced{false};
     };
 }

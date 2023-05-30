@@ -1,3 +1,6 @@
 {
-    "hello": "world!", "test": 1337
+    "hello": "world!", "test": 1337,
+    "arr": [
+        1, 2, 3, 4, 5
+    ]
 }

@@ -5,7 +5,7 @@
 #include <filesystem>
 
 //#include <glm/gtx/quaternion.hpp>
-#include "nlohmann/json.hpp"
+#include "gljson.h"
 
 #include "glnode.h"
 #include "glskinnedobject.h"
@@ -50,11 +50,6 @@ namespace gltf
                 std::cout << indent << child->name() << std::endl;
                 printTree(child, indent + "  ");
             });
-        }
-
-        void createBuffer(nlohmann::json& json)
-        {
-
         }
 
         lithium::VertexArrayBuffer::AttributeType toAttributeType(const std::string& type)
@@ -265,16 +260,21 @@ namespace gltf
 
                 if(node.contains("extras"))
                 {
-                    for(auto& extra : node["extras"].items())
+                    for(auto& extra : node["extras"].children())
                     {
-                        std::cout << extra.key() << "=" << extra.value() << std::endl;
-                        if(extra.value().is_array())
+                        std::cout << extra.first << "=" << extra.second.value() << std::endl;
+                        if(extra.second.isArray())
                         {
-                            actualNode->addPropertyArrayF(extra.key(), extra.value());
+                            std::vector<GLfloat> values;
+                            for(auto& value : extra.second)
+                            {
+                                values.push_back(value.get<float>());
+                            }
+                            actualNode->addPropertyArrayF(extra.first, values);
                         }
                         else
                         {
-                            actualNode->addPropertyF(extra.key(), extra.value());
+                            actualNode->addPropertyF(extra.first, extra.second.get<float>());
                         }
                     }
                 }
@@ -450,7 +450,7 @@ namespace gltf
         }
 
     private:
-        nlohmann::json _json;
+        lithium::json::Json _json;
         std::vector<Accessor> _accessors;
         std::map<int,lithium::Node*> _nodeMap;
     };

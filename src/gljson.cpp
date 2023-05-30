@@ -1,5 +1,10 @@
 #include "gljson.h"
 
+namespace
+{
+    static int __lineCount{0};    
+}
+
 lithium::json::Json::Json(const lithium::json::Type& type) : Json{type, "", ""}
 {
 
@@ -13,15 +18,43 @@ lithium::json::Json::Json(const lithium::json::Type& type, const std::string& ke
 
 lithium::json::Json::~Json() noexcept
 {
-
+    clear();
 }
 
 void assertKey(const std::string& key)
 {
     if(key.length() <= 0)
     {
-        throw std::runtime_error("Key is empty.");        
+        throw std::runtime_error("key is empty.");        
     }
+}
+
+void lithium::json::Json::add(const std::string& key, Json& obj)
+{
+    if(!isObject())
+    {
+        throw std::runtime_error("trying to add parameter to a non-object");
+    }
+    if(obj.isElement())
+    {
+        throw std::runtime_error("trying to add an element to an object");
+    }
+    obj._parent = this;
+    _children.emplace(key, obj);
+}
+
+void lithium::json::Json::insert(Json& obj)
+{
+    if(!isArray())
+    {
+        throw std::runtime_error("trying to insert element to a non-array");
+    }
+    if(obj.isParameter())
+    {
+        throw std::runtime_error("trying to add an parameter to an array");
+    }
+    obj._parent = this;
+    _array.push_back(obj);
 }
 
 enum class State
@@ -40,15 +73,16 @@ void lithium::json::Json::parse(std::istream& is, lithium::json::Json& obj)
     std::string stringValue{""};
     std::string key{""};
     State state{State::ParseKey};
+    bool escape{false};
 
     auto handleStart = [&](char start, char end) {
         if(startchar == 0)
         {
-            if(startchar == '{')
+            if(start == '{')
             {
                 state = State::ParseKey;
             }
-            else if(startchar == '[')
+            else if(start == '[')
             {
                 state = State::ParseElements;
             }
@@ -59,16 +93,24 @@ void lithium::json::Json::parse(std::istream& is, lithium::json::Json& obj)
         {
             lithium::json::Json anotherOne{start == '{' ? lithium::json::Object : lithium::json::Array, key, ""};
             obj.parse(is, anotherOne);
-            obj.add(key, anotherOne);
+            if(startchar == '{')
+            {
+                obj.add(key, anotherOne);
+            }
+            else if(startchar == '[')
+            {
+                obj.insert(anotherOne);
+            }
         }
     };
 
     while((c = is.peek()) != EOF && !is.fail())
     {
         //std::cout << c;
+
         if(parseString)
         {
-            if(c == '"')
+            if(c == '"' && !escape)
             {
                 parseString = false;
                 switch(state)
@@ -99,7 +141,15 @@ void lithium::json::Json::parse(std::istream& is, lithium::json::Json& obj)
             }
             else
             {
-                stringValue += c;
+                if(c == '\\' && !escape)
+                {
+                    escape = true;
+                }
+                else
+                {
+                    stringValue += c;
+                    escape = false;
+                }
             }
         }
         else
@@ -111,14 +161,14 @@ void lithium::json::Json::parse(std::istream& is, lithium::json::Json& obj)
                     {
                         _type = lithium::json::Object;
                     }
-                    handleStart(c, '}');
+                    handleStart('{', '}');
                     break;
                 case '[':
                     if(_type == lithium::json::Unassigned)
                     {
                         _type = lithium::json::Array;
                     }
-                    handleStart(c, ']');
+                    handleStart('[', ']');
                     break;
                 case '"':
                     parseString = true;
@@ -132,7 +182,7 @@ void lithium::json::Json::parse(std::istream& is, lithium::json::Json& obj)
                     {
                         case State::ParseElements:
                         {
-                            if(stringValue.size() <= 0) // Probably already handled in string parsing.
+                            if(stringValue.length() > 0) // Probably already handled in string parsing.
                             {
                                 Json elementObj{lithium::json::Element, "", stringValue};
                                 obj.insert(elementObj);
@@ -157,7 +207,7 @@ void lithium::json::Json::parse(std::istream& is, lithium::json::Json& obj)
                 case ']':
                     if(endchar != c)
                     {
-                        throw std::runtime_error("Unexpected endchar.");
+                        throw std::runtime_error("unexpected endchar.");
                     }
                     switch(state)
                     {
@@ -181,13 +231,14 @@ void lithium::json::Json::parse(std::istream& is, lithium::json::Json& obj)
                             }
                             break;
                         case State::ParseKey:
-                            throw std::runtime_error("Unexpected endchar during ParseKey.");
+                            //throw std::runtime_error("unexpected endchar during ParseKey.");
                             break;
                     }
-                    is.get();
+                    //is.get();
                     return;
                     break;
                 case '\n':
+                    ++__lineCount;
                 case '\r':
                 case '\t':
                 case ' ':
@@ -212,13 +263,14 @@ void lithium::json::Json::parse(std::istream& is, lithium::json::Json& obj)
 
 std::istream& lithium::json::operator>>(std::istream& is, lithium::json::Json& obj)
 {
+    __lineCount = 0;
     try
     {
         obj.parse(is, obj);
     }
     catch(const std::exception& e)
     {
-        std::cout << e.what() << std::endl;
+        std::cout << "Error at line " << ++__lineCount << ": " << e.what() << std::endl;
     }
     return is;
 }
@@ -229,7 +281,7 @@ void lithium::json::Json::print(std::ostream& os, std::string indent) const
     switch(_type)
     {
         case lithium::json::Object:
-            os << indent << "{" << std::endl;
+            os << "{" << std::endl;
             for(auto& pair : _children)
             {
                 os << delim << indent << "  \"" << pair.first << "\": ";
@@ -239,10 +291,10 @@ void lithium::json::Json::print(std::ostream& os, std::string indent) const
             os << std::endl << indent << "}";
             break;
         case lithium::json::Array:
-            os << indent << "[" << std::endl;
+            os << "[" << std::endl;
             for(auto& child : _array)
             {
-                os << delim << indent;
+                os << delim << indent << "  ";
                 child.print(os, indent + "  ");
                 delim = ",\n";
             }
@@ -275,4 +327,5 @@ std::ostream& lithium::json::operator<<(std::ostream& os, const lithium::json::J
     {
         std::cout << e.what() << std::endl;
     }
+    return os;
 }

@@ -1,7 +1,7 @@
 #pragma once 
 
 #include "glimagetexture.h"
-#include "nlohmann/json.hpp"
+#include "gljson.h"
 
 namespace lithium
 {
@@ -62,7 +62,7 @@ namespace lithium
 
     private:
         std::shared_ptr<lithium::Texture<unsigned char>> _texture{nullptr};
-        nlohmann::json _fontMetrics;
+        lithium::json::Json _fontMetrics;
         
         float _width{0.0f};
         float _height{0.0f};

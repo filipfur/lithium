@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <string>
 
 namespace lithium::json
 {
@@ -23,35 +24,9 @@ namespace lithium::json
 
         virtual ~Json() noexcept;
     
-        void add(const std::string& key, Json& obj)
-        {
-            if(!isObject())
-            {
-                throw std::runtime_error("trying to add parameter to a non-object");
-            }
-            if(!obj.isParameter())
-            {
-                throw std::runtime_error("trying to add non-parameter to an object");
-            }
-            obj._parent = this;
-            _children.emplace(key, obj);
-            std::cout << "[add] " << key << ":" << obj.value() << std::endl;
-        }
+        void add(const std::string& key, Json& obj);
 
-        void insert(Json& obj)
-        {
-            if(!isArray())
-            {
-                throw std::runtime_error("trying to insert element to a non-array");
-            }
-            if(!obj.isElement())
-            {
-                throw std::runtime_error("trying to insert non-element to an array");
-            }
-            obj._parent = this;
-            _array.push_back(obj);
-            std::cout << "[insert] " << obj.value() << std::endl;
-        }
+        void insert(Json& obj);
 
         Json(const Json& other) : _type{other._type}, _key{other._key}, _value{other._value}, _parent{other._parent}, _children{other._children}, _array{other._array}, _stringType{other._stringType}
         {
@@ -123,7 +98,12 @@ namespace lithium::json
             return _array.at(index);
         }
 
-        bool has(const std::string& key) const
+        std::map<std::string,lithium::json::Json> children()
+        {
+            return _children;
+        }
+
+        bool contains(const std::string& key) const
         {
             if(!isObject())
             {
@@ -146,6 +126,24 @@ namespace lithium::json
             {
                 throw std::runtime_error("trying to get size of a non-object and non-array");
             }
+        }
+
+        std::vector<Json>::iterator begin()
+        {
+            if(!isArray())
+            {
+                throw std::runtime_error("trying to access element of a non-array");
+            }
+            return _array.begin();
+        }
+
+        std::vector<Json>::iterator end()
+        {
+            if(!isArray())
+            {
+                throw std::runtime_error("trying to access element of a non-array");
+            }
+            return _array.end();
         }
 
         bool isObject() const
@@ -201,6 +199,42 @@ namespace lithium::json
         double toDouble() const
         {
             return std::stod(_value);
+        }
+
+        operator bool() const
+        {
+            return toBool();
+        }
+
+        operator int() const
+        {
+            return toInt();
+        }
+
+        operator float() const
+        {
+            return toFloat();
+        }
+
+        explicit operator double() const
+        {
+            return toDouble();
+        }
+
+        operator std::string() const
+        {
+            return _value;
+        }
+
+        void clear()
+        {
+            _type = Type::Unassigned;
+            _key.clear();
+            _value.clear();
+            _parent = nullptr;
+            _children.clear();
+            _array.clear();
+            _stringType = false;
         }
 
         template <typename T>
