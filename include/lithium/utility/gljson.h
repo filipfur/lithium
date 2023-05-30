@@ -1,59 +1,250 @@
 #pragma once
 
 #include <iostream>
-#include <unordered_map>
+#include <map>
+#include <vector>
 
 namespace lithium::json
 {
-    class Object
+    enum Type{
+        Unassigned,
+        Object,
+        Parameter,
+        Array,
+        Element
+    };
+
+    class Json
     {
     public:
-        Object();
+        Json(const Type& type=Unassigned);
 
-        virtual ~Object() noexcept;
+        Json(const Type& type, const std::string& key, const std::string& value);
+
+        virtual ~Json() noexcept;
     
-        void add(const std::string& key, Object& obj)
+        void add(const std::string& key, Json& obj)
         {
+            if(!isObject())
+            {
+                throw std::runtime_error("trying to add parameter to a non-object");
+            }
+            if(!obj.isParameter())
+            {
+                throw std::runtime_error("trying to add non-parameter to an object");
+            }
             obj._parent = this;
             _children.emplace(key, obj);
+            std::cout << "[add] " << key << ":" << obj.value() << std::endl;
         }
 
-        void add(const std::string& key, const std::string& value)
+        void insert(Json& obj)
         {
-            _values.emplace(key, value);
+            if(!isArray())
+            {
+                throw std::runtime_error("trying to insert element to a non-array");
+            }
+            if(!obj.isElement())
+            {
+                throw std::runtime_error("trying to insert non-element to an array");
+            }
+            obj._parent = this;
+            _array.push_back(obj);
+            std::cout << "[insert] " << obj.value() << std::endl;
         }
 
-        Object(const Object& other) : _parent{other._parent}, _children{other._children}
+        Json(const Json& other) : _type{other._type}, _key{other._key}, _value{other._value}, _parent{other._parent}, _children{other._children}, _array{other._array}, _stringType{other._stringType}
         {
 
         }
 
-        Object(Object&& other) : _parent{other._parent}, _children{std::move(other._children)}
+        Json(Json&& other) : _type{other._type}, _key{std::move(other._key)}, _value{std::move(other._value)}, _parent{other._parent}, _children{std::move(other._children)}, _array{std::move(other._array)}, _stringType{other._stringType}
         {
 
         }
 
-        Object& operator=(const Object& other)
+        Json& operator=(const Json& other)
         {
+            _type = other._type;
+            _key = other._key;
+            _value = other._value;
             _parent = other._parent;
             _children = other._children;
+            _array = other._array;
+            _stringType = other._stringType;
             return *this;
         }
 
-        Object& operator=(Object&& other)
+        Json& operator=(Json&& other)
         {
+            _type = other._type;
+            _key = std::move(other._key);
+            _value = std::move(other._value);
             _parent = other._parent;
             _children = std::move(other._children);
+            _array = std::move(other._array);
+            _stringType = other._stringType;
             return *this;
+        }
+
+        Json& operator[](const std::string& key)
+        {
+            if(!isObject())
+            {
+                throw std::runtime_error("trying to access parameter of a non-object");
+            }
+            return _children[key];
+        }
+
+        Json& operator[](size_t index)
+        {
+            if(!isArray())
+            {
+                throw std::runtime_error("trying to access element of a non-array");
+            }
+            return _array[index];
+        }
+
+        const Json& at(const std::string& key) const
+        {
+            if(!isObject())
+            {
+                throw std::runtime_error("trying to access parameter of a non-object");
+            }
+            return _children.at(key);
+        }
+
+        const Json& at(size_t index) const
+        {
+            if(!isArray())
+            {
+                throw std::runtime_error("trying to access element of a non-array");
+            }
+            return _array.at(index);
+        }
+
+        bool has(const std::string& key) const
+        {
+            if(!isObject())
+            {
+                throw std::runtime_error("trying to access parameter of a non-object");
+            }
+            return _children.find(key) != _children.end();
+        }
+
+        size_t size() const
+        {
+            if(_type == Type::Object)
+            {
+                return _children.size();
+            }
+            else if(_type == Type::Array)
+            {
+                return _array.size();
+            }
+            else
+            {
+                throw std::runtime_error("trying to get size of a non-object and non-array");
+            }
+        }
+
+        bool isObject() const
+        {
+            return _type == Type::Object;
+        }
+
+        bool isArray() const
+        {
+            return _type == Type::Array;
+        }
+
+        bool isParameter() const
+        {
+            return _type == Type::Parameter;
+        }
+
+        bool isElement() const
+        {
+            return _type == Type::Element;
+        }
+
+        std::string key() const
+        {
+            return _key;
+        }
+
+        Type type() const
+        {
+            return _type;
+        }
+
+        std::string value() const
+        {
+            return _value;
+        }
+
+        bool toBool() const
+        {
+            return _value == "true" || _value == "1";
+        }
+
+        int toInt() const
+        {
+            return std::stoi(_value);
+        }
+
+        float toFloat() const
+        {
+            return std::stof(_value);
+        }
+
+        double toDouble() const
+        {
+            return std::stod(_value);
+        }
+
+        template <typename T>
+        T get() const
+        {
+            if constexpr (std::is_same_v<T, bool>)
+            {
+                return toBool();
+            }
+            else if constexpr (std::is_same_v<T, int>)
+            {
+                return toInt();
+            }
+            else if constexpr (std::is_same_v<T, float>)
+            {
+                return toFloat();
+            }
+            else if constexpr (std::is_same_v<T, double>)
+            {
+                return toDouble();
+            }
+            else if constexpr (std::is_same_v<T, std::string>)
+            {
+                return _value;
+            }
+            else
+            {
+                throw std::runtime_error("unsupported type");
+            }
         }
 
     private:
-        void parse(std::istream& is, Object& obj);
+        void parse(std::istream& is, Json& obj);
+        void print(std::ostream& os, std::string indent) const;
 
-        friend std::istream& operator>>(std::istream& is, Object& obj);
+        friend std::istream& operator>>(std::istream& is, Json& obj);
+        friend std::ostream& operator<<(std::ostream& os, const Json& obj);
 
-        Object* _parent{nullptr};
-        std::unordered_map<std::string, Object> _children;
-        std::unordered_map<std::string, std::string> _values;
+        Json* _parent{nullptr};
+        std::map<std::string, Json> _children;
+        std::vector<Json> _array;
+        Type _type;
+        std::string _key{""};
+        std::string _value{""};
+        bool _stringType{false};
     };
 }

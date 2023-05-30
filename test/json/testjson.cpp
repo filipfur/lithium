@@ -14,11 +14,13 @@ int main(int argc, const char* argv[])
         return 1;
     }
 
-    lithium::json::Object obj;
+    lithium::json::Json obj;
 
     ifs >> obj;
 
     ifs.close();
+
+    std::cout << obj << std::endl;
 
     return 0;
 }
