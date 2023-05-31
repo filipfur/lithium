@@ -289,7 +289,7 @@ namespace gltf
                 {
                     for(auto childId : node["children"])
                     {
-                        _nodeMap[childId]->setParent(entry.second);
+                        _nodeMap[childId.get<int>()]->setParent(entry.second);
                     }
                 }
             }
