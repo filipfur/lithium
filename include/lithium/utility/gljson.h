@@ -132,7 +132,7 @@ namespace lithium::json
         {
             if(!isArray())
             {
-                throw std::runtime_error("trying to access element of a non-array");
+                throw std::runtime_error("trying to access begin iterator of a non-array");
             }
             return _array.begin();
         }
@@ -141,7 +141,7 @@ namespace lithium::json
         {
             if(!isArray())
             {
-                throw std::runtime_error("trying to access element of a non-array");
+                throw std::runtime_error("trying to access end iterator of a non-array");
             }
             return _array.end();
         }
@@ -201,17 +201,17 @@ namespace lithium::json
             return std::stod(_value);
         }
 
-        operator bool() const
+        explicit operator bool() const
         {
             return toBool();
         }
 
-        operator int() const
+        explicit operator int() const
         {
             return toInt();
         }
 
-        operator float() const
+        explicit operator float() const
         {
             return toFloat();
         }
