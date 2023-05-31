@@ -71,6 +71,15 @@ namespace lithium::json
             return _children[key];
         }
 
+        const Json& operator[](const std::string& key) const
+        {
+            if(!isObject())
+            {
+                throw std::runtime_error("trying to access parameter of a non-object");
+            }
+            return _children.at(key);
+        }
+
         Json& operator[](size_t index)
         {
             if(!isArray())
@@ -78,6 +87,15 @@ namespace lithium::json
                 throw std::runtime_error("trying to access element of a non-array");
             }
             return _array[index];
+        }
+
+        const Json& operator[](size_t index) const
+        {
+            if(!isArray())
+            {
+                throw std::runtime_error("trying to access element of a non-array");
+            }
+            return _array.at(index);
         }
 
         const Json& at(const std::string& key) const
@@ -142,6 +160,24 @@ namespace lithium::json
             if(!isArray())
             {
                 throw std::runtime_error("trying to access end iterator of a non-array");
+            }
+            return _array.end();
+        }
+
+        std::vector<Json>::const_iterator begin() const
+        {
+            if(!isArray())
+            {
+                throw std::runtime_error("trying to access begin const_iterator of a non-array");
+            }
+            return _array.begin();
+        }
+
+        std::vector<Json>::const_iterator end() const
+        {
+            if(!isArray())
+            {
+                throw std::runtime_error("trying to access end const_iterator of a non-array");
             }
             return _array.end();
         }

@@ -50,6 +50,8 @@ add_library(lithium STATIC
     src/glcanvas.cpp
     src/glframerenderer.cpp
     src/gljson.cpp
+    src/gllayoutsystem.cpp
+    src/glframelayout.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
@@ -91,6 +93,7 @@ add_subdirectory(test/deeplearning)
 add_subdirectory(test/vector)
 add_subdirectory(test/geometry)
 add_subdirectory(test/json)
+add_subdirectory(test/ui)
 
 install(TARGETS lithium
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
