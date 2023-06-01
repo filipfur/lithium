@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <unordered_set>
+#include <functional>
 #include "glshaderprogram.h"
 #include "glirendergroup.h"
 
@@ -23,6 +24,10 @@ namespace lithium
         void render(lithium::ShaderProgram* shaderProgram)
         {
             shade(shaderProgram);
+            if(_shaderCallback)
+            {
+                _shaderCallback(this, shaderProgram);
+            }
             draw();
         }
 
@@ -124,10 +129,16 @@ namespace lithium
             return _groupId;
         }
 
+        void setShaderCallback(const std::function<void(lithium::Renderable*, ShaderProgram*)>& shaderCallback)
+        {
+            _shaderCallback = shaderCallback;
+        }
+
     private:
         int _groupId{0};
         std::unordered_set<lithium::IRenderGroup*> _iRenderables;
         static int _countRenderables;
         bool _visible{true};
+		std::function<void(lithium::Renderable*, ShaderProgram*)> _shaderCallback{nullptr};
     };
 }

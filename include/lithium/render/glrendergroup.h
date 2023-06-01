@@ -51,8 +51,7 @@ namespace lithium
         {
             for(auto renderable : _renderables)
             {
-                renderable->shade(shaderProgram);
-                renderable->draw();
+                renderable->render(shaderProgram);
             }
         }
 
