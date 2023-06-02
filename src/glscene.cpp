@@ -12,12 +12,12 @@ lithium::Scene::~Scene() noexcept
 
 void lithium::Scene::addObject(std::shared_ptr<lithium::Object> object)
 {
-    _objects.emplace(object);
+    _objects.push_back(object);
 }
 
 void lithium::Scene::addEntity(std::shared_ptr<lithium::Entity> entity)
 {
-    _entities.emplace(entity);
+    _entities.push_back(entity);
 }
 
 void lithium::Scene::activate()

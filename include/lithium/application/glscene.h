@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <set>
 #include <functional>
 #include "glentity.h"
 #include "globject.h"
@@ -51,7 +50,7 @@ namespace lithium
             return _active;
         }
 
-        void removeEntity(std::shared_ptr<lithium::Entity> entity)
+        /*void removeEntity(std::shared_ptr<lithium::Entity> entity)
         {
             //TODO: Also remove from GameState ...
             if(_active)
@@ -68,13 +67,11 @@ namespace lithium
                 object->detachAll();
             }
             _objects.erase(object);
-        }
+        }*/
 
         std::shared_ptr<lithium::Object> object(size_t index)
         {  
-            auto it = _objects.begin();
-            std::advance(it, index);
-            return it == _objects.end() ? nullptr : *it;
+            return _objects.at(index);
         }
 
         void forEachObject(std::function<void(lithium::Object*)> func)
@@ -124,8 +121,8 @@ namespace lithium
 
     private:
         std::vector<lithium::Geometry*> _geometries;
-        std::set<std::shared_ptr<lithium::Object>> _objects;
-        std::set<std::shared_ptr<lithium::Entity>> _entities;
+        std::vector<std::shared_ptr<lithium::Object>> _objects;
+        std::vector<std::shared_ptr<lithium::Entity>> _entities;
         bool _active{false};
     };
 }
