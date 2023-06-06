@@ -19,15 +19,16 @@ namespace
     out vec2 texCoord;
     out vec2 position;
 
-    void main() {
-    texCoord = aVertex.zw;
-    position = vec2(aVertex.x, -aVertex.y);
-    vec3 p0 = vec3(u_model * vec4(position, 0.0, 1.0));
-    gl_Position = u_projection * u_view * vec4(p0, 1.0);
+    void main()
+    {
+        position = vec2(aVertex.x, -aVertex.y);
+        texCoord = aVertex.zw;
+        vec3 p0 = vec3(u_model * vec4(position, 0.0, 1.0));
+        gl_Position = u_projection * u_view * vec4(p0, 1.0);
     }
     )";
 
-    const char* fragmentSrcSdfText = R"( #version 330 core
+    const char* fragmentSrcSdfText = R"(#version 330 core
     //precision mediump float;
 
     out vec4 FragColor;
@@ -38,7 +39,8 @@ namespace
     in vec2 texCoord;
     in vec2 position;
 
-    void main() {
+    void main()
+    {
         float r = texture(u_texture, texCoord).r;
         float scale = 1.0 / fwidth(r);
         float signedDistance = (r - 0.5) * scale;

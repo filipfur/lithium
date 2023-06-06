@@ -5,28 +5,25 @@
 #include "gllayoutsystem.h"
 
 const char* uiSrc = R"({
-    "mode": "fixed",
-    "orientation": "horizontal",
-    "alignment": "left",
-    "margin": [64.0, 32.0],
-    "padding": [32.0],
-    "dimension": [128.0, 32.0],
-    "position": [10.0, 0.0],
+    "mode": "absolute",
+    "margin": [0.0],
+    "padding": [0.0],
+    "dimension": [1024.0, 1024.0],
+    "position": [0.0, 0.0],
     "children": [
         {
-            "mode": "fill",
-            "orientation": "vertical",
-            "alignment": "center",
-            "margin": [32.0],
-            "padding": [8.0, 16.0, 32.0, 64.0],
-            "dimension": [64.0, 64.0]
+            "mode": "absolute",
+            "margin": [0.0],
+            "padding": [8.0],
+            "dimension": [128.0, 128.0],
+            "position": [256.0, 256.0]
         },
         {
-            "mode": "wRAP",
-            "orientation": "HORIZONTAL",
-            "alignment": "Bottom",
-            "margin": [32.0],
-            "padding": [16.0, 16.0, 32.0, 32.0],
+            "mode": "absolute",
+            "margin": [0.0],
+            "padding": [8.0],
+            "dimension": [128.0, 128.0],
+            "position": [-256.0, 512.0]
         }
     ]
 }

@@ -3,19 +3,20 @@
 #include "globject.h"
 #include "glrenderpipeline.h"
 #include "glframerenderer.h"
+#include "glframelayout.h"
 
 namespace lithium
 {
-    class Frame : public Object, public FrameRenderer
+    class Frame : public Object, public FrameRenderer, public IFrameLayout
     {
     public:
-        Frame(Frame* parent, const glm::vec2& dimension);
+        Frame(FrameLayout* frameLayout);
 
         virtual ~Frame() noexcept;
 
         static std::shared_ptr<ShaderProgram> shaderProgram();
 
-        void addFrame(const std::shared_ptr<Frame>& frame)
+        /*void addFrame(const std::shared_ptr<Frame>& frame)
         {
             _children.push_back(frame);
             FrameRenderer::attach(frame.get());
@@ -27,19 +28,37 @@ namespace lithium
             auto frame = std::make_shared<Frame>(this, dimension);
             addFrame(frame);
             return frame;
-        }
+        }*/
 
         void forEachChild(std::function<void(Frame*)> callback) const
         {
-            for(const auto& child : _children)
-            {
-                callback(child.get());
-            }
+            _frameLayout->forEachChild([callback](lithium::FrameLayout& child){
+                callback(dynamic_cast<lithium::Frame*>(child.iFrameLayout()));
+            });
+        }
+
+        virtual void onLayoutChanged(FrameLayout* frameLayout) override
+        {
+            _frameLayout = frameLayout;
+        }
+
+        virtual void onLayoutUpdated(const glm::vec2& position, const glm::vec2& dimension) override
+        {
+            _changed = true;
         }
 
         bool hasChildren()
         {
-            return _children.size() > 0;
+            return _frameLayout->count() > 0;
+        }
+
+        Frame* parent()
+        {
+            if(_frameLayout->parent() == nullptr)
+            {
+                return nullptr;
+            }
+            return dynamic_cast<lithium::Frame*>(_frameLayout->parent()->iFrameLayout());
         }
 
         bool renderFrames();
@@ -49,11 +68,13 @@ namespace lithium
             _changed = true;
         }
 
+        lithium::FrameLayout* layout()
+        {
+            return _frameLayout;
+        }
+
     private:
-        Frame* _parent;
-        std::vector<std::shared_ptr<Frame>> _children;
-        glm::vec2 _padding;
-        glm::vec2 _margin;
+        FrameLayout* _frameLayout;
         bool _changed{true};
     };
 }
