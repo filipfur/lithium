@@ -64,6 +64,99 @@ namespace lithium
 
         friend class LayoutSystem;
 
+        FrameLayout()
+        {
+
+        }
+
+        FrameLayout(const std::string& id, Mode mode = Mode::Absolute, Orientation orientation = Orientation::Vertical, Alignment alignment = Alignment::Center, const glm::vec4& margin = glm::vec4(0.0f), const glm::vec4& padding = glm::vec4(0.0f), const glm::vec2& dimension = glm::vec2(0.0f), const glm::vec2& position = glm::vec2(0.0f)) :
+            _id(id),
+            _mode(mode),
+            _orientation(orientation),
+            _alignment(alignment),
+            _margin(margin),
+            _padding(padding),
+            _dimension(dimension),
+            _position(position)
+        {
+        }
+
+        virtual ~FrameLayout() noexcept
+        {
+            _children.clear();
+            _parent = nullptr;
+        }
+
+        FrameLayout(const FrameLayout& other) :
+            _id(other._id),
+            _mode(other._mode),
+            _orientation(other._orientation),
+            _alignment(other._alignment),
+            _margin(other._margin),
+            _padding(other._padding),
+            _dimension(other._dimension),
+            _position(other._position),
+            _actualDimension(other._actualDimension),
+            _actualPosition(other._actualPosition),
+            _parent(other._parent),
+            _iFrameLayout(other._iFrameLayout),
+            _children(other._children)
+        {
+        }
+
+        FrameLayout(FrameLayout&& other) noexcept :
+            _id(std::move(other._id)),
+            _mode(other._mode),
+            _orientation(other._orientation),
+            _alignment(other._alignment),
+            _margin(other._margin),
+            _padding(other._padding),
+            _dimension(other._dimension),
+            _position(other._position),
+            _actualDimension(other._actualDimension),
+            _actualPosition(other._actualPosition),
+            _parent(other._parent),
+            _iFrameLayout(other._iFrameLayout),
+            _children(std::move(other._children))
+        {
+        }
+
+        FrameLayout& operator=(const FrameLayout& other)
+        {
+            _id = other._id;
+            _mode = other._mode;
+            _orientation = other._orientation;
+            _alignment = other._alignment;
+            _margin = other._margin;
+            _padding = other._padding;
+            _dimension = other._dimension;
+            _position = other._position;
+            _actualDimension = other._actualDimension;
+            _actualPosition = other._actualPosition;
+            _parent = other._parent;
+            _iFrameLayout = other._iFrameLayout;
+            _children = other._children;
+            return *this;
+        }
+
+        FrameLayout& operator=(FrameLayout&& other) noexcept
+        {
+            _id = std::move(other._id);
+            _mode = other._mode;
+            _orientation = other._orientation;
+            _alignment = other._alignment;
+            _margin = other._margin;
+            _padding = other._padding;
+            _dimension = other._dimension;
+            _position = other._position;
+            _actualDimension = other._actualDimension;
+            _actualPosition = other._actualPosition;
+            _parent = other._parent;
+            _iFrameLayout = other._iFrameLayout;
+            _children = std::move(other._children);
+            return *this;
+        }
+
         friend std::ostream& operator<<(std::ostream& os, const FrameLayout& frameLayout);
 
         void attach(IFrameLayout* iFrameLayout)
@@ -119,6 +212,25 @@ namespace lithium
         glm::vec2 actualPosition() const
         {
             return _actualPosition;
+        }
+
+        FrameLayout* appendChild(const FrameLayout& child)
+        {
+            _children.push_back(child);
+            FrameLayout* ptr = &_children.back();
+            ptr->_parent = this;
+            if(ptr->_id.length() == 0)
+            {
+                ptr->_id = _id + '.' + std::to_string(_children.size());
+            }
+            for(auto& child : _children)
+            {
+                if(child._iFrameLayout)
+                {
+                    child._iFrameLayout->onLayoutChanged(&child);
+                }
+            }
+            return ptr;
         }
 
         lithium::FrameLayout* setMode(Mode mode)
