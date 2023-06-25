@@ -14,24 +14,30 @@ namespace lithium
 
         virtual ~FrameRenderer() noexcept;
 
-        glm::vec2 resolution() const
-        {
-            return _resolution;
-        }
-
         SimpleCamera& camera()
         {
             return _camera;
         }
 
-        lithium::ExTextRenderer& textRenderer()
+        std::shared_ptr<lithium::ExTextRenderer> textRenderer()
         {
+            return _textRenderer;
+        }
+
+        std::shared_ptr<lithium::ExTextRenderer> createTextRenderer()
+        {
+            _textRenderer = std::make_shared<lithium::ExTextRenderer>(_dimension);
             return _textRenderer;
         }
 
         lithium::Object::TexturePointer cachedTexture()
         {
             return _textureFBO->texture(GL_COLOR_ATTACHMENT0);
+        }
+
+        void invalidate()
+        {
+            _synced = false;
         }
 
     private:
@@ -46,7 +52,7 @@ namespace lithium
         std::shared_ptr<lithium::RenderStage> _mainStage;
         std::shared_ptr<lithium::RenderStage> _downSampleStage;
         std::shared_ptr<RenderStage> _finalStage;
-        lithium::ExTextRenderer _textRenderer;
+        std::shared_ptr<lithium::ExTextRenderer> _textRenderer{nullptr};
         bool _synced{false};
     };
 }

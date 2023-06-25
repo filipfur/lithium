@@ -53,9 +53,13 @@ lithium::Object::TexturePointer mySharedTexture() {
     return texture;
 };
 
-lithium::Frame::Frame(Frame* parent, const glm::vec2& dimension) : Object{mySharedMesh(), {mySharedTexture()}},  FrameRenderer{dimension}, _parent{parent}
+lithium::Frame::Frame(FrameLayout* frameLayout) : Object{mySharedMesh(), {mySharedTexture()}},  FrameRenderer{frameLayout->actualDimension()}, _frameLayout{frameLayout}//,
+    /*_parent{frameLayout->_parent ? dynamic_cast<lithium::Frame*>(frameLayout->_parent->_iFrameLayout) : nullptr}*/
 {
-    setScale(glm::vec3{dimension, 1.0f});
+    setPosition(glm::vec3{frameLayout->actualPosition(), 0.0f});
+    setScale(glm::vec3{frameLayout->actualDimension(), 1.0f});
+    setObjectName(frameLayout->id());
+    _frameLayout->attach(this);
 }
 
 lithium::Frame::~Frame() noexcept
@@ -75,7 +79,7 @@ bool lithium::Frame::renderFrames()
     bool childRendered{false};
     forEachChild([&childRendered](Frame* frame)
     {
-        if(frame->hasChildren())
+        if(frame->hasChildren() || frame->textRenderer())
         {
             childRendered |= frame->renderFrames();
         }

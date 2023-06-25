@@ -1,45 +1,49 @@
 #pragma once
 
+#include <fstream>
 #include "glframe.h"
+#include "gllayoutsystem.h"
+#include "gljson.h"
 
 namespace lithium
 {
-    class Canvas : public Frame
+    class Canvas : public lithium::Updateable
     {
     public:
-        Canvas(const glm::vec2& resolution, const glm::vec2& dimension);
+        Canvas(const glm::vec2& resolution);
 
         virtual ~Canvas() noexcept;
 
-        void move(const glm::vec2& delta)
-        {
-            _lookTarget += glm::vec3{delta, 0.0f};
-        }
+        void setFrame(std::shared_ptr<lithium::Frame> frame);
 
-        virtual void update(float dt)
-        {
-            lithium::Frame::update(dt);
-            if(glm::distance2(_lookPosition, _lookTarget) < 0.0001f)
-            {
-                _lookPosition = _lookTarget;
-            }
-            else
-            {
-                _lookPosition = glm::mix(_lookPosition, _lookTarget, dt * 16.0f);
-                //refresh();
-            }
-            _camera.setPosition(glm::vec3{0.0f, 0.0f, 1.0f} + _lookPosition);
-            _camera.setTarget(_lookPosition);
-        }
+        void move(const glm::vec2& delta);
+
+        void loadUI(const std::string& path);
+
+        // This creates frame recursively
+        std::shared_ptr<lithium::Frame> addFrame(FrameLayout* frameLayout);
+
+        virtual void update(float dt) override;
+
+        Frame* frameById(const std::string& id);
         
-        void renderCanvas();
+        void render();
+
+        void refreshUI()
+        {
+            _layoutSystem.updateLayouts();
+        }
 
     private:
+
+        std::shared_ptr<lithium::Frame> _frame;
+        std::vector<std::shared_ptr<lithium::Frame>> _frames;
         glm::vec2 _resolution;
         SimpleCamera _camera;
         UniformBufferObject _canvasUBO;
         std::shared_ptr<Mesh> _frameMesh;
         glm::vec3 _lookTarget{0.0f};
         glm::vec3 _lookPosition{0.0f};
+        LayoutSystem _layoutSystem;
     };
 }

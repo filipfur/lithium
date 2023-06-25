@@ -9,8 +9,7 @@ lithium::FrameRenderer::FrameRenderer(const glm::vec2& dimension)
     //_camera{glm::ortho(0.0f, dimension.x, 0.0f, dimension.y, -10.0f, 10.0f)},
     _msaaFBO{std::make_shared<lithium::FrameBuffer>(dimension)},
     _textureFBO{std::make_shared<lithium::FrameBuffer>(dimension)},
-    _canvasUBO{sizeof(glm::mat4) * 2, "CanvasUBO", 0},
-    _textRenderer{dimension}
+    _canvasUBO{sizeof(glm::mat4) * 2, "CanvasUBO", 0}
 {
     static const auto msaaShader = std::make_shared<lithium::ShaderProgram>("shaders/screenshader.vert", "shaders/msaa.frag");
     _msaaShader = msaaShader;
@@ -97,13 +96,17 @@ lithium::FrameRenderer::FrameRenderer(const glm::vec2& dimension)
         auto p0 = frame->position();
         frame->setPosition(glm::vec3{0.0f});
         frame->lithium::Renderable::render(_frameShader.get());
-        std::cout << "Rendering: frame=" << frame->objectName() << std::endl;
+        std::cout << "Rendering: " << frame->objectName() << std::endl;
+        if(frame->_textRenderer)
+        {
+            frame->_textRenderer->render();
+        }
         //_frameRenderGroup->render(_frameShader);
         //clear(GL_DEPTH_BUFFER_BIT);
         _frameRenderGroup->forEach([this](lithium::Renderable* renderable){
             auto fr = dynamic_cast<Frame*>(renderable);
             fr->shade(_frameShader.get());
-            if(fr->hasChildren())
+            if(fr->hasChildren() || fr->textRenderer())
             {
                 _frameShader->setUniform("u_color", glm::vec4{1.0f});
                 fr->cachedTexture()->bind(GL_TEXTURE0);
@@ -114,11 +117,9 @@ lithium::FrameRenderer::FrameRenderer(const glm::vec2& dimension)
             {
                 fr->draw();
             }
-            std::cout << "Rendering: fr=" << fr->objectName() << std::endl;
+            std::cout << "  Rendering: " << fr->objectName() << std::endl;
         });
-
         frame->setPosition(p0);
-        _textRenderer.render();
         //enableDepthTesting();
         //enableBlending();
         //std::cout << "Re-rendered " << _frameRenderGroup->count() << " frames." << std::endl;

@@ -4,6 +4,8 @@ std::string toString(const lithium::FrameLayout::Mode& mode)
 {
     switch(mode)
     {
+    case lithium::FrameLayout::Mode::Absolute:
+        return "absolute";
     case lithium::FrameLayout::Mode::Fixed:
         return "fixed";
     case lithium::FrameLayout::Mode::Fill:
@@ -55,11 +57,11 @@ std::ostream& lithium::operator<<(std::ostream& os, const lithium::FrameLayout& 
     os << "  alignment: " << toString(frameLayout._alignment) << std::endl;
     os << "  margin: " << frameLayout._margin.x << ", " << frameLayout._margin.y << ", " << frameLayout._margin.z << ", " << frameLayout._margin.w << std::endl;
     os << "  padding: " << frameLayout._padding.x << ", " << frameLayout._padding.y << ", " << frameLayout._padding.z << ", " << frameLayout._padding.w << std::endl;
-    if(frameLayout._mode == FrameLayout::Mode::Fixed)
+    if(frameLayout._mode == FrameLayout::Mode::Absolute)
     {
         os << "  position: " << frameLayout._position.x << ", " << frameLayout._position.y << std::endl;
     }
-    os << (frameLayout._mode == FrameLayout::Mode::Fixed ? "  dimension: " : "  maxDimension: ") << frameLayout._dimension.x << ", " << frameLayout._dimension.y << std::endl;
+    os << (frameLayout._mode == FrameLayout::Mode::Absolute ? "  dimension: " : "  preferredDimension: ") << frameLayout._dimension.x << ", " << frameLayout._dimension.y << std::endl;
     os << "  children: " << frameLayout._children.size() << std::endl;
     return os;
 }
