@@ -12,55 +12,16 @@ namespace lithium
 	class Texture : public Element
 	{
 	public:
-		Texture(T* buffer, int width, int height, GLenum type=GL_UNSIGNED_BYTE,
+		Texture(T* bytes, int width, int height, GLenum type=GL_UNSIGNED_BYTE,
 			GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA,
 			GLenum textureMode=GL_TEXTURE_2D, GLuint samples=4)
-			: _bytes{buffer}, _width{width}, _height{height}, _textureMode{textureMode}
+			: _bytes{bytes}, _width{width}, _height{height}, _type{type}, _internalFormat{internalFormat},
+				_colorFormat{colorFormat}, _textureMode{textureMode}, _samples{samples}
 		{
 			glGenTextures(1, &_id);
 			bind();
-			switch(_textureMode)
-			{
-				default:
-				case GL_TEXTURE_2D:
-					glTexImage2D(_textureMode, 0, internalFormat, _width, _height, 0, colorFormat, type, _bytes);
-					break;
-				case GL_TEXTURE_2D_MULTISAMPLE:
-					glTexImage2DMultisample(_textureMode, samples, internalFormat, _width, _height, GL_TRUE);
-					break;
-				case GL_TEXTURE_CUBE_MAP:
-					break;
-			}
-
-			// Check for errors.
-			GLuint error{glGetError()};
-			if(error != GL_NO_ERROR)
-			{
-				std::string errorString;
-				switch(error)
-				{
-					case GL_INVALID_ENUM:
-						errorString = "GL_INVALID_ENUM";
-						break;
-					case GL_INVALID_VALUE:
-						errorString = "GL_INVALID_VALUE";
-						break;
-					case GL_INVALID_OPERATION:
-						errorString = "GL_INVALID_OPERATION";
-						break;
-					case GL_INVALID_FRAMEBUFFER_OPERATION:
-						errorString = "GL_INVALID_FRAMEBUFFER_OPERATION";
-						break;
-					case GL_OUT_OF_MEMORY:
-						errorString = "GL_OUT_OF_MEMORY";
-						break;
-					default:
-						errorString = "UNKNOWN";
-						break;
-				}
-				std::cerr << "Error creating texture: " << errorString << std::endl;
-			}
-
+			loadBytes(bytes);
+			errorCheck();
 			setUnpackAlignment();
 			setFilter()->setWrap();
 			unbind();
@@ -182,18 +143,105 @@ namespace lithium
 		}
 	protected:
 
+		void loadBytes(T* bytes)
+		{
+			_bytes = bytes;
+			switch(_textureMode)
+			{
+				default:
+				case GL_TEXTURE_2D:
+					glTexImage2D(_textureMode, 0, _internalFormat, _width, _height, 0, _colorFormat, _type, _bytes);
+					break;
+				case GL_TEXTURE_2D_MULTISAMPLE:
+					glTexImage2DMultisample(_textureMode, _samples, _internalFormat, _width, _height, GL_TRUE);
+					break;
+				case GL_TEXTURE_CUBE_MAP:
+					break;
+			}
+		}
+
+		void errorCheck()
+		{
+			GLuint error{glGetError()};
+			if(error != GL_NO_ERROR)
+			{
+				std::string errorString;
+				switch(error)
+				{
+					case GL_INVALID_ENUM:
+						errorString = "GL_INVALID_ENUM";
+						break;
+					case GL_INVALID_VALUE:
+						errorString = "GL_INVALID_VALUE";
+						break;
+					case GL_INVALID_OPERATION:
+						errorString = "GL_INVALID_OPERATION";
+						break;
+					case GL_INVALID_FRAMEBUFFER_OPERATION:
+						errorString = "GL_INVALID_FRAMEBUFFER_OPERATION";
+						break;
+					case GL_OUT_OF_MEMORY:
+						errorString = "GL_OUT_OF_MEMORY";
+						break;
+					default:
+						errorString = "UNKNOWN";
+						break;
+				}
+				std::cerr << "Error creating texture: " << errorString << std::endl;
+			}	
+		}
+
+		T* bytes() const
+		{
+			return _bytes;
+		}
+
+		GLenum type() const
+		{
+			return _type;
+		}
+
+		GLenum internalFormat() const
+		{
+			return _internalFormat;
+		}
+
+		GLenum colorFormat() const
+		{
+			return _colorFormat;
+		}
+
+		GLuint samples() const
+		{
+			return _samples;
+		}
+
+		void setWidth(int width)
+		{
+			_width = width;
+		}
+
+		void setHeight(int height)
+		{
+			_height = height;
+		}
+
+		void setColorFormat(GLenum colorFormat)
+		{
+			_colorFormat = colorFormat;
+		}
+
 	private:
 		T* _bytes;
 		int _width;
 		int _height;
+		GLenum _type;
+		GLenum _internalFormat;
+		GLenum _colorFormat;
 		GLenum _textureMode;
+		GLuint _samples;
 		inline static GLuint _active{0};
 		inline static const Texture* _bound[32] = {};
-		/*static_assert(_bound[1] == nullptr);
-		static_assert(_bound[4] == nullptr);
-		static_assert(_bound[8] == nullptr);
-		static_assert(_bound[24] == nullptr);
-		static_assert(_bound[31] == nullptr);*/
 		glm::ivec2 _regionSize{};
 		bool _atlas{false};
 		inline static unsigned int _bindCount{0};

@@ -52,6 +52,7 @@ add_library(lithium STATIC
     src/gljson.cpp
     src/gllayoutsystem.cpp
     src/glframelayout.cpp
+    src/glimagetexture.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
