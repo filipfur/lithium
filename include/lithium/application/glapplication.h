@@ -34,6 +34,7 @@ namespace lithium
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 #endif
+            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             //glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
             switch(mode)
@@ -124,11 +125,12 @@ namespace lithium
                     std::cerr << "Too long since last tick. Discarding time." << std::endl;
                     _lastTime = crntTime;
                 }
-                else if (dt >= 0.015f)
+                else if (dt >= _maxFpsPeriod)
                 {
                     update(dt);
                     _lastTime = crntTime;
-                    glfwSwapBuffers(_window);
+                    //glfwSwapBuffers(_window);
+                    glFlush();
                     ++_numFrames;
                 }
                 if(crntTime - _lastFpsCount >= 1)
@@ -204,6 +206,12 @@ namespace lithium
             glfwSetWindowShouldClose(_window, true);
         }
 
+        void setMaxFps(float maxFps)
+        {
+            _maxFps = maxFps;
+            _maxFpsPeriod = 1.0f / maxFps;
+        }
+
     private:
         std::shared_ptr<lithium::Input> _input{nullptr};
         glm::ivec2 _windowResolution;
@@ -212,6 +220,8 @@ namespace lithium
         float _time{0};
         double _lastTime{0};
         double _startTime{0};
+        float _maxFps{240};
+        float _maxFpsPeriod{1.0f / _maxFps};
         bool _fullscreen{false};
         glm::ivec2 _defaultFrameBufferResolution;
 #ifdef LITHIUM_USE_AUDIO
