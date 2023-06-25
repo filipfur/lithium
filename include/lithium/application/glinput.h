@@ -12,6 +12,7 @@
 #include <functional>
 #include <sstream>
 #include <cassert>
+#include "gluserpointer.h"
 
 namespace lithium
 {
@@ -218,31 +219,31 @@ namespace lithium
 	private:
 		static void onKeyStatic(GLFWwindow *window, int key, int scanCode, int action, int mods)
 		{
-			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
+			Input* self = static_cast<lithium::UserPointer*>(glfwGetWindowUserPointer(window))->input;
 			self->onKey(window, key, scanCode, action, mods);
 		}
 
 		static void onMouseStatic(GLFWwindow *window, int button ,int action, int mods)
 		{
-			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
+			Input* self = static_cast<lithium::UserPointer*>(glfwGetWindowUserPointer(window))->input;
 			self->onMouse(window, button, action, mods);
 		}
 
 		static void onScrollStatic(GLFWwindow *window, double xoffset, double yoffset)
 		{
-			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
+			Input* self = static_cast<lithium::UserPointer*>(glfwGetWindowUserPointer(window))->input;
 			self->onScroll(window, xoffset, yoffset);
 		}
 
 		static void onCursorStatic(GLFWwindow *window, double xpos, double ypos)
 		{
-			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
+			Input* self = static_cast<lithium::UserPointer*>(glfwGetWindowUserPointer(window))->input;
 			self->onCursor(window, xpos, ypos);
 		}
 
 		static void onTextStatic(GLFWwindow* window, unsigned int codepoint)
 		{
-			Input* self = static_cast<Input*>(glfwGetWindowUserPointer(window));
+			Input* self = static_cast<lithium::UserPointer*>(glfwGetWindowUserPointer(window))->input;
 			self->onText(window, codepoint);
 		}
 

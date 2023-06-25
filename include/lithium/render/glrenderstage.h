@@ -12,11 +12,11 @@ namespace lithium
 
         using CallbackType = std::function<void()>;
 
-        RenderStage(std::shared_ptr<lithium::FrameBuffer> frameBuffer, const glm::ivec4& viewport, const CallbackType& callback);
+        RenderStage(std::shared_ptr<lithium::FrameBuffer> frameBuffer, const CallbackType& callback);
 
         virtual ~RenderStage() noexcept;
 
-        virtual void render();
+        virtual void render(const glm::ivec4& defaultViewport);
 
         std::shared_ptr<lithium::FrameBuffer> frameBuffer()
         {
@@ -40,7 +40,6 @@ namespace lithium
 
     private:
         std::shared_ptr<lithium::FrameBuffer> _frameBuffer;
-        glm::ivec4 _viewport;
         CallbackType _callback;
         bool _enabled{true};
         static glm::ivec4 latestViewport;

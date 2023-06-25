@@ -41,6 +41,11 @@ namespace lithium
             return _textures.at(colorAttachment);
         }
 
+        glm::ivec2 resolution() const
+        {
+            return _resolution;
+        }
+
         void blit(std::shared_ptr<lithium::FrameBuffer> frameBuffer, GLuint fromComponment, GLuint toComponment,
     GLbitfield mask=GL_COLOR_BUFFER_BIT, GLenum filter=GL_NEAREST);
 

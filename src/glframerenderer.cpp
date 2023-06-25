@@ -75,7 +75,7 @@ lithium::FrameRenderer::FrameRenderer(const glm::vec2& dimension)
         enableDepthTesting();
     }));*/
 
-    _mainStage = addRenderStage(std::make_shared<lithium::RenderStage>(_textureFBO, glm::ivec4{0.0f, 0.0f, dimension.x, dimension.y}, [this](){
+    _mainStage = addRenderStage(std::make_shared<lithium::RenderStage>(_textureFBO, [this](){
         clearColor(0.0f, 0.0f, 0.0f, 0.0f);
         clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //disableDepthTesting();

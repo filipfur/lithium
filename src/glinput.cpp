@@ -3,7 +3,6 @@
 
 lithium::Input::Input(GLFWwindow* window) : _window{ window }, _controller{}, _up{0.0f, 1.0f, 0.0f}
 {
-	glfwSetWindowUserPointer(window, this);
 	glfwSetKeyCallback(window, onKeyStatic);
 	glfwSetMouseButtonCallback(window, onMouseStatic);
 	glfwSetScrollCallback(window, onScrollStatic);

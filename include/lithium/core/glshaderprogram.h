@@ -75,6 +75,11 @@ namespace lithium
 			}
 		}
 
+		void setUniform(const std::string& name, const glm::ivec2& vector)
+		{
+			glUniform2iv(loadUniform(name), 1, glm::value_ptr(vector));
+		}
+
 		void setUniform(const std::string& name, const glm::vec3& vector, bool cache=false)
 		{
 			glUniform3fv(loadUniform(name), 1, glm::value_ptr(vector));

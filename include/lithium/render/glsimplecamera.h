@@ -32,6 +32,11 @@ namespace lithium
             update();
         }
 
+        void setProjection(const glm::mat4& projection)
+        {
+            _projection = projection;
+        }
+
         glm::vec3 position() const
         {
             return _position;

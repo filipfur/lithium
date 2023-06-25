@@ -34,13 +34,19 @@ namespace lithium
         {
             for(auto it = _renderStages.begin(); it != _renderStages.end(); ++it)
             {
-                if((*it)->enabled()){ (*it)->render(); }
+                auto defaultViewport = glm::ivec4{0, 0, _resolution.x, _resolution.y};
+                if((*it)->enabled()){ (*it)->render(defaultViewport); }
             }
         }
 
         void setViewportToResolution()
         {
             glViewport(0, 0, _resolution.x, _resolution.y);
+        }
+
+        virtual void setResolution(const glm::ivec2& resolution)
+        {
+            _resolution = resolution;
         }
 
         void attach(lithium::Renderable* renderable)

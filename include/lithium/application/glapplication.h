@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include "glupdateable.h"
 #include "glinput.h"
+#include "gluserpointer.h"
 
 #ifdef LITHIUM_USE_AUDIO
 #define MINIAUDIO_IMPLEMENTATION
@@ -81,11 +82,16 @@ namespace lithium
             glGetIntegerv(GL_VIEWPORT, dims);
             GLint fbWidth = dims[2];
             GLint fbHeight = dims[3];
-            std::cout << "fb: " << fbWidth << ", " << fbHeight << std::endl;
-            _input = std::make_shared<lithium::Input>(_window);
             _defaultFrameBufferResolution.x = fbWidth;
             _defaultFrameBufferResolution.y = fbHeight;
+
+            _input = std::make_shared<lithium::Input>(_window);
             input()->setContext(this);
+
+            glfwSetWindowSizeCallback(_window, windowSizeCallback);
+
+            static UserPointer userPointer{this, _input.get()};
+	        glfwSetWindowUserPointer(_window, &userPointer);
         }
 
         virtual ~Application()
@@ -212,7 +218,23 @@ namespace lithium
             _maxFpsPeriod = 1.0f / maxFps;
         }
 
+        virtual void onWindowSizeChanged(int width, int height) = 0;
+
     private:
+        static void windowSizeCallback(GLFWwindow* window, int width, int height)
+        {
+            Application* app = static_cast<lithium::UserPointer*>(glfwGetWindowUserPointer(window))->application;
+            app->_windowResolution.x = width;
+            app->_windowResolution.y = height;
+            GLint dims[4] = {0};
+            glGetIntegerv(GL_VIEWPORT, dims);
+            GLint fbWidth = dims[2];
+            GLint fbHeight = dims[3];
+            app->_defaultFrameBufferResolution.x = fbWidth;
+            app->_defaultFrameBufferResolution.y = fbHeight;
+            app->onWindowSizeChanged(width, height);
+        }
+
         std::shared_ptr<lithium::Input> _input{nullptr};
         glm::ivec2 _windowResolution;
         Mode _mode;
