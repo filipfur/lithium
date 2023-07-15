@@ -167,12 +167,47 @@ void lithium::LayoutSystem::updateLayouts()
                 // Fixed mode really nothing to do here.
                 break;
             }
-            else
+
+            /*
+            |---------------------|
+            |     PADDING TOP     |
+            |---------------------| y=dim.y/2-padding[TOP]
+            |                     |
+            |                     |
+            |                     |<- y=0
+            |                     |
+            |                     |
+            |---------------------|
+            |   PADDING BOTTOM    |
+            |---------------------|
+            */
+
+            float childLowerMargin = curPos - child._actualDimension[n] - child._margin[m + TOP] - child._margin[m + BOTTOM];
+            float boxLowerEdge = -frameLayout->_actualDimension[n] * 0.5f + frameLayout->_padding[m + BOTTOM];
+            if(childLowerMargin < boxLowerEdge)
             {
-                child._actualPosition[n] = curPos - child._actualDimension[n] * 0.5f - child._margin[m + TOP];
+                child._actualDimension[n] += childLowerMargin - boxLowerEdge;
             }
 
-            float inc = child._dimension[n] + child._margin[m + TOP] + child._margin[m + BOTTOM];
+            child._actualPosition[n] = curPos - child._actualDimension[n] * 0.5f - child._margin[m + TOP];
+
+            float childBreadth = child._actualDimension[m] + child._margin[LEFT - m] + child._margin[RIGHT - m];
+            float breadth = frameLayout->_actualDimension[m] - frameLayout->_padding[LEFT - m] - frameLayout->_padding[RIGHT - m];
+            if(childBreadth > breadth)
+            {
+                child._actualDimension[m] -= childBreadth - breadth;
+            }
+            float dir{1.0f};
+            switch(child._alignment)
+            {
+                case FrameLayout::Alignment::Left:
+                    dir = -1.0f;
+                    // Intentional fall-through
+                case FrameLayout::Alignment::Right:
+                    child._actualPosition[m] = dir * (child._actualDimension[m] * 0.5f + child._margin[LEFT - m] + maxBreadth * 0.5f);
+                    break;
+            }
+            float inc = child._actualDimension[n] + child._margin[m + TOP] + child._margin[m + BOTTOM];
             curPos -= inc;
         }
     }

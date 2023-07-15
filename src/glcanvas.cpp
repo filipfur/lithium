@@ -1,7 +1,7 @@
 #include "glcanvas.h"
 
-lithium::Canvas::Canvas(const glm::vec2& resolution)
-    : _resolution{resolution},
+lithium::Canvas::Canvas(const glm::vec2& resolution, const glm::vec2& frameBufferResolution)
+    : _resolution{resolution}, _frameBufferResolution{frameBufferResolution},
     _camera{glm::ortho(-resolution.x * 0.5f, resolution.x * 0.5f, -resolution.y * 0.5f, resolution.y * 0.5f, -10.0f, 10.0f)},
     //_camera{glm::ortho(0.0f, resolution.x, 0.0f, resolution.y, -10.0f, 10.0f)},
     _canvasUBO{sizeof(glm::mat4) * 2, "CanvasUBO", 0}
@@ -104,7 +104,7 @@ void lithium::Canvas::render()
 
     _frame->renderFrames();
 
-    glViewport(0, 0, _resolution.x, _resolution.y);
+    glViewport(0, 0, _frameBufferResolution.x, _frameBufferResolution.y);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

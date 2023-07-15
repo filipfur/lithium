@@ -353,6 +353,16 @@ namespace lithium
             parent->_children.push_back(*this);
         }
 
+        bool hasDimension() const
+        {
+            return _dimension.x > 0.0f && _dimension.y > 0.0f;
+        }
+
+        bool hasPosition() const
+        {
+            return _position.x > 0.0f && _position.y > 0.0f;
+        }
+
     private:
         std::string _id;
         Mode _mode{Mode::Absolute};

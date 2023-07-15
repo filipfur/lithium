@@ -10,7 +10,7 @@ namespace lithium
     class Canvas : public lithium::Updateable
     {
     public:
-        Canvas(const glm::vec2& resolution);
+        Canvas(const glm::vec2& resolution, const glm::vec2& frameBufferResolution);
 
         virtual ~Canvas() noexcept;
 
@@ -39,6 +39,7 @@ namespace lithium
         std::shared_ptr<lithium::Frame> _frame;
         std::vector<std::shared_ptr<lithium::Frame>> _frames;
         glm::vec2 _resolution;
+        glm::vec2 _frameBufferResolution;
         SimpleCamera _camera;
         UniformBufferObject _canvasUBO;
         std::shared_ptr<Mesh> _frameMesh;
