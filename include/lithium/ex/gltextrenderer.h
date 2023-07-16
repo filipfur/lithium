@@ -5,6 +5,7 @@
 #include "glshaderprogram.h"
 #include "glorthographiccamera.h"
 #include "glrendergroup.h"
+#include "glsimplecamera.h"
 
 namespace
 {
@@ -47,6 +48,10 @@ namespace
         float borderWidth = 0.2;//0.125;
         float color = clamp(signedDistance + 0.5, 0.0, 1.0);
         float alpha = clamp(signedDistance + 0.5 + scale * borderWidth, 0.0, 1.0);
+        if(alpha < 0.01)
+        {
+            discard;
+        }
         FragColor = vec4(u_color.rgb * color, u_color.a) * alpha;
         //FragColor += vec4(1, 0, 0, 1) * 0.5;
     }
@@ -104,11 +109,19 @@ namespace lithium
             }
         }
 
-        std::shared_ptr<lithium::Text> createText(std::shared_ptr<Font> font, const std::string& str, float textScale=1.0f)
+        std::shared_ptr<lithium::Text> createText(std::shared_ptr<Font> font, const std::string& str, float textScale=1.0f,
+            lithium::Text::Alignment alignment=lithium::Text::Alignment::LEFT, float lineSpacing=1.0f, float letterSpacing=1.0f)
         {
-            std::shared_ptr<lithium::Text> text = std::make_shared<lithium::Text>(font, str, textScale);
+            std::shared_ptr<lithium::Text> text = std::make_shared<lithium::Text>(font, str, textScale, alignment, lineSpacing, letterSpacing);
             _texts.insert(text);
             return text;
+        }
+
+        std::shared_ptr<lithium::Text> text(size_t index)
+        {
+            auto it = _texts.begin();
+            std::advance(it, index);
+            return *it;
         }
 
     private:

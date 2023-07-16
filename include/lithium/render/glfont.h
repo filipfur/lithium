@@ -45,6 +45,8 @@ namespace lithium
                     c["advance"].get<float>()
                 };
 
+                _maxCharacterHeight = std::max(_maxCharacterHeight, character.height);
+
                 _characters.emplace(ch, character);
             }
         }
@@ -60,6 +62,8 @@ namespace lithium
         float height() const { return _height; }
         float size() const { return _size; }
 
+        float maxCharacterHeight() const { return _maxCharacterHeight; }
+
     private:
         std::shared_ptr<lithium::Texture<unsigned char>> _texture{nullptr};
         lithium::json::Json _fontMetrics;
@@ -67,6 +71,7 @@ namespace lithium
         float _width{0.0f};
         float _height{0.0f};
         float _size{0.0f};
+        float _maxCharacterHeight{0.0f};
 
         std::map<char, lithium::Font::Character> _characters;
     };

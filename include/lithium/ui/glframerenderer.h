@@ -35,9 +35,19 @@ namespace lithium
             return _textureFBO->texture(GL_COLOR_ATTACHMENT0);
         }
 
-        void invalidate()
+        std::shared_ptr<lithium::FrameBuffer> frameBuffer()
         {
-            _synced = false;
+            return _textureFBO;
+        }
+
+        glm::vec2 dimension() const
+        {
+            return _dimension;
+        }
+
+        std::shared_ptr<lithium::Text> text()
+        {
+            return _textRenderer->text(0);
         }
 
     private:
@@ -53,6 +63,5 @@ namespace lithium
         std::shared_ptr<lithium::RenderStage> _downSampleStage;
         std::shared_ptr<RenderStage> _finalStage;
         std::shared_ptr<lithium::ExTextRenderer> _textRenderer{nullptr};
-        bool _synced{false};
     };
 }

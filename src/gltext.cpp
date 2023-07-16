@@ -1,7 +1,7 @@
 #include "gltext.h"
 
-lithium::Text::Text(std::shared_ptr<Font> font, const std::string& text, float textScale)
-    : lithium::Object{nullptr, {font->texture()}}, _font{font}, _textScale{textScale}
+lithium::Text::Text(std::shared_ptr<Font> font, const std::string& text, float textScale, Alignment alignment, float lineSpacing, float letterSpacing)
+    : lithium::Object{nullptr, {font->texture()}}, _font{font}, _textScale{textScale}, _alignment{alignment}, _lineSpacing{lineSpacing}, _letterSpacing{letterSpacing}
 {
     setText(text);
 }
@@ -75,6 +75,43 @@ void lithium::Text::draw() const
     _mesh->unbind();
 }
 
+void lithium::Text::measureText()
+{
+    _width = 0;
+    _height = 0;
+    _lines.clear();
+    _lineWidths.clear();
+
+    float x = 0;
+    std::string line{""};
+    int numCharacters = 0;
+    for(int i{0}; i < _text.length(); ++i)
+    {
+        if(_text[i] == '\n')
+        {
+            _width = std::max(_width, x);
+            _lineWidths.push_back(x);
+            _lines.push_back(line);
+            line = "";
+            x = 0;
+            continue;
+        }
+        ++numCharacters;
+        line += _text[i];
+        auto c = _font->character(_text[i]);
+        x += c.advance * _textScale * _letterSpacing;
+    }
+
+    if(x > 0)
+    {
+        _width = std::max(_width, x);
+        _lineWidths.push_back(x);
+        _lines.push_back(line);
+    }
+
+    _height = _font->maxCharacterHeight() * _lineSpacing * _textScale * _lines.size();
+}
+
 void lithium::Text::initBuffers()
 {
     float x = 0.0f;
@@ -84,49 +121,73 @@ void lithium::Text::initBuffers()
     _indices.clear();
     _letterXPositions.clear();
 
-    _height = 0;
+    measureText();
 
-    for(int i = 0; i < _text.length(); ++i)
+    GLuint curidx = 0;//i * 4;
+
+    switch(_alignment)
     {
-        //auto c = font->characters[_text[i]];
-        auto c = _font->character(_text[i]);
-        float x0 = x - c.originX * _textScale;
-        float y0 = y - c.originY * _textScale;
-        float s0 = c.x / _font->width();
-        float t0 = c.y / _font->height();
-
-        float w = c.width * _textScale;
-
-        float x1 = x - c.originX * _textScale + w;
-        float s1 = (c.x + c.width) / _font->width();
-
-        float y2 = y - c.originY * _textScale + c.height * _textScale;
-        float t2 = (c.y + c.height) / _font->height();
-
-
-        _vertices.insert(_vertices.end(), { 
-            x0, y0, s0, t0,
-            x1, y0, s1, t0,  
-            x0, y2, s0, t2,  
-            x1, y2, s1, t2});
-
-
-    // p0 --- p1
-    // | \     |
-    // |   \   |
-    // |     \ |
-    // p2 --- p3
-
-        GLuint curidx = i * 4;
-        _indices.insert(_indices.end(), {
-            curidx+0, curidx+2, curidx+1,  // first triangle
-            curidx+1, curidx+2, curidx+3}); // second triangle
-        float oldX = x;
-        x += c.advance * _textScale;
-        _letterXPositions.push_back(glm::vec2{oldX, x});
-        _height = _height < c.height * _textScale ? c.height * _textScale : _height;
+        case Alignment::CENTER:
+            y = -_height * 0.5f + _font->maxCharacterHeight() * _textScale;
+            break;
     }
-    _width = x;
+
+    for(int lineNo = 0; lineNo < _lines.size(); ++lineNo)
+    {
+        const auto& line = _lines[lineNo];
+
+        switch(_alignment)
+        {
+            case Alignment::LEFT:
+                x = 0.0f;
+                break;
+            case Alignment::CENTER:
+                x = (_width - _lineWidths[lineNo]) / 2.0f - _width * 0.5f;
+                break;
+        }
+
+        for(int i = 0; i < line.length(); ++i)
+        {
+            auto c = _font->character(line[i]);
+            float x0 = x - c.originX * _textScale;
+            float y0 = y - c.originY * _textScale;
+            float s0 = c.x / _font->width();
+            float t0 = c.y / _font->height();
+
+            float w = c.width * _textScale;
+
+            float x1 = x - c.originX * _textScale + w;
+            float s1 = (c.x + c.width) / _font->width();
+
+            float y2 = y - c.originY * _textScale + c.height * _textScale;
+            float t2 = (c.y + c.height) / _font->height();
+
+
+            _vertices.insert(_vertices.end(), { 
+                x0, y0, s0, t0,
+                x1, y0, s1, t0,  
+                x0, y2, s0, t2,  
+                x1, y2, s1, t2});
+
+            // p0 --- p1
+            // | \     |
+            // |   \   |
+            // |     \ |
+            // p2 --- p3
+
+            _indices.insert(_indices.end(), {
+                curidx+0, curidx+2, curidx+1,  // first triangle
+                curidx+1, curidx+2, curidx+3}); // second triangle
+            curidx += 4;
+            float oldX = x;
+            x += c.advance * _textScale * _letterSpacing;
+            _letterXPositions.push_back(glm::vec2{oldX, x});
+        }
+
+        y += _font->maxCharacterHeight() * _lineSpacing * _textScale;
+    }
+
+
     _initialised = false;
     setModelInvalidated(true);
 }

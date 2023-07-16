@@ -39,12 +39,14 @@ namespace lithium
 
 		void onText(GLFWwindow *window, unsigned int codepoint);
 
+		/*bool pressedCallback(int key, int mods)*/
 		void addPressedCallback(int key, const std::function<bool(int, int)>& func)
 		{
 			assert(_context != nullptr);
 			_pressedCallbacks[_context][key] = func;
 		}
 
+		/*bool releasedCallback(int key, int mods)*/
 		void addReleasedCallback(int key, const std::function<bool(int, int)>& func)
 		{
 			assert(_context != nullptr);

@@ -43,38 +43,6 @@ lithium::FrameRenderer::FrameRenderer(const glm::vec2& dimension)
     //_textureFBO->createTexture(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
     _textureFBO->unbind();
 
-
-    /*_mainStage = addRenderStage(std::make_shared<lithium::RenderStage>(_msaaFBO, glm::ivec4{0.0f, 0.0f, dimension.x * 2.0f, dimension.y  * 2.0f}, [this](){
-        clearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        disableDepthTesting();
-
-        _canvasUBO.bufferSubData(0, _camera.projection());
-        _canvasUBO.bufferSubData(sizeof(glm::mat4), glm::mat4{1.0f});
-        _canvasUBO.bindBufferBase({
-            _frameShader.get()
-        });
-        auto frame = dynamic_cast<Frame*>(this);
-        frame->shade(lithium::Frame::shaderProgram().get());
-        frame->mesh()->bind();
-        frame->mesh()->draw();
-        _frameRenderGroup->render(_frameShader);
-        _textRenderer.render();
-        enableDepthTesting();
-        //std::cout << "Re-rendered " << _frameRenderGroup->count() << " frames." << std::endl;
-    }));
-
-    _downSampleStage = addRenderStage(std::make_shared<lithium::RenderStage>(_textureFBO, glm::ivec4{0.0f, 0.0f, dimension.x * 2.0f, dimension.y  * 2.0f}, [this](){
-        clearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        disableDepthTesting();
-        _msaaShader->use();
-        _mainStage->frameBuffer()->texture(GL_COLOR_ATTACHMENT0)->bind(GL_TEXTURE0);
-        screen->bind();
-        screen->draw();
-        enableDepthTesting();
-    }));*/
-
     _mainStage = addRenderStage(std::make_shared<lithium::RenderStage>(_textureFBO, [this](){
         clearColor(0.0f, 0.0f, 0.0f, 0.0f);
         clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

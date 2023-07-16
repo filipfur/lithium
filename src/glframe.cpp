@@ -84,8 +84,7 @@ bool lithium::Frame::renderFrames()
             childRendered |= frame->renderFrames();
         }
     });
-    bool rendered = _changed;
-    bool reRender = rendered || childRendered;
+    bool reRender = _changed || childRendered;
     //_renderStages[0]->setEnabled(reRender);
     //_renderStages[1]->setEnabled(reRender);
     if(reRender)
