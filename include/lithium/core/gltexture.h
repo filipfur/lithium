@@ -32,6 +32,15 @@ namespace lithium
 			glDeleteTextures(1, &_id);
 		}
 
+		static std::shared_ptr<lithium::Texture<T>> Basic(const glm::vec3& color=glm::vec3{1.0f})
+		{
+			T data[] = {
+				static_cast<unsigned char>(255.0f * color.r),
+				static_cast<unsigned char>(255.0f * color.g),
+				static_cast<unsigned char>(255.0f * color.b)};
+            return std::make_shared<lithium::Texture<T>>(data, 1, 1, GL_UNSIGNED_BYTE, GL_RGB, GL_RGB);
+		}
+
 		Texture* setUnpackAlignment(GLuint unpackAlignment=4)
 		{
 			bind();

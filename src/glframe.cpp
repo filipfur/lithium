@@ -47,8 +47,7 @@ std::shared_ptr<lithium::Mesh> mySharedMesh() {
 };
 
 lithium::Object::TexturePointer mySharedTexture() {
-    static unsigned char data[] = {0xFF, 0xFF, 0xFF};
-    static const lithium::Object::TexturePointer texture = std::make_shared<lithium::Texture<unsigned char>>(data, 1, 1, GL_UNSIGNED_BYTE, GL_RGB, GL_RGB);
+    static const lithium::Object::TexturePointer texture = lithium::Texture<unsigned char>::Basic();
     texture->setFilter(GL_NEAREST);
     return texture;
 };

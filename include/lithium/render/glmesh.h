@@ -2,10 +2,12 @@
 
 #include <vector>
 #include <algorithm>
+#include <memory>
 
+#include <glm/gtc/type_ptr.hpp>
 #include "glvertexarray.h"
 #include "glbuffer.h"
-#include <glm/gtc/type_ptr.hpp>
+#include "glmaterial.h"
 
 namespace lithium
 {
@@ -18,7 +20,7 @@ namespace lithium
 			
 		}
 
-		Mesh(const Mesh& other) : VertexArray{other}
+		Mesh(const Mesh& other) : VertexArray{other}, _material{other._material}
 		{
 		}
 
@@ -44,5 +46,16 @@ namespace lithium
 			return new lithium::Mesh(*this);
 		}
 
+		void setMaterial(std::shared_ptr<lithium::Material> material)
+		{
+			_material = material;
+		}
+
+		std::shared_ptr<lithium::Material> material() const
+		{
+			return _material;
+		}
+	private:		
+		std::shared_ptr<lithium::Material> _material{nullptr};
 	};
 }

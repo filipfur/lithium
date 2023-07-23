@@ -14,6 +14,11 @@ namespace lithium
 {
     class Object : public Updateable, public Renderable
     {
+		enum class RotationType
+		{
+			XYZ,
+			QUATERNION
+		};
     public:
 		using TexturePointer = std::shared_ptr<lithium::Texture<unsigned char>>;
 
@@ -66,6 +71,15 @@ namespace lithium
 		{
 			_rotation = rotation;
 			_modelInvalidated = true;
+			_rotationType = RotationType::XYZ;
+			return this;
+		}
+
+		lithium::Object* setQuaternion(const glm::quat& quaternion)
+		{
+			_quaternion = quaternion;
+			_modelInvalidated = true;
+			_rotationType = RotationType::QUATERNION;
 			return this;
 		}
 
@@ -219,6 +233,7 @@ namespace lithium
         std::shared_ptr<lithium::Mesh> _mesh{nullptr};
 		glm::vec3 _position{0.0f};
 		glm::vec3 _rotation{0.0f};
+		glm::quat _quaternion{1.0f, 0.0f, 0.0f, 0.0f};
 		glm::vec3 _scale{1.0f};
 		glm::mat4 _model{1.0f};
 		glm::vec4 _color{1.0f};
@@ -226,5 +241,6 @@ namespace lithium
 		std::shared_ptr<std::string> _objectName;
 	private:
 		bool _modelInvalidated{false};
+		RotationType _rotationType{RotationType::XYZ};
     };
 }

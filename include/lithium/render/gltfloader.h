@@ -85,7 +85,7 @@ namespace gltf
         {
             this->_json.clear();
             this->_accessors.clear();
-            this->_nodeMap.clear();
+            this->_nodes.clear();
             std::ifstream ifs{filePath};
             if(!ifs)
             {
@@ -99,6 +99,10 @@ namespace gltf
         lithium::ImageTexture* loadTexture(const std::filesystem::path& filePath)
         {
             lithium::ImageTexture* imageTexture{nullptr};
+            if(!_json.contains("images"))
+            {
+                return imageTexture;
+            }
             for(auto& image : _json["images"])
             {
                 const std::string uri = image["uri"].get<std::string>();
@@ -124,9 +128,8 @@ namespace gltf
 
             loadNodes();
 
-            for(auto entry : _nodeMap)
+            for(lithium::Node* node : _nodes)
             {
-                lithium::Node* node = entry.second;
                 if(node->hasProperties())
                 {
                     nodes.push_back(node);
@@ -147,9 +150,8 @@ namespace gltf
 
             loadNodes();
 
-            for(auto entry : _nodeMap)
+            for(lithium::Node* node : _nodes)
             {
-                lithium::Node* node = entry.second;
                 nodes.push_back(node);
             }
 
@@ -278,20 +280,122 @@ namespace gltf
                         }
                     }
                 }
-
-                _nodeMap[i] = actualNode;
+                _nodes.push_back(actualNode);
+                assert(_nodes.size() == i + 1);
             }
 
-            for(auto entry : _nodeMap)
+            for(int n{0}; n < _nodes.size(); ++n)
             {
-                auto& node = jsonNodes[entry.first];
+                auto& node = jsonNodes[n];
                 if(node.contains("children"))
                 {
                     for(auto childId : node["children"])
                     {
-                        _nodeMap[childId.get<int>()]->setParent(entry.second);
+                        _nodes.at(childId.get<int>())->setParent(_nodes[n]);
                     }
                 }
+            }
+        }
+
+        void loadObjects(std::vector<std::shared_ptr<lithium::Object>>& objects,
+            const std::filesystem::path& filePath, bool loadTexture=true)
+        {
+            if(!loadJson(filePath))
+            {
+                return;
+            }
+
+            std::vector<std::shared_ptr<lithium::Material>> materials;
+            std::vector<std::shared_ptr<lithium::Mesh>> meshes;
+            std::shared_ptr<lithium::ImageTexture> imageTexture{nullptr};
+
+            if(loadTexture)
+            {
+                imageTexture.reset(this->loadTexture(filePath));
+            }
+
+            if(_json.contains("materials"))
+            {
+                for(auto& material : _json["materials"])
+                {
+                    std::shared_ptr<lithium::Material> mat = std::make_shared<lithium::Material>(glm::vec4{1.0f});
+                    if(material.contains("pbrMetallicRoughness"))
+                    {
+                        auto& pbr = material["pbrMetallicRoughness"];
+                        if(pbr.contains("baseColorFactor"))
+                        {
+                            auto& baseColorFactor = pbr["baseColorFactor"];
+                            mat->setBaseColor(glm::vec4{baseColorFactor[0].get<float>(),
+                                baseColorFactor[1].get<float>(),
+                                baseColorFactor[2].get<float>(),
+                                baseColorFactor[3].get<float>()});
+                        }
+                        if(pbr.contains("metallicFactor"))
+                        {
+                            mat->setMetallic(pbr["metallicFactor"].get<float>());
+                        }
+                        if(pbr.contains("roughnessFactor"))
+                        {
+                            mat->setRoughness(pbr["roughnessFactor"].get<float>());
+                        }
+                    }
+                    materials.push_back(mat);
+                }
+            }
+
+            loadDataAccessors(filePath);
+
+            for(auto& mesh : _json["meshes"])
+            {
+                const std::string name{mesh["name"]};
+                auto retMesh = std::make_shared<lithium::Mesh>(lithium::VertexArray::DrawFunction::ELEMENTS16);
+                for(auto& primitive : mesh["primitives"])
+                {
+                    retMesh->bind();
+                    for(const std::string attr : {"POSITION", "NORMAL", "TEXCOORD_0"})
+                    {
+                        int acsId = primitive["attributes"][attr].get<int>();
+                        auto& accessor = _accessors.at(acsId);
+                        if(accessor.componentType == GL_UNSIGNED_BYTE)
+                        {
+                            retMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.ubData, accessor.componentType);
+                        }
+                        else if(accessor.componentType == GL_UNSIGNED_INT)
+                        {
+                            retMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.uiData, accessor.componentType);
+                        }
+                        else if(accessor.componentType == GL_UNSIGNED_SHORT)
+                        {
+                            retMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.usData, accessor.componentType);
+                        }
+                        else
+                        {
+                            retMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.fData, accessor.componentType);
+                        }
+                    }
+                    int acsId = primitive["indices"].get<int>();
+                    retMesh->createElementArrayBuffer(_accessors.at(acsId).usData);
+                    if(primitive.contains("material"))
+                    {
+                        retMesh->setMaterial(materials.at(primitive["material"].get<int>()));
+                    }
+                }
+                meshes.push_back(retMesh);
+            }
+            loadNodes();
+
+            static std::shared_ptr<lithium::Texture<unsigned char>> defaultTexture = lithium::Texture<unsigned char>::Basic();
+
+            for(lithium::Node* node : _nodes)
+            {
+                auto retObj = std::make_shared<lithium::Object>(lithium::Object(meshes.at(node->meshId()),
+                    imageTexture ? std::vector<lithium::Object::TexturePointer>{imageTexture}
+                        : std::vector<lithium::Object::TexturePointer>{defaultTexture}));
+                retObj->setObjectName(node->name());
+                retObj->setPosition(node->position());
+                retObj->setQuaternion(node->rotation());
+                retObj->setScale(node->scale());
+                objects.push_back(retObj);
             }
         }
         
@@ -349,17 +453,17 @@ namespace gltf
 
             loadNodes();
 
-            for(auto entry : _nodeMap)
+            for(lithium::Node* node : _nodes)
             {
-                skinnedObj->addNode(entry.second);
-                if(entry.second->meshId() != -1)
+                skinnedObj->addNode(node);
+                if(node->meshId() != -1)
                 {
-                    skinnedObj->setOwn(entry.second); // Actual mesh.
+                    skinnedObj->setOwn(node); // Actual mesh.
                 }
             }
 
             int rootNodeId = _json["scenes"][0]["nodes"][0].get<int>();
-            lithium::Node* rootNode = _nodeMap.find(rootNodeId)->second;
+            lithium::Node* rootNode = _nodes.at(rootNodeId);
             //printTree(rootNode, "");
 
             skinnedObj->setRoot(rootNode);
@@ -370,7 +474,7 @@ namespace gltf
             for(auto& joint : skin["joints"])
             {
                 int j = joint.get<int>();
-                joints.push_back(_nodeMap.find(j)->second);
+                joints.push_back(_nodes.at(j));
             }
             skinnedObj->skinData(joints, _accessors[inverseBindAcs].fData);
 
@@ -452,6 +556,6 @@ namespace gltf
     private:
         lithium::json::Json _json;
         std::vector<Accessor> _accessors;
-        std::map<int,lithium::Node*> _nodeMap;
+        std::vector<lithium::Node*> _nodes;
     };
 }

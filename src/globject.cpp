@@ -46,6 +46,13 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
     //shaderProgram->setUniform("u_texture_0", 0);
     //shaderProgram->setUniform("u_specular_0", 1);
     //shaderProgram->setUniform("u_normal_0", 2);
+    std::shared_ptr<lithium::Material> material = _mesh->material();
+    if(material)
+    {
+        shaderProgram->setUniform("u_base_color", material->baseColor());
+        shaderProgram->setUniform("u_metallic", material->metallic());
+        shaderProgram->setUniform("u_roughness", material->roughness());
+    }
 }
 
 void lithium::Object::draw() const
@@ -65,9 +72,17 @@ void lithium::Object::draw() const
 void lithium::Object::updateModel()
 {
     _model = glm::translate(glm::mat4(1.0f), _position);
-    _model = glm::rotate(_model, glm::radians(_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    _model = glm::rotate(_model, glm::radians(_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    _model = glm::rotate(_model, glm::radians(_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    switch(_rotationType)
+    {
+        case RotationType::XYZ:
+            _model = glm::rotate(_model, glm::radians(_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            _model = glm::rotate(_model, glm::radians(_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            _model = glm::rotate(_model, glm::radians(_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            break;
+        case RotationType::QUATERNION:
+            _model = _model * glm::toMat4(_quaternion);
+            break;
+    }
     _model = glm::scale(_model, _scale);
     _modelInvalidated = false;
 }

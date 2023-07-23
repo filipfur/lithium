@@ -45,6 +45,7 @@ add_library(lithium STATIC
     src/dlmatrix.cpp
     src/dlvector.cpp
     src/glplane.cpp
+    src/glcube.cpp
     src/glplot.cpp
     src/glframe.cpp
     src/glcanvas.cpp
