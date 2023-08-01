@@ -7,6 +7,8 @@
 #include <iterator>
 #include <glad/glad.h>
 #include <vector>
+#include <regex>
+#include <set>
 
 #include "glfilewatch.h"
 
@@ -50,11 +52,68 @@ namespace lithium
 
 		}
 
+		static void checkExpanded(const std::string& fileName, const std::string& src)
+		{
+			static std::regex keywordRegex{"^(in|out|uniform|layout|#version)\\b", std::regex_constants::multiline};
+			std::sregex_iterator begin(src.begin(), src.end(), keywordRegex), end;
+			std::set<std::string> keywordSet;
+			std::for_each(begin, end, [&keywordSet](const std::smatch& m) {
+				keywordSet.emplace(m.str());
+			});
+			if(keywordSet.size() > 0)
+			{
+				for(auto& keyword : keywordSet)
+				{
+					std::cerr << "Error: Illegal keyword when expanding '" << fileName << "': " << keyword << std::endl;
+				}
+				exit(1);
+			}
+		}
+
+		static std::string expandSource(const std::filesystem::path& ppath, const std::string& src)
+		{
+			std::stringstream ss;
+			std::string line;
+			std::istringstream iss(src);
+			static const char* tag = "#include";
+			while(std::getline(iss, line))
+			{
+				if(line.find(tag) != std::string::npos)
+				{
+					size_t a = strlen(tag);
+					while(std::isspace(line[a]))
+					{
+						++a;
+					}
+					std::string includeFile = line.substr(a, line.length() - a);
+					auto includeFilePath = ppath / includeFile;
+					size_t s0 = includeFile.find_first_of('<');
+					if(s0 != std::string::npos)
+					{
+						size_t s1 = includeFile.find_last_of('>');
+						static std::filesystem::path shaderStdLibPath{"lithium/glsl"};
+						includeFile = includeFile.substr(s0 + 1, s1 - s0 - 1);
+						includeFilePath = shaderStdLibPath / includeFile;
+					}
+					std::string includeSource = readFile(includeFilePath.string());
+					checkExpanded(includeFile, includeSource);
+					ss << expandSource(includeFilePath.parent_path(), includeSource);
+				}
+				else
+				{
+					ss << line << std::endl;
+				}
+			}
+			return ss.str();
+		}
+
 		void compile()
 		{
 			if(_fileName.size() > 0)
 			{
 				_source = readFile(_fileName);
+				std::filesystem::path filePath{_fileName};
+				_source = expandSource(filePath.parent_path(), _source);
 			}
 			const char* src = _source.c_str();
 			glShaderSource(_id, 1, &src, nullptr);
@@ -100,9 +159,7 @@ namespace lithium
 			return _fileName;
 		}
 
-	private:
-
-		std::string readFile(const std::string& fileName)
+		static std::string readFile(const std::string& fileName)
 		{
 			std::ifstream ifs{ fileName };
 			if(!ifs)
@@ -115,6 +172,7 @@ namespace lithium
 			return buffer.str().c_str();
 		}
 
+	private:
 		GLuint _id;
 		bool _valid{true};
 		std::string _source;

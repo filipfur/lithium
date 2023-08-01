@@ -8,6 +8,8 @@ namespace lithium
     class Font
     {
     public:
+        const size_t firstChar{32};
+
         struct Character
         {
             float x;
@@ -29,7 +31,7 @@ namespace lithium
 
             auto characters = _fontMetrics["characters"];
 
-            for(int i = 32; i < 127; ++i)
+            for(int i = firstChar; i < 127; ++i)
             {
                 char ch = static_cast<char>(i);
                 std::string str = std::string(1, ch);
@@ -47,14 +49,15 @@ namespace lithium
 
                 _maxCharacterHeight = std::max(_maxCharacterHeight, character.height);
 
-                _characters.emplace(ch, character);
+                _characters.push_back(character);
+                assert(_characters.size() == i + 1 - firstChar);
             }
         }
 
         const Character& character(char c)
         {
-            auto it = _characters.find(c);
-            return it->second;
+            assert(c >= firstChar && c < 127);
+            return _characters.at(c - firstChar);
         }
 
         std::shared_ptr<lithium::Texture<unsigned char>> texture() const { return _texture; }
@@ -73,6 +76,6 @@ namespace lithium
         float _size{0.0f};
         float _maxCharacterHeight{0.0f};
 
-        std::map<char, lithium::Font::Character> _characters;
+        std::vector<lithium::Font::Character> _characters;
     };
 }

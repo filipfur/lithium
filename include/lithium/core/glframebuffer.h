@@ -22,7 +22,7 @@ namespace lithium
 
         void createRenderBuffer(GLenum internalFormat=GL_DEPTH24_STENCIL8, GLenum attachment=GL_DEPTH_STENCIL_ATTACHMENT, bool multisampled=false);
 
-        void attach(RenderBuffer* renderBuffer, GLenum attachment);
+        void attach(std::shared_ptr<RenderBuffer> renderBuffer, GLenum attachment);
 
         std::shared_ptr<lithium::Texture<unsigned char>> createTexture(GLuint colorAttachment=GL_COLOR_ATTACHMENT0, GLuint internalFormat=GL_RGB, GLuint format=GL_RGB, GLuint type=GL_UNSIGNED_BYTE, GLenum texTarget=GL_TEXTURE_2D);
 
@@ -46,6 +46,11 @@ namespace lithium
             return _resolution;
         }
 
+        std::shared_ptr<lithium::RenderBuffer> renderBuffer() const
+        {
+            return _renderBuffer;
+        }
+
         void blit(std::shared_ptr<lithium::FrameBuffer> frameBuffer, GLuint fromComponment, GLuint toComponment,
     GLbitfield mask=GL_COLOR_BUFFER_BIT, GLenum filter=GL_NEAREST);
 
@@ -57,5 +62,6 @@ namespace lithium
         glm::ivec2 _resolution;
         GLuint _colorAttachment;
         std::map<GLuint, std::shared_ptr<lithium::Texture<unsigned char>>> _textures;
+        std::shared_ptr<lithium::RenderBuffer> _renderBuffer;
     };
 }

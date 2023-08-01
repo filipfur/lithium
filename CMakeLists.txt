@@ -17,6 +17,7 @@ add_library(lithium STATIC
     src/glanimatedobject.cpp
     src/glcamera.cpp
     src/glcubemap.cpp
+    src/glcubemaphdr.cpp
     src/glframebuffer.cpp
     src/glinput.cpp
     src/gllight.cpp
@@ -54,6 +55,7 @@ add_library(lithium STATIC
     src/gllayoutsystem.cpp
     src/glframelayout.cpp
     src/glimagetexture.cpp
+    src/glcolor.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
@@ -96,6 +98,7 @@ add_subdirectory(test/vector)
 add_subdirectory(test/geometry)
 add_subdirectory(test/json)
 add_subdirectory(test/ui)
+add_subdirectory(test/shader)
 
 install(TARGETS lithium
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

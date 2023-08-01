@@ -36,6 +36,10 @@ namespace
         void main()
         {
             vec4 texColor = texture(u_texture_0, TexCoords);
+            if(texColor.a < 0.01)
+            {
+                discard;
+            }
             fragColor = texColor * u_color;
         }
     )";

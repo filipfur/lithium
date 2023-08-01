@@ -92,6 +92,11 @@ namespace lithium
 
 		Texture* bind(GLuint textureUnit)
 		{
+			if(textureUnit < GL_TEXTURE0 || textureUnit > GL_TEXTURE31)
+			{
+				std::cerr << "Error: Invalid texture unit: " << textureUnit << std::endl;
+				return this;
+			}
 			activate(textureUnit);
 			bind();
 			return this;

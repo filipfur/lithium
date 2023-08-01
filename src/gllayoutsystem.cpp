@@ -159,7 +159,12 @@ void lithium::LayoutSystem::updateLayouts()
             default:
                 break;
         }
-        float curPos{frameLayout->_actualDimension[n] * 0.5f - frameLayout->_padding[TOP]};
+        bool start{frameLayout->_orientation == FrameLayout::Orientation::Horizontal};
+        float curPos{frameLayout->_actualDimension[n] * 0.5f - frameLayout->_padding[m + TOP]};
+        if(start)
+        {
+            curPos = -frameLayout->_actualDimension[n] * 0.5f + frameLayout->_padding[m + BOTTOM];
+        }
         for(auto& child : frameLayout->_children)
         {
             if(child._mode == FrameLayout::Mode::Absolute) // if so we can break
@@ -182,14 +187,21 @@ void lithium::LayoutSystem::updateLayouts()
             |---------------------|
             */
 
-            float childLowerMargin = curPos - child._actualDimension[n] - child._margin[m + TOP] - child._margin[m + BOTTOM];
+            /*float childLowerMargin = curPos - child._actualDimension[n] - child._margin[m + TOP] - child._margin[m + BOTTOM];
             float boxLowerEdge = -frameLayout->_actualDimension[n] * 0.5f + frameLayout->_padding[m + BOTTOM];
             if(childLowerMargin < boxLowerEdge)
             {
                 child._actualDimension[n] += childLowerMargin - boxLowerEdge;
-            }
+            }*/
 
-            child._actualPosition[n] = curPos - child._actualDimension[n] * 0.5f - child._margin[m + TOP];
+            if(start)
+            {
+                child._actualPosition[n] = curPos + child._actualDimension[n] * 0.5f + child._margin[m + TOP];
+            }
+            else
+            {
+                child._actualPosition[n] = curPos - child._actualDimension[n] * 0.5f - child._margin[m + TOP];
+            }
 
             float childBreadth = child._actualDimension[m] + child._margin[LEFT - m] + child._margin[RIGHT - m];
             float breadth = frameLayout->_actualDimension[m] - frameLayout->_padding[LEFT - m] - frameLayout->_padding[RIGHT - m];
@@ -208,7 +220,7 @@ void lithium::LayoutSystem::updateLayouts()
                     break;
             }
             float inc = child._actualDimension[n] + child._margin[m + TOP] + child._margin[m + BOTTOM];
-            curPos -= inc;
+            curPos += start ? inc : -inc;
         }
     }
 }

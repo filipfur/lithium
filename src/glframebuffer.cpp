@@ -17,15 +17,16 @@ lithium::FrameBuffer::~FrameBuffer() noexcept
 
 LITHIUM_GLELEMENT_DEF(lithium::FrameBuffer, glBindFramebuffer, GL_FRAMEBUFFER)
 
-void lithium::FrameBuffer::attach(RenderBuffer* renderBuffer, GLenum attachment)
+void lithium::FrameBuffer::attach(std::shared_ptr<RenderBuffer> renderBuffer, GLenum attachment)
 {
+    _renderBuffer = renderBuffer;
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderBuffer->id());
     checkStatus();
 }
 
 void lithium::FrameBuffer::createRenderBuffer(GLenum internalFormat, GLenum attachment, bool multisampled)
 {
-    attach(new lithium::RenderBuffer(_resolution, multisampled, internalFormat), attachment);
+    attach(std::make_shared<lithium::RenderBuffer>(_resolution, multisampled, internalFormat), attachment);
 }
 
 void lithium::FrameBuffer::bindAsReadBuffer()

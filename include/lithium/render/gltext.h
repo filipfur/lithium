@@ -104,6 +104,7 @@ namespace lithium
         float _height{0.0f};
         float _lineSpacing{1.0f};
         float _letterSpacing{1.0f};
+        float _yOffset{0.0f};
         std::vector<GLfloat> _vertices;
         std::vector<GLuint> _indices;
         std::vector<glm::vec2> _letterXPositions;

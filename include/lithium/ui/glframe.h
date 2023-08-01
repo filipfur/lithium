@@ -73,6 +73,16 @@ namespace lithium
             return _frameLayout;
         }
 
+        size_t childCount()
+        {
+            return _frameLayout->count();
+        }
+
+        Frame* child(size_t index)
+        {
+            return dynamic_cast<Frame*>(_frameLayout->child(index)->iFrameLayout());
+        }
+
     private:
         FrameLayout* _frameLayout;
         bool _changed{true};

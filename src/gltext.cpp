@@ -85,6 +85,9 @@ void lithium::Text::measureText()
     float x = 0;
     std::string line{""};
     int numCharacters = 0;
+    float line0OriginY{0};
+    float y = 0.0f;
+    float lineNY2{0.0f};
     for(int i{0}; i < _text.length(); ++i)
     {
         if(_text[i] == '\n')
@@ -94,12 +97,19 @@ void lithium::Text::measureText()
             _lines.push_back(line);
             line = "";
             x = 0;
+            y += _font->maxCharacterHeight() * _lineSpacing * _textScale;
             continue;
+        }
+        auto c = _font->character(_text[i]);
+        if(_lines.size() == 0)
+        {
+            line0OriginY = std::max(c.originY, line0OriginY);
         }
         ++numCharacters;
         line += _text[i];
-        auto c = _font->character(_text[i]);
         x += c.advance * _textScale * _letterSpacing;
+        float y2 = y - c.originY * _textScale + c.height * _textScale;
+        lineNY2 = std::max(lineNY2, y2);
     }
 
     if(x > 0)
@@ -109,7 +119,8 @@ void lithium::Text::measureText()
         _lines.push_back(line);
     }
 
-    _height = _font->maxCharacterHeight() * _lineSpacing * _textScale * _lines.size();
+    _yOffset = -line0OriginY * _textScale;
+    _height = lineNY2 - _yOffset;
 }
 
 void lithium::Text::initBuffers()
@@ -128,7 +139,7 @@ void lithium::Text::initBuffers()
     switch(_alignment)
     {
         case Alignment::CENTER:
-            y = -_height * 0.5f + _font->maxCharacterHeight() * _textScale;
+            y = -_yOffset - _height * 0.5f;
             break;
     }
 

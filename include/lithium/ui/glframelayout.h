@@ -233,6 +233,11 @@ namespace lithium
             return ptr;
         }
 
+        lithium::FrameLayout* child(size_t index)
+        {
+            return &_children[index];
+        }
+
         lithium::FrameLayout* setMode(Mode mode)
         {
             _mode = mode;

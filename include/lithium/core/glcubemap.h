@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-
+#include <filesystem>
 #include "gltexture.h"
 
 namespace lithium
