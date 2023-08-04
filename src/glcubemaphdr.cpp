@@ -159,7 +159,8 @@ std::shared_ptr<lithium::CubemapHDR> lithium::CubemapHDR::load(const std::filesy
     int width;
     int height;
     int nrChannels;
-    float* data = stbi_loadf(path.c_str(), &width, &height, &nrChannels, 0);
+    std::string fileName = path.string();
+    float* data = stbi_loadf(fileName.c_str(), &width, &height, &nrChannels, 0);
     if(data == nullptr)
     {
         std::cout << "Failed to load HDR image." << std::endl;

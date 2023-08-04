@@ -54,7 +54,12 @@ namespace lithium
 
 		static void checkExpanded(const std::string& fileName, const std::string& src)
 		{
+// MSVC doesn't support std::regex_constants::multiline, but has multiline regex by default.
+#if _MSC_VER
+			static std::regex keywordRegex{"^(in|out|uniform|layout|#version)\\b"};
+#else
 			static std::regex keywordRegex{"^(in|out|uniform|layout|#version)\\b", std::regex_constants::multiline};
+#endif;
 			std::sregex_iterator begin(src.begin(), src.end(), keywordRegex), end;
 			std::set<std::string> keywordSet;
 			std::for_each(begin, end, [&keywordSet](const std::smatch& m) {
