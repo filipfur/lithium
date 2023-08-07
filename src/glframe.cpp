@@ -98,3 +98,20 @@ bool lithium::Frame::renderFrames()
     _changed = false;
     return reRender;
 }
+
+lithium::Frame* lithium::Frame::frameById(const std::string& id)
+{
+    if(id == _frameLayout->id())
+    {
+        return this;
+    }
+    Frame* frame{nullptr};
+    forEachChild([&frame, &id](Frame* child)
+    {
+        if(child->layout()->id() == id)
+        {
+            frame = child;
+        }
+    });
+    return frame;
+}

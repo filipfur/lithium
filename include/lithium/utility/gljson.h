@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <filesystem>
 
 namespace lithium::json
 {
@@ -37,6 +38,8 @@ namespace lithium::json
         {
 
         }
+
+        Json& fromFile(const std::filesystem::path& filename);
 
         Json& operator=(const Json& other)
         {

@@ -30,9 +30,10 @@ namespace lithium
 
 		virtual void shade(lithium::ShaderProgram* shaderProgram) override;
 
-        void setTextures(const std::vector<TexturePointer>& textures)
+        lithium::Object* setTextures(const std::vector<TexturePointer>& textures)
 		{
 			_textures = textures;
+			return this;
 		}
 
 		lithium::Object* setPosition(const glm::vec3& position)

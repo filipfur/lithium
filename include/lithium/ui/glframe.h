@@ -61,6 +61,8 @@ namespace lithium
             return dynamic_cast<lithium::Frame*>(_frameLayout->parent()->iFrameLayout());
         }
 
+        Frame* frameById(const std::string& id);
+
         bool renderFrames();
 
         void refresh()

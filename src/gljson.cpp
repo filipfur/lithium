@@ -1,4 +1,5 @@
 #include "gljson.h"
+#include <fstream>
 
 namespace
 {
@@ -19,6 +20,17 @@ lithium::json::Json::Json(const lithium::json::Type& type, const std::string& ke
 lithium::json::Json::~Json() noexcept
 {
     clear();
+}
+
+lithium::json::Json& lithium::json::Json::fromFile(const std::filesystem::path& filename)
+{
+    std::ifstream ifs{filename};
+    if(!ifs.is_open())
+    {
+        throw std::runtime_error("could not open file " + filename.string());
+    }
+    ifs >> *this;
+    return *this;
 }
 
 void assertKey(const std::string& key)
