@@ -59,7 +59,7 @@ namespace lithium
 			static std::regex keywordRegex{"^(in|out|uniform|layout|#version)\\b"};
 #else
 			static std::regex keywordRegex{"^(in|out|uniform|layout|#version)\\b", std::regex_constants::multiline};
-#endif;
+#endif
 			std::sregex_iterator begin(src.begin(), src.end(), keywordRegex), end;
 			std::set<std::string> keywordSet;
 			std::for_each(begin, end, [&keywordSet](const std::smatch& m) {
