@@ -11,8 +11,8 @@ Model downloaded from PolyHaven, loaded and rendered in lithium.
 
 ![gltf](gltf.png)
 
-## Custom cubemaps (blender) for first person shooter
-![cubemapping](cubemapping.png)
+## Prototype: First Person Perspective
+![fps](fps.png)
 
 ## Shadow Mapping and Skeletal Animation
 
