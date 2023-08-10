@@ -1,14 +1,18 @@
 # lithium
+Lithium is a lightweight game engine written in C++/OpenGL. The engine is designed to support source code oriented project as opposed to visual game development in an integrated environment. The engine is prefferably built  with CMake.
 
-Lithium is a lightweight game engine written in C++/OpenGL. The engine is designed to support source code oriented project as opposed to visual game development in an integrated environment. The engine is prefferably built with CMake.
-
-![logotype](Kraxbox_logo_lithium_metal_2ff2069c-b84a-426c-bf92-e9831105a5df.png)
+![logotype](lithium_logo.png)
 
 ## Creating an application
 
+The easiest way to get started is to clone the lithium-app repository, https://github.com/filipfur/lithium-app.
+
+The lithium-app repository contains several git branches with prefix lab_ that covers various topics such as reflections, collisions, stencil testing, ui, etc, etc. For a plane/bare lithium application use the default branch ```main```.
+
+The lithium-app repository contains some boiler plate (makefiles, application skeleton, etc) for a quick start but its not necessary. One can also quite easily start using the lithium engine standalone. Lithium is best though of as a library that you link to your application.
 
 ## The basics of rendering
-The basic flow of creating a renderable object and rendering it looks like this.
+The basic flow of creating a renderable object and rendering it looks somewhat like this.
 ```c++
 #include "globject.h"
 #include "glshaderprogram.h"
@@ -31,6 +35,8 @@ while(1<3)
 
 ## Design
 Lithium is written in object-oriented C++. It's separated into several class packages which are all described here. The main purposes for wrapping the OpenGL API in classes is to increase the level of handholding and decrease bloated and repetetive code.
+
+_Disclaimer: This sections is outdated, but the overall essence of the package seperation is still accurate._
 ### Core
 The ```core``` package contains classes that are low-level and tighly coupled to the OpenGL graphics rendering API. Classes include:
 * Element
