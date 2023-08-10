@@ -3,6 +3,10 @@ Lithium is a lightweight game engine written in C++/OpenGL. The engine is design
 
 ![logotype](lithium_logo.png)
 
+## Examples
+
+Some examples are showcased under [examples](examples/examples.md) to give an overview of the engines capabilities.
+
 ## Creating an application
 
 The easiest way to get started is to clone the lithium-app repository, https://github.com/filipfur/lithium-app.
