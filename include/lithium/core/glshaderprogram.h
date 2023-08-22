@@ -103,6 +103,15 @@ namespace lithium
 			}
 		}
 
+		void setUniform(const std::string& name, const glm::mat3& matrix, bool cache=false)
+		{
+			glUniformMatrix3fv(loadUniform(name), 1, GL_FALSE, glm::value_ptr(matrix));
+			if(cache)
+			{
+				_mat3Cache.emplace(name, matrix);
+			}
+		}
+
 		void setUniform(const std::string& name, const glm::mat4& matrix, bool cache=false)
 		{
 			glUniformMatrix4fv(loadUniform(name), 1, GL_FALSE, glm::value_ptr(matrix));
@@ -146,6 +155,7 @@ namespace lithium
 
 	private:
 		std::map<std::string,int> _intCache;
+		std::map<std::string,glm::mat3> _mat3Cache;
 		std::map<std::string,glm::mat4> _mat4Cache;
 		std::map<std::string,glm::vec4> _vec4Cache;
 		std::map<std::string,glm::vec3> _vec3Cache;

@@ -29,6 +29,16 @@ void lithium::FrameBuffer::createRenderBuffer(GLenum internalFormat, GLenum atta
     attach(std::make_shared<lithium::RenderBuffer>(_resolution, multisampled, internalFormat), attachment);
 }
 
+void lithium::FrameBuffer::readPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* data)
+{
+    glReadPixels(x, y, width, height, format, type, data);
+}
+
+void lithium::FrameBuffer::readPixel(GLint x, GLint y, GLenum format, GLenum type, void* data)
+{
+    readPixels(x, y, 1, 1, format, type, data);
+}
+
 void lithium::FrameBuffer::bindAsReadBuffer()
 {
     glBindFramebuffer( GL_READ_FRAMEBUFFER, id() );

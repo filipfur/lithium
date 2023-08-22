@@ -20,6 +20,13 @@ namespace lithium
 	{
 	public:
 
+		enum class DragState
+		{
+			START,
+			DRAG,
+			END
+		};
+
 		class Context
 		{
 
@@ -54,9 +61,9 @@ namespace lithium
 		}
 
 		/*
-			button, modifiers, start, current, delta, completed
+			button, modifiers, start, current, delta, dragState
 		*/
-		void setDragCallback(const std::function<void(int, int, const glm::vec2&, const glm::vec2&, const glm::vec2&, bool)>& func)
+		void setDragCallback(const std::function<void(int, int, const glm::vec2&, const glm::vec2&, const glm::vec2&, DragState)>& func)
 		{
 			assert(_context != nullptr);
 			_dragCallbacks[_context] = func;
@@ -267,7 +274,7 @@ namespace lithium
 		std::unordered_map<Context*,std::unordered_map<int, std::function<bool(int, int)>>> _releasedCallbacks;
 		std::unordered_map<Context*, std::function<bool(float, float)>> _scrollCallbacks;
 		std::unordered_map<Context*, std::function<bool(float, float)>> _cursorCallbacks;
-		std::unordered_map<Context*, std::function<void(int, int, const glm::vec2&, const glm::vec2&, const glm::vec2&, bool)>> _dragCallbacks;
+		std::unordered_map<Context*, std::function<void(int, int, const glm::vec2&, const glm::vec2&, const glm::vec2&, DragState)>> _dragCallbacks;
 		std::function<bool(int, int)> _anyKeyPressedCallback{nullptr};
 		glm::vec3 _up{0.0f, 1.0f, 0.0f};
 		std::unordered_map<Context*, std::function<bool(char c)>> _typewriteCallbacks;

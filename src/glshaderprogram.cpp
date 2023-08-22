@@ -96,6 +96,10 @@ void lithium::ShaderProgram::link()
     {
         setUniform(pair.first, pair.second);
     }
+    for(auto&& pair : _mat3Cache)
+    {
+        setUniform(pair.first, pair.second);
+    }
     for(auto&& pair : _mat4Cache)
     {
         setUniform(pair.first, pair.second);

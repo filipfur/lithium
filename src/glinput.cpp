@@ -122,6 +122,7 @@ void lithium::Input::onMouse(GLFWwindow *window, int button, int action, int mod
 				_dragButton = button;
 				_dragModifiers = mods;
 				_lastDragPos = _mousePos;
+				dragCB->second(_dragButton, _dragModifiers, _clickedPos, _mousePos, glm::vec2{0.0f}, DragState::START);
 			}
 		}
 		else if(action == GLFW_RELEASE)
@@ -138,7 +139,7 @@ void lithium::Input::onMouse(GLFWwindow *window, int button, int action, int mod
 			auto dragCB = _dragCallbacks.find(_context);
 			if(dragCB != _dragCallbacks.end())
 			{
-				dragCB->second(_dragButton, _dragModifiers, _clickedPos, _mousePos, glm::vec2{0.0f}, true); // Drag success!
+				dragCB->second(_dragButton, _dragModifiers, _clickedPos, _mousePos, glm::vec2{0.0f}, DragState::END); // Drag success!
 				_dragging = false;
 			}
 			//std::cout << "Dragged from: " << _clickedPos.x << "," << _clickedPos.y << " to " << _mousePos.x << "," << _mousePos.y << " (" << glm::distance(_clickedPos, _mousePos) << ")" << std::endl;
@@ -196,7 +197,7 @@ void lithium::Input::onCursor(GLFWwindow *window, double mouseX, double mouseY)
 			auto dragCB = _dragCallbacks.find(_context);
 			if(dragCB != _dragCallbacks.end())
 			{
-				dragCB->second(_dragButton, _dragModifiers, _clickedPos, _mousePos, _mousePos - _lastDragPos, false); // Drag success!
+				dragCB->second(_dragButton, _dragModifiers, _clickedPos, _mousePos, _mousePos - _lastDragPos, DragState::DRAG);
 				_lastDragPos = _mousePos;
 			}
 		}

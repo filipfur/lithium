@@ -36,6 +36,10 @@ namespace lithium
 
         void checkStatus();
 
+        void readPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* data);
+
+        void readPixel(GLint x, GLint y, GLenum format, GLenum type, void* data);
+
         std::shared_ptr<lithium::Texture<unsigned char>> texture(GLuint colorAttachment)
         {
             return _textures.at(colorAttachment);
