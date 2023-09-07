@@ -121,6 +121,14 @@ namespace lithium
 			}
 		}
 
+		void setUniform(const std::string& name, const std::vector<glm::vec3>& vectors)
+		{
+			for(auto i = 0; i < vectors.size(); ++i)
+			{
+				setUniform(name + "[" + std::to_string(i) + "]", vectors.at(i));
+			}
+		}
+
 		void setResolution(const glm::vec2& resolution)
 		{
 			setUniform("u_resolution", resolution);

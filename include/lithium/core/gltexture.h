@@ -8,6 +8,13 @@
 
 namespace lithium
 {
+	class TextureContext
+	{
+	public:
+		static GLuint _active;
+		static const void* _bound[32];
+	};
+
 	template <typename T=unsigned char>
 	class Texture : public Element
 	{
@@ -114,10 +121,10 @@ namespace lithium
 
 		static bool activate(GLuint textureUnit)
 		{
-			if(_active != textureUnit)
+			if(TextureContext::_active != textureUnit)
 			{
 				glActiveTexture(textureUnit);
-				_active = textureUnit;
+				TextureContext::_active = textureUnit;
 				return true;
 			}
 			return false;
@@ -125,7 +132,7 @@ namespace lithium
 
 		virtual void unbind() override
 		{
-			_bound[_active - GL_TEXTURE0] = nullptr;
+			TextureContext::_bound[TextureContext::_active - GL_TEXTURE0] = nullptr;
 			glBindTexture(_textureMode, 0);
 		}
 
@@ -143,15 +150,16 @@ namespace lithium
 
 		virtual void bind() override
 		{
-			if(_active == 0)
+			if(TextureContext::_active == 0)
 			{
 				activate(GL_TEXTURE0);
+				std::cerr << "Active not set, setting to GL_TEXTURE_0" << std::endl;
 			}
-			int index = _active - GL_TEXTURE0;
-			if(_bound[index] != this)
+			int index = TextureContext::_active - GL_TEXTURE0;
+			if(TextureContext::_bound[index] != this)
 			{
 				glBindTexture(_textureMode, _id);
-				_bound[index] = this;
+				TextureContext::_bound[index] = this;
 				++_bindCount;
 			}
 		}
@@ -254,8 +262,6 @@ namespace lithium
 		GLenum _colorFormat;
 		GLenum _textureMode;
 		GLuint _samples;
-		inline static GLuint _active{0};
-		inline static const Texture* _bound[32] = {};
 		glm::ivec2 _regionSize{};
 		bool _atlas{false};
 		inline static unsigned int _bindCount{0};

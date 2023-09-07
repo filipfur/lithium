@@ -54,6 +54,7 @@ add_library(lithium STATIC
     src/gljson.cpp
     src/gllayoutsystem.cpp
     src/glframelayout.cpp
+    src/gltexture.cpp
     src/glimagetexture.cpp
     src/glcolor.cpp
 )
