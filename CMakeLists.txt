@@ -57,6 +57,8 @@ add_library(lithium STATIC
     src/gltexture.cpp
     src/glimagetexture.cpp
     src/glcolor.cpp
+    src/glfilesystem.cpp
+    src/glassetlibrary.cpp
 )
 
 set_target_properties(lithium PROPERTIES VERSION ${PROJECT_VERSION})
@@ -100,6 +102,7 @@ add_subdirectory(test/geometry)
 add_subdirectory(test/json)
 add_subdirectory(test/ui)
 add_subdirectory(test/shader)
+add_subdirectory(test/assetloading)
 
 install(TARGETS lithium
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

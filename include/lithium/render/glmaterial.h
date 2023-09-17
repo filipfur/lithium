@@ -1,7 +1,9 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <memory>
 #include "glshaderprogram.h"
+#include "glimagetexture.h"
 
 namespace lithium
 {
@@ -40,9 +42,43 @@ namespace lithium
             _roughness = roughness;
         }
 
+        void setNormalMap(std::shared_ptr<lithium::ImageTexture> normalMap)
+        {
+            _normalMap = normalMap;
+        }
+
+        void setDiffuseMap(std::shared_ptr<lithium::ImageTexture> diffuseMap)
+        {
+            _diffuseMap = diffuseMap;
+        }
+
+        void setArmMap(std::shared_ptr<lithium::ImageTexture> armMap)
+        {
+            _armMap = armMap;
+        }
+
+        std::shared_ptr<lithium::ImageTexture> normalMap() const
+        {
+            return _normalMap;
+        }
+
+        std::shared_ptr<lithium::ImageTexture> diffuseMap() const
+        {
+            return _diffuseMap;
+        }
+
+        std::shared_ptr<lithium::ImageTexture> armMap() const
+        {
+            return _armMap;
+        }
+
     private:
         glm::vec4 _baseColor{1.0f, 1.0f, 1.0f, 1.0f};
         float _metallic{0.0f};
         float _roughness{0.5f};
+
+        std::shared_ptr<lithium::ImageTexture> _normalMap{nullptr};
+        std::shared_ptr<lithium::ImageTexture> _diffuseMap{nullptr};
+        std::shared_ptr<lithium::ImageTexture> _armMap{nullptr};
     };
 }

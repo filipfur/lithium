@@ -297,28 +297,47 @@ namespace gltf
             }
         }
 
-        void loadObjects(std::vector<std::shared_ptr<lithium::Object>>& objects,
-            const std::filesystem::path& filePath, bool loadTexture=true)
+        void loadMaterials(std::vector<std::shared_ptr<lithium::Material>>& materials,
+            const std::filesystem::path& filePath)
         {
-            if(!loadJson(filePath))
+            std::vector<std::shared_ptr<lithium::ImageTexture>> images;
+            if(_json.contains("images"))
             {
-                return;
+                for(auto& image : _json["images"])
+                {
+                    const std::string uri = image["uri"].get<std::string>();
+                    images.push_back(std::shared_ptr<lithium::ImageTexture>(lithium::ImageTexture::load(
+                        filePath.parent_path() / uri,
+                        GL_SRGB,
+                        GL_RGB,
+                        4,
+                        false))); // flip = false
+                }
             }
 
-            std::vector<std::shared_ptr<lithium::Material>> materials;
-            std::vector<std::shared_ptr<lithium::Mesh>> meshes;
-            std::shared_ptr<lithium::ImageTexture> imageTexture{nullptr};
-
-            if(loadTexture)
+            std::vector<int> textures;
+            if(_json.contains("textures"))
             {
-                imageTexture.reset(this->loadTexture(filePath));
+                for(auto& texture : _json["textures"])
+                {
+                    textures.push_back(texture["source"].get<int>());
+                }
             }
+
+            auto lookupTexture = [&](lithium::json::Json& json) {
+                int sourceIndex = textures.at(json["index"].get<int>());
+                return images.at(sourceIndex);
+            };
 
             if(_json.contains("materials"))
             {
                 for(auto& material : _json["materials"])
                 {
                     std::shared_ptr<lithium::Material> mat = std::make_shared<lithium::Material>(glm::vec4{1.0f});
+                    if(material.contains("normalTexture"))
+                    {
+                        mat->setNormalMap(lookupTexture(material["normalTexture"]));
+                    }
                     if(material.contains("pbrMetallicRoughness"))
                     {
                         auto& pbr = material["pbrMetallicRoughness"];
@@ -330,6 +349,10 @@ namespace gltf
                                 baseColorFactor[2].get<float>(),
                                 baseColorFactor[3].get<float>()});
                         }
+                        if(pbr.contains("baseColorTexture"))
+                        {
+                            mat->setDiffuseMap(lookupTexture(pbr["baseColorTexture"]));
+                        }
                         if(pbr.contains("metallicFactor"))
                         {
                             mat->setMetallic(pbr["metallicFactor"].get<float>());
@@ -338,10 +361,28 @@ namespace gltf
                         {
                             mat->setRoughness(pbr["roughnessFactor"].get<float>());
                         }
+                        if(pbr.contains("metallicRoughnessTexture"))
+                        {
+                            mat->setArmMap(lookupTexture(pbr["metallicRoughnessTexture"]));
+                        }
                     }
                     materials.push_back(mat);
                 }
             }
+        }
+
+        void loadObjects(std::vector<std::shared_ptr<lithium::Object>>& objects,
+            const std::filesystem::path& filePath)
+        {
+            if(!loadJson(filePath))
+            {
+                return;
+            }
+
+            std::vector<std::shared_ptr<lithium::Material>> materials;
+            std::vector<std::shared_ptr<lithium::Mesh>> meshes;
+
+            loadMaterials(materials, filePath);
 
             loadDataAccessors(filePath);
 
@@ -382,15 +423,28 @@ namespace gltf
                 }
                 meshes.push_back(retMesh);
             }
+
             loadNodes();
 
             static std::shared_ptr<lithium::Texture<unsigned char>> defaultTexture = lithium::Texture<unsigned char>::Basic();
 
             for(lithium::Node* node : _nodes)
             {
-                auto retObj = std::make_shared<lithium::Object>(lithium::Object(meshes.at(node->meshId()),
-                    imageTexture ? std::vector<lithium::Object::TexturePointer>{imageTexture}
-                        : std::vector<lithium::Object::TexturePointer>{defaultTexture}));
+                auto mesh = meshes.at(node->meshId());
+                std::vector<lithium::Object::TexturePointer> textures;
+                if(mesh->material()->diffuseMap())
+                {
+                    textures.push_back(mesh->material()->diffuseMap());
+                }
+                if(mesh->material()->normalMap())
+                {
+                    textures.push_back(mesh->material()->normalMap());
+                }
+                if(mesh->material()->armMap())
+                {
+                    textures.push_back(mesh->material()->armMap());
+                }
+                auto retObj = std::make_shared<lithium::Object>(lithium::Object(mesh, textures));
                 retObj->setObjectName(node->name());
                 retObj->setPosition(node->position());
                 retObj->setQuaternion(node->rotation());
