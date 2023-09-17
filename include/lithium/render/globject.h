@@ -230,6 +230,43 @@ namespace lithium
 
 		virtual void updateModel();
 
+		void setParent(lithium::Object* parent)
+		{
+			_parent = parent;
+		}
+
+		lithium::Object* parent() const
+		{
+			return _parent;
+		}
+
+		void addChild(std::shared_ptr<lithium::Object> child)
+		{
+			_children.emplace_back(child);
+		}
+
+		void removeChild(lithium::Object* child)
+		{
+			auto it = _children.begin();
+			while(it != _children.end())
+			{
+				if(it->get() == child)
+				{
+					it = _children.erase(it);
+					break;
+				}
+				++it;
+			}
+		}
+
+		void forEachChild(const std::function<void(lithium::Object*)>& callback)
+		{
+			for(auto& child : _children)
+			{
+				callback(child.get());
+			}
+		}
+
 	protected:
         std::shared_ptr<lithium::Mesh> _mesh{nullptr};
 		glm::vec3 _position{0.0f};
@@ -240,6 +277,9 @@ namespace lithium
 		glm::vec4 _color{1.0f};
         std::vector<TexturePointer> _textures;
 		std::shared_ptr<std::string> _objectName;
+		lithium::Object* _parent{nullptr};
+		std::vector<std::shared_ptr<lithium::Object>> _children;
+
 	private:
 		bool _modelInvalidated{false};
 		RotationType _rotationType{RotationType::XYZ};

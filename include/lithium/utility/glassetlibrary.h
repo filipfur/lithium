@@ -16,6 +16,8 @@ namespace lithium
         std::map<std::string, std::shared_ptr<lithium::Object>>::iterator begin() { return _objects.begin(); }
         std::map<std::string, std::shared_ptr<lithium::Object>>::iterator end() { return _objects.end(); }
 
+        size_t size() const { return _objects.size(); }
+
         static AssetLibrary& getInstance();
 
     private:

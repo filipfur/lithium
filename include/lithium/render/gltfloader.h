@@ -426,30 +426,41 @@ namespace gltf
 
             loadNodes();
 
-            static std::shared_ptr<lithium::Texture<unsigned char>> defaultTexture = lithium::Texture<unsigned char>::Basic();
-
-            for(lithium::Node* node : _nodes)
+            auto& scene = _json["scenes"][0];
+            //static std::shared_ptr<lithium::Texture<unsigned char>> defaultTexture = lithium::Texture<unsigned char>::Basic();
+            for(auto& jnode : scene["nodes"])
             {
-                auto mesh = meshes.at(node->meshId());
-                std::vector<lithium::Object::TexturePointer> textures;
-                if(mesh->material()->diffuseMap())
+                lithium::Node* n = _nodes.at(jnode.get<int>());
+                std::function<std::shared_ptr<lithium::Object>(lithium::Node*)> createObject = [&](lithium::Node* node)
                 {
-                    textures.push_back(mesh->material()->diffuseMap());
-                }
-                if(mesh->material()->normalMap())
-                {
-                    textures.push_back(mesh->material()->normalMap());
-                }
-                if(mesh->material()->armMap())
-                {
-                    textures.push_back(mesh->material()->armMap());
-                }
-                auto retObj = std::make_shared<lithium::Object>(lithium::Object(mesh, textures));
-                retObj->setObjectName(node->name());
-                retObj->setPosition(node->position());
-                retObj->setQuaternion(node->rotation());
-                retObj->setScale(node->scale());
-                objects.push_back(retObj);
+                    auto mesh = meshes.at(node->meshId());
+                    std::vector<lithium::Object::TexturePointer> textures;
+                    if(mesh->material() && mesh->material()->diffuseMap())
+                    {
+                        textures.push_back(mesh->material()->diffuseMap());
+                    }
+                    if(mesh->material() && mesh->material()->normalMap())
+                    {
+                        textures.push_back(mesh->material()->normalMap());
+                    }
+                    if(mesh->material() && mesh->material()->armMap())
+                    {
+                        textures.push_back(mesh->material()->armMap());
+                    }
+                    auto obj = std::make_shared<lithium::Object>(lithium::Object(mesh, textures));
+                    obj->setObjectName(node->name());
+                    obj->setPosition(node->position());
+                    obj->setQuaternion(node->rotation());
+                    obj->setScale(node->scale());
+
+                    node->forAllChildren([&](lithium::Node* child) {
+                        auto obj2 = createObject(child);
+                        obj->addChild(obj2);
+                        obj2->setParent(obj.get());
+                    });
+                    return obj;
+                };
+                objects.push_back(createObject(n));
             }
         }
         

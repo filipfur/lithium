@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #ifndef __has_include
 static_assert(false, "__has_include not supported");
 #else

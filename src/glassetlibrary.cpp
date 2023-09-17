@@ -1,4 +1,5 @@
 #include "glassetlibrary.h"
+#include "gltimemeasure.h"
 
 void lithium::AssetLibrary::loadGLTF(const std::filesystem::path& assetDir)
 {
@@ -6,6 +7,7 @@ void lithium::AssetLibrary::loadGLTF(const std::filesystem::path& assetDir)
         AssetLibrary& lib = AssetLibrary::getInstance();
         if (p.extension() == ".gltf")
         {
+            lithium::TimeMeasure::Handle handle{lithium::TimeMeasure::start("Loading " + p.filename().string())};
             std::vector<std::shared_ptr<lithium::Object>> objects;
             lib._gltfLoader.loadObjects(objects, p);
             std::for_each(objects.begin(), objects.end(), [&lib](std::shared_ptr<lithium::Object> o) {

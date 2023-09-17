@@ -17,6 +17,11 @@ lithium::ImageTexture* lithium::ImageTexture::load(const std::filesystem::path& 
     {
         colorFormat = GL_RGBA;
     }
+    else if(colorChannels == 1)
+    {
+        colorFormat = GL_RED;
+        internalFormat = GL_RED;
+    }
     ImageTexture* imageTexture = new lithium::ImageTexture(path, bytes, static_cast<GLuint>(width), static_cast<GLuint>(height),
         internalFormat, colorFormat, unpackAlignment, flip);
     stbi_image_free(bytes);
