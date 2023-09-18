@@ -52,6 +52,12 @@ namespace lithium
             for(auto renderable : _renderables)
             {
                 renderable->render(shaderProgram);
+                if(auto obj = dynamic_cast<lithium::Object*>(renderable))
+                {
+                    obj->forEachChild([shaderProgram](lithium::Object* child){
+                        child->render(shaderProgram);
+                    });
+                }
             }
         }
 

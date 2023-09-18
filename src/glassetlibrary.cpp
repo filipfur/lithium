@@ -25,3 +25,13 @@ lithium::AssetLibrary& lithium::AssetLibrary::getInstance()
     static AssetLibrary instance;
     return instance;
 }
+
+std::shared_ptr<lithium::Object> lithium::AssetLibrary::object(const std::string& name)
+{
+    auto it = _objects.find(name);
+    if(it != _objects.end())
+    {
+        return it->second;
+    }
+    return nullptr;
+}

@@ -59,10 +59,6 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
             shaderProgram->setUniform("u_roughness", material->roughness());
         }
     }
-
-    forEachChild([&shaderProgram](lithium::Object* child){
-        child->shade(shaderProgram);
-    });
 }
 
 void lithium::Object::draw() const
@@ -77,10 +73,6 @@ void lithium::Object::draw() const
     }
     _mesh->bind();
     _mesh->draw();
-    for(auto& child : _children)
-    {
-        child->draw();
-    }
 }
 
 void lithium::Object::updateModel()

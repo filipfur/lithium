@@ -113,7 +113,11 @@ namespace lithium
 
 		std::string objectName() const
 		{
-			return *_objectName;
+			if(_objectName)
+			{
+				return *_objectName;
+			}
+			return "";
 		}
 
 		void setMesh(std::shared_ptr<lithium::Mesh> mesh)

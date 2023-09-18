@@ -20,6 +20,8 @@ namespace lithium
 
         static AssetLibrary& getInstance();
 
+        std::shared_ptr<lithium::Object> object(const std::string& name);
+
     private:
         std::map<std::string, std::shared_ptr<lithium::Object>> _objects;
         gltf::Loader _gltfLoader;
