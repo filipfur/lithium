@@ -45,16 +45,19 @@ namespace lithium
         void setNormalMap(std::shared_ptr<lithium::ImageTexture> normalMap)
         {
             _normalMap = normalMap;
+            _textures.push_back(_normalMap);
         }
 
         void setDiffuseMap(std::shared_ptr<lithium::ImageTexture> diffuseMap)
         {
             _diffuseMap = diffuseMap;
+            _textures.push_back(_diffuseMap);
         }
 
         void setArmMap(std::shared_ptr<lithium::ImageTexture> armMap)
         {
             _armMap = armMap;
+            _textures.push_back(_armMap);
         }
 
         std::shared_ptr<lithium::ImageTexture> normalMap() const
@@ -72,6 +75,19 @@ namespace lithium
             return _armMap;
         }
 
+        size_t textureCount() const
+        {
+            return _textures.size();
+        }
+
+        void bindTextures()
+        {
+            for(GLuint i{0}; i < _textures.size(); ++i)
+            {
+                _textures.at(i)->Texture::bind(GL_TEXTURE0 + i);
+            }
+        }
+
     private:
         glm::vec4 _baseColor{1.0f, 1.0f, 1.0f, 1.0f};
         float _metallic{0.0f};
@@ -80,5 +96,6 @@ namespace lithium
         std::shared_ptr<lithium::ImageTexture> _normalMap{nullptr};
         std::shared_ptr<lithium::ImageTexture> _diffuseMap{nullptr};
         std::shared_ptr<lithium::ImageTexture> _armMap{nullptr};
+        std::vector<std::shared_ptr<lithium::ImageTexture>> _textures;
     };
 }

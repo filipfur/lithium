@@ -305,7 +305,13 @@ namespace gltf
             {
                 for(auto& image : _json["images"])
                 {
-                    const std::string uri = image["uri"].get<std::string>();
+                    std::string uri = image["uri"].get<std::string>();
+                    auto n = uri.find("%20");
+                    if(n != std::string::npos)
+                    {
+                        uri.replace(n, 3, " ");
+                    }
+
                     images.push_back(std::shared_ptr<lithium::ImageTexture>(lithium::ImageTexture::load(
                         filePath.parent_path() / uri,
                         GL_SRGB,
@@ -389,37 +395,40 @@ namespace gltf
             for(auto& mesh : _json["meshes"])
             {
                 const std::string name{mesh["name"]};
-                auto retMesh = std::make_shared<lithium::Mesh>(lithium::VertexArray::DrawFunction::ELEMENTS16);
+                auto retMesh = std::make_shared<lithium::Mesh>();
                 for(auto& primitive : mesh["primitives"])
                 {
-                    retMesh->bind();
+                    //retMesh->bind();
+                    auto vao = retMesh->createVertexArray(lithium::VertexArray::DrawFunction::ELEMENTS16);
+                    vao->bind();
                     for(const std::string attr : {"POSITION", "NORMAL", "TEXCOORD_0"})
                     {
                         int acsId = primitive["attributes"][attr].get<int>();
                         auto& accessor = _accessors.at(acsId);
                         if(accessor.componentType == GL_UNSIGNED_BYTE)
                         {
-                            retMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.ubData, accessor.componentType);
+                            vao->createArrayBuffer({toAttributeType(accessor.type)}, accessor.ubData, accessor.componentType);
                         }
                         else if(accessor.componentType == GL_UNSIGNED_INT)
                         {
-                            retMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.uiData, accessor.componentType);
+                            vao->createArrayBuffer({toAttributeType(accessor.type)}, accessor.uiData, accessor.componentType);
                         }
                         else if(accessor.componentType == GL_UNSIGNED_SHORT)
                         {
-                            retMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.usData, accessor.componentType);
+                            vao->createArrayBuffer({toAttributeType(accessor.type)}, accessor.usData, accessor.componentType);
                         }
                         else
                         {
-                            retMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.fData, accessor.componentType);
+                            vao->createArrayBuffer({toAttributeType(accessor.type)}, accessor.fData, accessor.componentType);
                         }
                     }
                     int acsId = primitive["indices"].get<int>();
-                    retMesh->createElementArrayBuffer(_accessors.at(acsId).usData);
+                    vao->createElementArrayBuffer(_accessors.at(acsId).usData);
                     if(primitive.contains("material"))
                     {
-                        retMesh->setMaterial(materials.at(primitive["material"].get<int>()));
+                        retMesh->appendMaterial(materials.at(primitive["material"].get<int>()));
                     }
+                    //break;
                 }
                 meshes.push_back(retMesh);
             }
@@ -433,19 +442,23 @@ namespace gltf
                 lithium::Node* n = _nodes.at(jnode.get<int>());
                 std::function<std::shared_ptr<lithium::Object>(lithium::Node*)> createObject = [&](lithium::Node* node)
                 {
-                    auto mesh = meshes.at(node->meshId());
+                    std::shared_ptr<lithium::Mesh> mesh{nullptr};
                     std::vector<lithium::Object::TexturePointer> textures;
-                    if(mesh->material() && mesh->material()->diffuseMap())
+                    if(node->meshId() != -1)
                     {
-                        textures.push_back(mesh->material()->diffuseMap());
-                    }
-                    if(mesh->material() && mesh->material()->normalMap())
-                    {
-                        textures.push_back(mesh->material()->normalMap());
-                    }
-                    if(mesh->material() && mesh->material()->armMap())
-                    {
-                        textures.push_back(mesh->material()->armMap());
+                        mesh = meshes.at(node->meshId());
+                        /*if(mesh->material() && mesh->material()->diffuseMap())
+                        {
+                            textures.push_back(mesh->material()->diffuseMap());
+                        }
+                        if(mesh->material() && mesh->material()->normalMap())
+                        {
+                            textures.push_back(mesh->material()->normalMap());
+                        }
+                        if(mesh->material() && mesh->material()->armMap())
+                        {
+                            textures.push_back(mesh->material()->armMap());
+                        }*/
                     }
                     auto obj = std::make_shared<lithium::Object>(lithium::Object(mesh, textures));
                     obj->setObjectName(node->name());
@@ -489,30 +502,31 @@ namespace gltf
                 skinnedObj.reset(new lithium::SkinnedObject(skinnedMesh, {imageTexture}));
                 for(auto& primitive : mesh["primitives"])
                 {
-                    skinnedMesh->bind();
+                    auto vao = skinnedMesh->vertexArray();
+                    vao->bind();
                     for(const std::string attr : {"POSITION", "NORMAL", "TEXCOORD_0", "JOINTS_0", "WEIGHTS_0"})
                     {
                         int acsId = primitive["attributes"][attr].get<int>();
                         auto& accessor = _accessors.at(acsId);
                         if(accessor.componentType == GL_UNSIGNED_BYTE)
                         {
-                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.ubData, accessor.componentType);
+                            vao->createArrayBuffer({toAttributeType(accessor.type)}, accessor.ubData, accessor.componentType);
                         }
                         else if(accessor.componentType == GL_UNSIGNED_INT)
                         {
-                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.uiData, accessor.componentType);
+                            vao->createArrayBuffer({toAttributeType(accessor.type)}, accessor.uiData, accessor.componentType);
                         }
                         else if(accessor.componentType == GL_UNSIGNED_SHORT)
                         {
-                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.usData, accessor.componentType);
+                            vao->createArrayBuffer({toAttributeType(accessor.type)}, accessor.usData, accessor.componentType);
                         }
                         else
                         {
-                            skinnedMesh->createArrayBuffer({toAttributeType(accessor.type)}, accessor.fData, accessor.componentType);
+                            vao->createArrayBuffer({toAttributeType(accessor.type)}, accessor.fData, accessor.componentType);
                         }
                     }
                     int acsId = primitive["indices"].get<int>();
-                    skinnedMesh->createElementArrayBuffer(_accessors.at(acsId).usData);
+                    vao->createElementArrayBuffer(_accessors.at(acsId).usData);
                 }
             }
 

@@ -36,6 +36,10 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
     {
         updateModel();
     }
+    if(_mesh == nullptr)
+    {
+        return;
+    }
 
     shaderProgram->use();
     shaderProgram->setUniform("u_color", color());
@@ -46,24 +50,11 @@ void lithium::Object::shade(lithium::ShaderProgram* shaderProgram)
     //shaderProgram->setUniform("u_texture_0", 0);
     //shaderProgram->setUniform("u_specular_0", 1);
     //shaderProgram->setUniform("u_normal_0", 2);
-    std::shared_ptr<lithium::Material> material = _mesh->material();
-    if(material)
-    {
-        if(material->diffuseMap() == nullptr)
-        {
-            shaderProgram->setUniform("u_base_color", material->baseColor());
-        }
-        if(material->armMap() == nullptr)
-        {
-            shaderProgram->setUniform("u_metallic", material->metallic());
-            shaderProgram->setUniform("u_roughness", material->roughness());
-        }
-    }
 }
 
 void lithium::Object::draw() const
 {
-    if(!visible())
+    if(!visible() || _mesh == nullptr)
     {
         return;
     }

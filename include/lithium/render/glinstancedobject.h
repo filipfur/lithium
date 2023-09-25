@@ -12,7 +12,22 @@ namespace lithium
         InstancedObject(std::shared_ptr<lithium::Mesh> mesh, const std::vector<lithium::Object::TexturePointer>& textures)
             : lithium::Object{mesh, textures}, _instancedArray{GL_ARRAY_BUFFER}
         {
-            mesh->setDrawFunction(lithium::VertexArray::DrawFunction::ELEMENTS_INSTANCED);
+            lithium::VertexArray::DrawFunction nextDrawFunc;
+            switch(mesh->vertexArray()->drawFunction())
+            {
+                case lithium::VertexArray::DrawFunction::ELEMENTS16:
+                    nextDrawFunc = lithium::VertexArray::DrawFunction::ELEMENTS16_INSTANCED;
+                    break;
+                case lithium::VertexArray::DrawFunction::ELEMENTS:
+                    nextDrawFunc = lithium::VertexArray::DrawFunction::ELEMENTS_INSTANCED;
+                    break;
+                default:
+                    std::cerr << "error: instancedobject does not support draw function "
+                        << static_cast<int>(mesh->vertexArray()->drawFunction()) << std::endl;
+                    exit(1);
+                    break;
+            }
+            mesh->vertexArray()->setDrawFunction(nextDrawFunc);
         }
 
         InstancedObject(const InstancedObject& other)
@@ -45,7 +60,7 @@ namespace lithium
         {
             _mesh->bind();
             _instancedArray.allocate(_instances);
-            _mesh->setInstanceCount(_instances.size());
+            _mesh->vertexArray()->setInstanceCount(_instances.size());
             _mesh->unbind();
         }
 
@@ -54,11 +69,25 @@ namespace lithium
         {
             _mesh->bind();
             //_instancedArray.bind();
-            int n = _mesh->vertexArrayBuffer(0)->numLayouts();
+            int n = 0;
+
+            for(size_t i{0}; i < _mesh->vertexArray()->vertexArrayBufferCount(); ++i)
+            {
+                n += _mesh->vertexArray()->vertexArrayBuffer(i)->numLayouts();
+            }
+
+            if(_mesh->vertexArrayCount() > 1)
+            {
+                std::cerr << "error: instacnedobject with multiple VAOs are not supported" << std::endl;
+                exit(1);
+            }
 
             for(auto && attribPtr : attribPtrs)
             {
-                _mesh->vertexArrayBuffer(0)->linkAttribPointer(n + attribPtr.layout(), attribPtr.numComponents(), attribPtr.type(), attribPtr.stride(), attribPtr.offset());
+                for(size_t i{0}; i < _mesh->vertexArray()->vertexArrayBufferCount(); ++i)
+                {
+                    _mesh->vertexArray()->vertexArrayBuffer(i)->linkAttribPointer(n + attribPtr.layout(), attribPtr.numComponents(), attribPtr.type(), attribPtr.stride(), attribPtr.offset());
+                }
                 glVertexAttribDivisor(n + attribPtr.layout(), 1);
             }
 

@@ -39,9 +39,9 @@ void lithium::Text::shade(lithium::ShaderProgram* shaderProgram)
         {
             _mesh->bind();
             //_mesh->vertexArrayBuffer(0)->bind();
-            _mesh->vertexArrayBuffer(0)->allocate(_vertices);
+            _mesh->vertexArray()->vertexArrayBuffer(0)->allocate(_vertices);
             //_mesh->elementArrayBuffer()->bind();
-            _mesh->elementArrayBuffer()->allocate(_indices);
+            _mesh->vertexArray()->elementArrayBuffer()->allocate(_indices);
             //delete _mesh;
             //_mesh = nullptr;
         }

@@ -14,7 +14,8 @@ namespace lithium
 			ARRAYS,
 			ELEMENTS,
 			ELEMENTS16,
-			ELEMENTS_INSTANCED
+			ELEMENTS_INSTANCED,
+			ELEMENTS16_INSTANCED
 		};
 
 		VertexArray(DrawFunction drawFunction) : _drawFunction{drawFunction}
@@ -146,6 +147,9 @@ namespace lithium
 				case DrawFunction::ELEMENTS_INSTANCED:
 					glDrawElementsInstanced(_drawMode, static_cast<GLuint>(_elementArrayBuffer->count()), GL_UNSIGNED_INT, 0, _instanceCount);
 					break;
+				case DrawFunction::ELEMENTS16_INSTANCED:
+					glDrawElementsInstanced(_drawMode, static_cast<GLuint>(_elementArrayBuffer->count()), GL_UNSIGNED_SHORT, 0, _instanceCount);
+					break;
 			}
 		}
 
@@ -159,9 +163,19 @@ namespace lithium
 			_drawFunction = drawFunction;
 		}
 
+		DrawFunction drawFunction() const
+		{
+			return _drawFunction;
+		}
+
 		void setInstanceCount(GLuint instanceCount)
 		{
 			_instanceCount = instanceCount;
+		}
+
+		size_t vertexArrayBufferCount() const
+		{
+			return _vertexArrayBuffers.size();
 		}
 
 	private:

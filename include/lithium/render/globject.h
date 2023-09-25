@@ -30,6 +30,46 @@ namespace lithium
 
 		virtual void shade(lithium::ShaderProgram* shaderProgram) override;
 
+		virtual void render(lithium::ShaderProgram* shaderProgram) override
+		{
+			shade(shaderProgram);
+			if(_mesh == nullptr || !visible())
+			{
+				return;
+			}
+			doShaderCallback();
+			for(size_t i{0}; i < _mesh->vertexArrayCount(); ++i)
+			{
+				std::shared_ptr<lithium::Material> material = _mesh->material(i);
+				if(material)
+				{
+					if(material->diffuseMap() == nullptr)
+					{
+						shaderProgram->setUniform("u_base_color", material->baseColor());
+					}
+					if(material->armMap() == nullptr)
+					{
+						shaderProgram->setUniform("u_metallic", material->metallic());
+						shaderProgram->setUniform("u_roughness", material->roughness());
+					}
+					if(material->textureCount() > 0)
+					{
+						material->bindTextures();
+						_mesh->bind(i);
+    					_mesh->draw(i);
+					}
+					else
+					{
+						draw();
+					}
+				}
+				else
+				{
+	            	draw();
+				}
+			}
+		}
+
         lithium::Object* setTextures(const std::vector<TexturePointer>& textures)
 		{
 			_textures = textures;
@@ -269,6 +309,11 @@ namespace lithium
 			{
 				callback(child.get());
 			}
+		}
+
+		std::shared_ptr<lithium::Object> child(size_t index)
+		{
+			return _children.at(index);
 		}
 
 	protected:

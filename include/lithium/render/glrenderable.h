@@ -21,14 +21,19 @@ namespace lithium
 
         virtual void draw() const = 0;
 
-        void render(lithium::ShaderProgram* shaderProgram)
+        virtual void render(lithium::ShaderProgram* shaderProgram)
         {
             shade(shaderProgram);
+            doShaderCallback();
+            draw();
+        }
+
+        void doShaderCallback()
+        {
             if(_shaderCallback)
             {
-                _shaderCallback(this, shaderProgram);
+                _shaderCallback(this, nullptr);
             }
-            draw();
         }
 
         // Constructor that counts number of Renderables created

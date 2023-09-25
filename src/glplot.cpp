@@ -53,8 +53,8 @@ Plot::Plot(glm::vec2 resolution, size_t maxPoints) : lithium::Object{std::make_s
     GLuint maxVertexSize = static_cast<GLuint>((maxPoints * 2 + 2) * sizeof(GLfloat));
     GLuint maxIndexSize = static_cast<GLuint>((maxPoints * 2 + 2) * sizeof(GLuint));
 
-    _mesh->vertexArrayBuffer(0)->allocate(maxVertexSize, GL_DYNAMIC_DRAW);
-    _mesh->elementArrayBuffer()->allocate(maxIndexSize, GL_DYNAMIC_DRAW);
+    _mesh->vertexArray()->vertexArrayBuffer(0)->allocate(maxVertexSize, GL_DYNAMIC_DRAW);
+    _mesh->vertexArray()->elementArrayBuffer()->allocate(maxIndexSize, GL_DYNAMIC_DRAW);
 }
 
 Plot::~Plot() noexcept
@@ -84,7 +84,7 @@ void Plot::addPoint(const glm::vec2& point)
         0 + n, 2 + n, 3 + n  // second triangle
     };
     _mesh->bind();
-    _mesh->vertexArrayBuffer(0)->appendSubData(toFloatVector(lineSegmentVertices));
-    _mesh->elementArrayBuffer()->appendSubData(lineSegmentIndices);
+    _mesh->vertexArray()->vertexArrayBuffer(0)->appendSubData(toFloatVector(lineSegmentVertices));
+    _mesh->vertexArray()->elementArrayBuffer()->appendSubData(lineSegmentIndices);
     _points.push_back(point);
 }

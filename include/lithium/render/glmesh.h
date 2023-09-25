@@ -11,30 +11,41 @@
 
 namespace lithium
 {
-	class Mesh : public VertexArray
+	class Mesh
 	{
 	public:
 
-		Mesh(DrawFunction drawFunction) : VertexArray{drawFunction}
+		using MaterialList = std::vector<std::shared_ptr<lithium::Material>>;
+		using VertexArrayList = std::vector<std::shared_ptr<lithium::VertexArray>>;
+
+		Mesh() : _materials{}, _vaos{}
 		{
-			
+
 		}
 
-		Mesh(const Mesh& other) : VertexArray{other}, _material{other._material}
+		Mesh(VertexArray::DrawFunction drawFunction)
 		{
+			createVertexArray(drawFunction);
+		}
+
+		Mesh(const Mesh& other) : _materials{other._materials}
+		{
+			for(auto& vao : other._vaos)
+			{
+				_vaos.push_back(std::make_shared<lithium::VertexArray>(*vao));
+			}
 		}
 
 		Mesh(const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes,
 			const std::vector<GLfloat>& vertices)
-			: VertexArray(DrawFunction::ARRAYS, attributes, vertices)
 		{
-			
+			_vaos.push_back(std::make_shared<VertexArray>(VertexArray::DrawFunction::ARRAYS, attributes, vertices));
 		}
 
 		Mesh(const std::vector<lithium::VertexArrayBuffer::AttributeType>& attributes,
 			const std::vector<GLfloat>& vertices, const std::vector<GLuint>& indices)
-			: VertexArray{DrawFunction::ELEMENTS, attributes, vertices, indices}
 		{
+			_vaos.push_back(std::make_shared<VertexArray>(VertexArray::DrawFunction::ELEMENTS, attributes, vertices, indices));
 		}
 
 		virtual ~Mesh() noexcept
@@ -46,16 +57,60 @@ namespace lithium
 			return new lithium::Mesh(*this);
 		}
 
-		void setMaterial(std::shared_ptr<lithium::Material> material)
+		void setMaterials(const MaterialList& materials)
 		{
-			_material = material;
+			_materials = materials;
 		}
 
-		std::shared_ptr<lithium::Material> material() const
+		std::shared_ptr<VertexArray> createVertexArray(VertexArray::DrawFunction drawFunction)
 		{
-			return _material;
+			auto vao = std::make_shared<VertexArray>(drawFunction);
+			_vaos.push_back(vao);
+			return vao;
 		}
+
+		std::shared_ptr<lithium::Material> material(size_t index=0) const
+		{
+			return index < _materials.size() ? _materials.at(index) : nullptr;
+		}
+
+		std::shared_ptr<lithium::VertexArray> vertexArray(size_t index=0) const
+		{
+			return _vaos.at(index);
+		}
+
+		size_t materialCount() const
+		{
+			return _materials.size();
+		}
+
+		size_t vertexArrayCount() const
+		{
+			return _vaos.size();
+		}
+
+		void bind(size_t index = 0)
+		{
+			_vaos.at(index)->bind();
+		}
+
+		void draw(size_t index = 0)
+		{
+			_vaos.at(index)->draw();
+		}
+
+		void unbind()
+		{
+			_vaos.at(0)->unbind();
+		}
+
+		void appendMaterial(const std::shared_ptr<lithium::Material>& material)
+		{
+			_materials.push_back(material);
+		}
+
 	private:		
-		std::shared_ptr<lithium::Material> _material{nullptr};
+		MaterialList _materials;
+		VertexArrayList _vaos;
 	};
 }

@@ -2,6 +2,12 @@
 
 lithium::ImageTexture* lithium::ImageTexture::load(const std::filesystem::path& path, GLenum internalFormat, GLenum colorFormat, GLuint unpackAlignment, bool flip)
 {
+    if(!std::filesystem::exists(path))
+    {
+        std::cerr << "File does not exist: " << path << std::endl;
+        return nullptr;
+    }
+
     stbi_set_flip_vertically_on_load(flip);
     int width, height, colorChannels;
     unsigned char* bytes = stbi_load(path.string().c_str(), &width, &height, &colorChannels, 0);
