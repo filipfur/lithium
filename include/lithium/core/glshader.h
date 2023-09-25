@@ -9,6 +9,7 @@
 #include <vector>
 #include <regex>
 #include <set>
+#include <iomanip>
 
 #include "glfilewatch.h"
 
@@ -119,6 +120,53 @@ namespace lithium
 				_source = readFile(_fileName);
 				std::filesystem::path filePath{_fileName};
 				_source = expandSource(filePath.parent_path(), _source);
+				auto i = _source.find("#", 1);
+				while(i != std::string::npos)
+				{
+					int j = i + 1;
+					while(std::isalnum(_source.at(j)) && j < (i + 9))
+					{
+						++j;
+					}
+					std::stringstream ss;
+					uint32_t color;
+					int len = j - i;
+					int components{0};
+					if(len == 7) // #rrggbb
+					{
+						ss << std::hex << (_source.substr(i+1, 6) + "00");
+						ss >> color;
+						components = 3;
+					}
+					else
+					{
+						std::cerr << "Unssuported tag in shader: " << _fileName << std::endl;
+						exit(1);
+					}
+					
+					float r = ((color >> 24) & 0xFF) / 255.0f;
+					float g = ((color >> 16) & 0xFF) / 255.0f;
+					float b = ((color >> 8) & 0xFF) / 255.0f;
+					float a = (color & 0xFF) / 255.0f;
+
+					ss.str("");
+					ss.clear();
+
+					ss << std::fixed << std::setprecision(2) << "vec" << components << "(";
+					if(components >= 3)
+					{
+						ss << r << ", " << g << ", " << b; 						
+					}
+					if(components == 4)
+					{
+						ss << ", " << a;
+					}
+					ss << ")";
+
+					_source.replace(i, len, ss.str());
+
+					i = _source.find("#", i);
+				}
 			}
 			const char* src = _source.c_str();
 			glShaderSource(_id, 1, &src, nullptr);
