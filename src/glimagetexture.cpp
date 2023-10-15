@@ -22,6 +22,10 @@ lithium::ImageTexture* lithium::ImageTexture::load(const std::filesystem::path& 
     else if(colorChannels == 4 && colorFormat == GL_RGB)
     {
         colorFormat = GL_RGBA;
+        if(internalFormat == GL_SRGB)
+        {
+            internalFormat = GL_SRGB_ALPHA;
+        }
     }
     else if(colorChannels == 1)
     {

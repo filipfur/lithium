@@ -11,7 +11,6 @@ namespace lithium
     class AssetLibrary
     {
     public:
-        static void loadGLTF(const std::filesystem::path& assetDir);
 
         std::map<std::string, std::shared_ptr<lithium::Object>>::iterator begin() { return _objects.begin(); }
         std::map<std::string, std::shared_ptr<lithium::Object>>::iterator end() { return _objects.end(); }
@@ -20,7 +19,9 @@ namespace lithium
 
         static AssetLibrary& getInstance();
 
-        static std::shared_ptr<lithium::Object> object(const std::string& name);
+        void loadGLTF(const std::filesystem::path& assetDir);
+
+        std::shared_ptr<lithium::Object> object(const std::string& name);
 
     private:
         std::map<std::string, std::shared_ptr<lithium::Object>> _objects;
