@@ -21,7 +21,9 @@ namespace lithium
     public:
         enum class Mode
         {
-            DEFAULT, MULTISAMPLED_4X
+            DEFAULT,
+            MULTISAMPLED_4X,
+            MULTISAMPLED_8X
         };
 
         Application(const std::string& title, glm::ivec2 windowResolution, Mode mode=Mode::MULTISAMPLED_4X,
@@ -44,6 +46,9 @@ namespace lithium
                     break;
                 case Mode::MULTISAMPLED_4X:
                     glfwWindowHint(GLFW_SAMPLES, 4);
+                    break;
+                case Mode::MULTISAMPLED_8X:
+                    glfwWindowHint(GLFW_SAMPLES, 8);
                     break;
             }
 

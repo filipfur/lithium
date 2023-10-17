@@ -124,6 +124,11 @@ namespace lithium
 			return this;
 		}
 
+		const glm::quat& quaternion() const
+		{
+			return _quaternion;
+		}
+
 		const glm::vec3& rotation() const
 		{
 			return _rotation;
