@@ -24,15 +24,15 @@ namespace lithium
         virtual void render(lithium::ShaderProgram* shaderProgram)
         {
             shade(shaderProgram);
-            doShaderCallback();
+            doShaderCallback(shaderProgram);
             draw();
         }
 
-        void doShaderCallback()
+        void doShaderCallback(lithium::ShaderProgram* shaderProgram)
         {
             if(_shaderCallback)
             {
-                _shaderCallback(this, nullptr);
+                _shaderCallback(this, shaderProgram);
             }
         }
 

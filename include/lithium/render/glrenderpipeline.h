@@ -49,6 +49,11 @@ namespace lithium
             _resolution = resolution;
         }
 
+        const glm::ivec2& resolution() const
+        {
+            return _resolution;
+        }
+
         void attach(lithium::Renderable* renderable)
         {
             for(auto renderGroup : _renderGroups)

@@ -37,7 +37,7 @@ namespace lithium
 			{
 				return;
 			}
-			doShaderCallback();
+			doShaderCallback(shaderProgram);
 			for(size_t i{0}; i < _mesh->vertexArrayCount(); ++i)
 			{
 				std::shared_ptr<lithium::Material> material = _mesh->material(i);
