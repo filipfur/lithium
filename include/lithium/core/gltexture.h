@@ -109,6 +109,11 @@ namespace lithium
 			return this;
 		}
 
+		T* bytes() const
+		{
+			return _bytes;
+		}
+
 		int width() const
 		{
 			return _width;
@@ -213,11 +218,6 @@ namespace lithium
 			}	
 		}
 
-		T* bytes() const
-		{
-			return _bytes;
-		}
-
 		GLenum type() const
 		{
 			return _type;
@@ -251,6 +251,11 @@ namespace lithium
 		void setColorFormat(GLenum colorFormat)
 		{
 			_colorFormat = colorFormat;
+		}
+
+		void free()
+		{
+			_bytes = nullptr;
 		}
 
 	private:

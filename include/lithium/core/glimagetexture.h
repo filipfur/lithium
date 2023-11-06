@@ -12,7 +12,9 @@ namespace lithium
     class ImageTexture : public Texture<unsigned char>
     {
         public:
-            static ImageTexture* load(const std::filesystem::path& path, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint unpackAlignment=4, bool flip=true);
+            static ImageTexture* load(const std::filesystem::path& path, GLenum internalFormat=GL_RGBA, GLenum colorFormat=GL_RGBA, GLuint unpackAlignment=4, bool flip=true, bool free=true);
+
+            void save();
 
             std::filesystem::path path() const;
 
@@ -20,11 +22,13 @@ namespace lithium
 
             virtual void bind() override;
 
+            void reloadBytes();
+
         private:
             ImageTexture(const std::filesystem::path& path, unsigned char* buffer, int width, int height, GLenum internalFormat, GLenum colorFormat, GLuint unpackAlignment, bool flip);
 
-            void reload();
-        
+            void reloadFile();
+
             const std::filesystem::path _path;
             bool _flip{true};
             std::shared_ptr<FileWatch> _fileWatch;

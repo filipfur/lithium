@@ -1,6 +1,8 @@
 #include "glimagetexture.h"
 
-lithium::ImageTexture* lithium::ImageTexture::load(const std::filesystem::path& path, GLenum internalFormat, GLenum colorFormat, GLuint unpackAlignment, bool flip)
+#include "stb_image_write.h"
+
+lithium::ImageTexture* lithium::ImageTexture::load(const std::filesystem::path& path, GLenum internalFormat, GLenum colorFormat, GLuint unpackAlignment, bool flip, bool free)
 {
     if(!std::filesystem::exists(path))
     {
@@ -34,8 +36,20 @@ lithium::ImageTexture* lithium::ImageTexture::load(const std::filesystem::path& 
     }
     ImageTexture* imageTexture = new lithium::ImageTexture(path, bytes, static_cast<GLuint>(width), static_cast<GLuint>(height),
         internalFormat, colorFormat, unpackAlignment, flip);
-    stbi_image_free(bytes);
+    if(free)
+    {
+        stbi_image_free(bytes);
+        imageTexture->free();
+    }
     return imageTexture;
+}
+
+void lithium::ImageTexture::save()
+{
+    stbi_write_png(_path.string().c_str(),
+                width(), height(), 4,
+                bytes(),
+                0);
 }
 
 std::filesystem::path lithium::ImageTexture::path() const
@@ -54,11 +68,11 @@ void lithium::ImageTexture::bind()
     lithium::Texture<unsigned char>::bind();
     if(_changed)
     {
-        reload();
+        reloadFile();
     }
 }
 
-void lithium::ImageTexture::reload()
+void lithium::ImageTexture::reloadFile()
 {
     stbi_set_flip_vertically_on_load(_flip);
     int width, height, colorChannels;
@@ -85,6 +99,13 @@ void lithium::ImageTexture::reload()
     stbi_image_free(bytes);
     //unbind();
     _changed = false;
+}
+
+void lithium::ImageTexture::reloadBytes()
+{
+    assert(bytes() != nullptr);
+    lithium::Texture<unsigned char>::loadBytes(bytes());
+    errorCheck();
 }
 
 lithium::ImageTexture* lithium::ImageTexture::watch()
